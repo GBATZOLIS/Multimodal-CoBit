@@ -1,0 +1,180 @@
+\section{Image experiments}
+\label{app:image}
+\note{Georgios: additional results and experimental details.}
+
+\section{Audio and text experiments}
+\label{app:audio}
+\note{George: additional results and experimental details.}
+
+\subsection{Experimental Details} \label{app:audio:exp}
+
+\subsubsection{Training with Ground-Truth Speaker Features} \label{app:audio:exp:training}
+
+For all three conditional tasks, BiCodec-global speaker tokens are part of the condition. For ASR, speaker tokens are extracted from the full speech signal, which is always provided as input. As already mentioned in Subsection \ref{sec:exp:audio}, inference-time speaker tokens are extracted from the audio prompt for continuation and from a held-out recording for TTS to rule out information leakage. During training, however, speaker features from the full ground truth audio samples are used for all tasks. This forces CoBit to learn a tighter relationship between speaker features and speech tokens, accounting for the variability in BiCodec-global, which is does not guarantee that all recordings of the same speaker produce identical outputs. A training-inference mismatch is therefore introduced to facilitate unified training.
+
+\subsubsection{Evaluation Protocol} \label{app:audio:exp:eval}
+
+% Paragraph 1: Tasks + Whisper transcription
+
+CoBit is evaluated on four text-audio tasks: co-generation, speech continuation, TTS and ASR. The goal is to generate consistent streams of text and audio with fluent, intelligible and natural content. To assess the linguistic properties of generated speech signals, we transcribe them using an external \texttt{Whisper-large} \citep{audio:whisper} ASR model.
+
+% Paragraph 2: Text-related metrics (+ LLM-as-a-Judge prompt)
+
+The alignment between two text sequences is quantified as the percentage of mismatches at word (WER) or character (CER) level. For co-generation, error rates are computed between the two generated sequences; for TTS, between reference text and the transcriptions of the generated audio; for ASR, between reference and generated text. The fluency of a text sequence us measured by its perplexity under an external language model (in this case \texttt{Llama-3.2 1B}). The metric is denoted GenPPL and is computed separately for each modality in co-generation  and for speech transcriptions in speech continuation. To further determine the conceptual relevancy of produced continuations, \texttt{GPT-4o} is employed in LLM-as-a-Judge fashion, assigning each continuation a score from 1 to 5. The system message is taken directly from \cite{audio:taste} and presented in Figure \ref{fig:audio:llm}.
+
+\begin{figure}
+    \includegraphics[width=\linewidth]{figures/audio/llm.png}
+    \caption{LLM-as-a-Judge system message. The \texttt{prompt} and \texttt{content} placeholders are replaced with the relevant transcriptions}
+    \label{fig:audio:llm}
+\end{figure}
+
+% Paragraph 3: Audio-related metrics
+
+The most reliable evaluation of generated audio is human perception, which we approximate by UTMOS \citep{audio:utmos}, a neural mean opinion score (MOS) predictor that evaluates naturalness in the 1-5 scale (1: bad, 2: poor, 3: fair, 4: good, 5: excellent). In zero-shot TTS, however, natural-sounding audio is insufficient; the goal is to also replicate the voice in the original utterance. This is captured by speaker similarity (SpkSim), which is computed as the cosine similarity between the outputs of an ECAPA-TDNN speaker verification model. For speech continuation, we are also interested in how closely the generated audio follow the distribution of ground-truth continuations. We thus measure Fr\'echet Speech Distance (FSD), an adaptation of the FID metric to audio. Population statistics are extracted from self-supervised representations of the true and generated continuations, and their Fr\'echet distance is calculated. Following previous work \citep{audio:flow-slm}, two variants are considered: FSD-wlm, which is based on embeddings from the 6th layer of \texttt{WavLM-large} \citep{audio:wavlm} to measure frame-level match and FSD-e2v, which is based on expressiveness representations from \texttt{Emotion2Vec} \citep{audio:emotion2vec}. FSD metrics do not evaluate the quality of the generated audio; they capture its population-level resemblance to the original continuations.
+
+% Paragraph 4: Generation-based SALMON benchmark
+
+The SALMON benchmark is used for acoustic evaluation. In its original form, SALMON creates replicas of short speech recordings where the start remains identical, but some paralinguistic property (sentiment, speaker identity/gender, background, room) is modified midway. SLMs receive an accuracy score related to how often the positive example is assigned higher likelihood than the negative one. Given the incompatibility of likelihood-based evaluation for diffusion models that was already introduced in Subsection \ref{sec:exp:audio}, we turn to a generation-based alternative SALMON formulation \citep{audio:gen-salmon}. The examined SLM produces a continuation of the shared start of the two examples, and a judge model calculated embeddings for the positive, negative and generated continuations. The SLM then receives an accuracy score based on how often the generated continuation is closer to the positive example rather than the negative one, in terms of cosine similarity in the embedding space. \texttt{TITANET} \citep{audio:titanet} is used as the judge for sentiment, speaker and gender tasks; \texttt{HuBERT-large-audioset} and \texttt{Wav2Vec2-large-audioset} are used for background and room tasks, respectively.
+
+Experimental directions that heavily rely on information that SLMs most commonly learn through text-initialization, such as spoken question answering or dialogue-based evaluation, were omitted from this work, as CoBit is initialized from scratch and is considerably smaller than state of the art dialogue systems.
+
+\subsubsection{Baselines} \label{app:audio:exp:baselines}
+
+% Paragraph 1: Multimodal SLMs/Hybrids (SpiritLM, TASLM, Moshi, GPA)
+
+The most comparable text-audio baselines for CoBit are models that learn to generate both text and speech. TASLM \citep{audio:taste} generates the two modalities jointly, leveraging continuous text-aligned speech representations from the TASTE encoder and implementing separate prediction heads. The semantic equivalence of text units and speech embeddings bridges the gap between audio and text generation, producing linguistically fluent and conceptually consistent audio. Other approaches focus on systems that can be extended to cross-modal tasks as well. SpiritLM \citep{audio:spirit-lm} is trained on interleaved text-audio sequences, introducing an expressive variant for additional control over pitch and style. SpiritLM models can perform TTS and ASR via task-specific fine-tuning and few-shot prompting. Moshi \citep{audio:moshi} is a spoken dialogue system that produces text parallel to speech as an inner monologue that steers generation towards intelligible sentences. Its cross-modal capabilities arise by introducing a time delay on the generated stream and inference-time teacher-forcing on the conditioning stream. GPA \citep{audio:gpa} is a multi-task autoregressive hybrid that treats TTS and ASR as conditional language modelling problems. It is the closest method to CoBit in terms of scale, multi-task joint training and initialization from scratch, but it is limited to cross-conditional tasks and cannot perform speech language modelling. However, all of these models require task-specific design and modifications for TTS and ASR, in contrast to CoBit.
+
+% Paragraph 2: Speech-only SLMs (FlowSLM, Llama-Mimi)
+
+In the context of speech generation, additional comparisons can be drawn to text-less SLMs, which mainly rely on the powerful Mimi tokenizer to trade off the semantic benefits of text generation with fine-grained acoustic details. Llama-Mimi \citep{audio:llama-mimi} autoregressively predicts each Mimi layer, leveraging RVQ's conditional nature: each code is generated conditioned on both the previous tokens and the earlier codebooks of the same token. Flow-SLM \citep{audio:flow-slm} exploits Mimi's semantic-acoustic combination for cascaded prediction, breaking the strictly autoregressive paradigm: a causal transformer predicts the semantically distilled first RVQ layer; then, unquantized Mimi embeddings are inferred with flow matching, conditional on look-ahead semantic tokens.
+
+% Paragraph 3: Cascade for Co-generation
+
+
+
+\begin{table}
+\centering
+\begin{tabular}{l ccccc}
+\toprule
+Model & Parameter Count & Modalities & Text Initialized & \makecell{Speaker- \\ Conditioned \\ Decoder} & Method \\
+\midrule
+\makecell[l]{Flow-SLM-S \\ Flow-SLM-L \\ Flow-SLM-Ext.} & \makecell{$395$M \\ $1.25$B \\ $1.25$B} & Speech-only & \ding{51} & \ding{55} & \makecell{Semi- \\ Autoregressive \\ (flow matching)} \\
+\midrule
+\makecell[l]{SpiritLM-Base \\ SpiritLM-Exp.} & $7$B & Speech+text & \ding{51} & \ding{51} & \makecell{Word-level \\ interleaving} \\
+\midrule
+Llama-Mimi & $1.3$B & Speech-only & \ding{51} & \ding{55} & Flattened RVQ \\
+\midrule
+TASLM-Embed & $1.3$B & Speech+text & \ding{51} & \ding{51} & \makecell{Speech-text \\ alignment} \\
+\midrule
+GPA-v1.5 & $505$M & Speech+text & \ding{55} & \ding{51} & \makecell{Autoregressive \\ TTS-ASR Hybrid} \\
+\midrule
+Cascade & $640$M & Speech+text & \ding{51} & \ding{51} & \makecell{Text LM + \\ Speaker Sampler + \\ TTS} \\
+\bottomrule
+\end{tabular}
+\caption{Overview of text-audio baselines. Parameter counts refer to the generative models themselves and exclude the encoders and decoders. The only difference between Flow-SLM-L and Flow-SLM-Ext. is that the latter is trained on an augmented audio corpus.} 
+\label{tab:app:audio:baselines}
+\end{table}
+
+\subsection{Additional Results} \label{app:audio:results}
+
+\begin{table}
+\centering
+\begin{tabular}{l ccccc}
+\toprule
+Model & WER (\%) $\downarrow$ & CER (\%) $\downarrow$ & GenPPL-Text $\downarrow$ & GenPPL-Speech $\downarrow$ & UTMOS $\uparrow$ \\
+\midrule
+\multicolumn{6}{l}{\textbf{SmolLM+Speaker Transformer+Spark-TTS Cascade}} \\
+\midrule
+Unfiltered & $3.2$ & $3.1$ & $122$ & $1,648$ & $4.23$ \\
+Filtered & $2.8$ & $2.5$ & $109.8$ & $1,473.3$ & $4.24$ \\
+\midrule
+\multicolumn{6}{l}{\textbf{CoBit}} \\
+\midrule
+$\text{NFE}=256$ & $5.7$ & $3.6$ & $240.2$ & $145.3$ & $3.73$ \\
+$\text{NFE}=512$ & $3.7$ & $2.3$ & $280$ & $141.2$ & $3.78$ \\
+\bottomrule
+\end{tabular}
+\caption{Joint generation performance, computed by generating $1,024$ samples. Speech perplexity for the cascade system is high, as SmolLM produces multilingual sequences or web/code artifacts that are not transferable to speech. Filtering out these rows substantially improves GenPPL-speech.}
+\label{tab:app:audio:co-generation}
+\end{table}
+
+\begin{table}
+\centering
+\begin{tabular}{l ccccc}
+\toprule
+Model  & UTMOS $\uparrow$ & FSD-wlm $\downarrow$ & FSD-e2v $\downarrow$ & GenPPL $\downarrow$ & GPT-4o $\uparrow$\\
+\midrule
+\multicolumn{6}{l}{\textbf{Autoregressive SLMs}} \\
+\midrule
+Flow-SLM-S & $2.47$ & $3,391.4$ & $35.7$ & $242.8$ & $1.1$ \\
+Flow-SLM-L & $3.48$ & $3,476.4$ & $35.4$ & $131.7$ & $1.57$ \\
+Flow-SLM-Ext. & $3.47$ & $3,445.1$ & $33$ & $122.4$ & $1.67$ \\
+SpiritLM-Base & $3.2$ & $7,325.4$ & $26.8$ & $101.4$ & $2$ \\
+SpiritLM-Exp. & $3.17$ & $6,293.6$ & $16.9$ & $153.2$ & $1.62$ \\
+Llama-Mimi & $3.18$ & $3,621$ & $14.1$ & $98.5$ & $1.58$ \\
+TASLM-Embed & $4.16$ & $1,410.3$ & $9.9$ & $38.6$ & $3.42$ \\
+\midrule
+\multicolumn{6}{l}{\textbf{CoBit}} \\
+\midrule
+$\text{NFE}=256$ & $3.9$ & $2,183.7$ & $11.9$ & $85.2$ & $1.44$ \\
+$\text{NFE}=512$ & $3.89$ & $2,386.3$ & $13$ & $83.6$ & $1.45$ \\
+\bottomrule
+\end{tabular}
+\caption{Speech continuation performance on LibriSpeech-PC test-clean. GPT-4o and GenPPL are computed on the transcription of the generated speech. For GenPPL, the transcriptions of the prompt and the generated continuation are concatenated. The prompt audio is fixed to the first 3 seconds of each test sample.}
+\label{tab:app:audio:continuation}
+\end{table}
+
+\begin{table}
+\centering
+\begin{tabular}{l cccccc}
+\toprule
+Model & Sentiment & Speaker & Gender & Bg.- Domain & Bg.- Random & Room \\
+\midrule
+\multicolumn{7}{l}{\textbf{Autoregressive SLMs}} \\
+\midrule
+Flow-SLM-S* & $85$ & $87$ & $92.5$ & $77$ & $86$ & $69.5$ \\
+Flow-SLM-L* & $92.5$ & $99.5$ & $99$ & $77$ & $84.5$ & $77$ \\
+Flow-SLM-Ext.* & $93$ & $98$ & $100$ & $77$ & $86.5$ & $85.5$\\
+SpiritLM-Base* & $47.5$ & $52$ & $50.5$ & $50.5$ & $52.5$ & $50$ \\
+SpiritLM-Exp.* & $72$ & $54$ & $56$ & $58.5$ & $55.5$ & $54.5$ \\
+Llama-Mimi* & $93$ & $90$ & $95$ & $81$ & $90$ & $78.5$ \\
+TASLM-Embed* & $95$ & $100$ & $100$ & $61.5$ & $54.5$ & $57.5$\\
+\midrule
+\multicolumn{7}{l}{\textbf{CoBit}} \\
+\midrule
+$\text{NFE}=256$ & $90$ & $94.5$ & $97$ & $69$ & $81$ & $74$ \\
+$\text{NFE}=512$ & $90.5$ & $93$ & $93.5$ & $73.5$ & $80$ & $75.5$ \\
+\bottomrule
+\end{tabular}
+\caption{Speech continuation performance across the consistency tasks of the SALMON benchmark for generation-based evaluation. Each model generates a continuation for each prompt, and accuracy scores are computed for each task by comparing the cosine similarity of the generated continuation with the positive and negative examples. Different embedding models are used for each task, specified in Appendix \ref{app:audio}.}
+\label{tab:app:audio:salmon}
+\end{table}
+
+\begin{table}
+\centering
+\begin{tabular}{l cccccc}
+\toprule
+& \multicolumn{4}{c}{Text-to-Speech} & \multicolumn{2}{c}{Speech-to-Text} \\
+\cmidrule(lr){2-5} \cmidrule(lr){6-7}
+Model & WER\% $\downarrow$ & CER\% $\downarrow$ & SpkSim $\uparrow$ & UTMOS $\uparrow$  & \makecell{WER\% $\downarrow$ \\ Clean} & \makecell{WER\% $\downarrow$ \\ Other} \\
+\midrule
+\multicolumn{7}{l}{\textbf{Autoregressive SLMs/Hybrids}} \\
+\midrule
+SpiritLM-Base* & - & $6.7$ & - & - & $6$ & $11$\\
+Moshi* & $4.7$ & - & - & - & $5.7$ & - \\
+GPA-v1.5 & $3.1$ & $3.1$ & $0.4$ & $4.37$ & $3.4$ & $6.3$ \\
+\midrule
+\multicolumn{7}{l}{\textbf{CoBit}} \\
+\midrule
+$\text{NFE}=256$ & $5.3$ & $4.9$ & $0.27$ & $4.03$ & $8.1$ & $22.4$ \\
+$\text{NFE}=512$ & $5.3$ & $4.1$ & $0.27$ & $4$ & $8.2$ & $22$ \\
+\bottomrule
+\end{tabular}
+\caption{Text-to-speech and Speech-to-text performance on LibriSpeech-PC. For text-to-speech, evaluation is conducted on the test-clean partition. For each speaker in the dataset, one sample was held out to extract speaker features. Speech-to-text evaluation is conducted on test-clean and test-other partitions separately.}
+\label{tab:app:audio:cross-modal}
+\end{table}
+
+
+\section{Protein sequence and structure experiments}
+\label{app:protein}
+\note{Bruno: additional results and experimental details for reproducibility.}

@@ -1,0 +1,48 @@
+\documentclass{article}
+\usepackage{iclr2026_conference,times}
+\input{math_commands.tex}
+
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb}
+\usepackage{xcolor}
+\usepackage{makecell}
+
+\usepackage{pifont}
+\newcommand{\cmark}{\ding{51}} % Tick
+\newcommand{\xmark}{\ding{55}} % Cross
+
+% Editing prompts. Set \draftmodefalse to hide them for a clean copy.
+\newif\ifdraftmode
+\draftmodetrue
+\ifdraftmode
+  \newcommand{\note}[1]{{\color{gray}\textit{[#1]}}}
+\else
+  \newcommand{\note}[1]{}
+\fi
+
+\title{Universal Multimodal Co-Generation with Continuous Bitstream Diffusion}
+\author{Anonymous authors\\Paper under double-blind review}
+
+% \iclrfinalcopy
+
+\begin{document}
+
+\maketitle
+
+\input{sections/00_abstract}
+\input{sections/01_introduction}
+\input{sections/02_related_work}
+\input{sections/03_method}
+\input{sections/04_experiments}
+\input{sections/05_discussion}
+
+\bibliography{iclr2026_conference}
+\bibliographystyle{iclr2026_conference}
+
+\appendix
+\input{sections/A_appendix}
+
+\end{document}

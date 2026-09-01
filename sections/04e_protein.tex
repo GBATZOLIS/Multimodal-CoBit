@@ -1,0 +1,30 @@
+\subsection{Protein sequence and structure}
+\label{sec:exp:protein}
+\note{Bruno to write: protein sequence and structure results and comparisons.}
+
+Next, experiments on protein join-co generation. Can the model be used for generation of protein sequences and structrures.\\
+
+\textbf{tokenizer} consistents of 18 bits: 5 bits for protein sequence which can represent the 20 canonical residues plus specials. 13 bits frome from structure LFQ from DPLM-2 which (...)\\
+
+We trained on X thousand structures of UniRef50, clusterd at 30\% identity. Each task was evaluated on relevant datasets (...) like CAMEO/ATLAS for forward folding, CATH 4.3 for inverse folding....
+
+We tested on 13 tasks but the moost relevant ones:
+
+... Table 1: inverse folding ...
+
+.... Table 2: forward folding ....
+
+.... Table 3: co-generation .....
+
+ROW: Model / variant
+Column: Metric; 
+
+
+Promising results without tuning
+
+Full training and evaluation configs can be found on appendix X
+
+(WE NEED A BLOCK to justify we're not trying to beat ESM-3 or DPLM-2 in this occasion; A separate, dedicated model should be done -- we will do it)
+
+We demonstrate that this could be used for multi-modal generation although we do not claim this is a foundation model. 
+

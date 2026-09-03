@@ -1,6 +1,398 @@
-\section{Image experiments}
+\section{Image and text experiments}
 \label{app:image}
-\note{Georgios: additional results and experimental details.}
+
+Supporting material for \S\ref{sec:exp:imagetext}. Every figure was read from the job log of the
+run that produced it. Unless stated otherwise, sampling is deterministic DDIM on the
+entropy-derived grid with \texttt{carry} self-conditioning and $\sigma_{\mathrm{dec}}{=}0.1$.
+
+\subsection{Protocol and checkpoints}
+\label{app:image:protocol}
+
+\textbf{Zero-shot MS-COCO.} 30{,}000 captions are sampled with a fixed seed from COCO
+\texttt{val2014} \citep{image:mscoco}, one image is generated per caption, and FID
+\citep{image:fid} is computed with Inception-V3 pool3 features against the 30{,}000 real images
+(both resized on the shorter side to 256 and centre-cropped). CLIP score is
+$100\cdot\overline{\cos}(\text{image},\text{text})$ with OpenAI ViT-B/32 \citep{image:clip};
+ViT-L/14 is given in Table~\ref{tab:app:image:headline-full} because published CLIP scores use
+that backbone and the two scales differ substantially. CMMD \citep{image:cmmd} and SWD are
+computed in CLIP ViT-B/32 space against a 30{,}000-image real bank; precision and recall follow
+\citet{image:precision-recall} in the same space ($k{=}3$). Captioning uses the complete Karpathy
+test split (5{,}000 images) with \texttt{pycocoevalcap} including SPICE \citep{image:spice};
+CLIPScore and RefCLIPScore follow \citet{image:clipscore}. GenEval \citep{image:geneval} uses the
+official harness (553 prompts $\times$ 4 images). The FID reference statistics and prompt captions
+are byte-identical between the $f16$ and $f8$ asset builds, so the text$\rightarrow$image
+comparison between the two models is exact on the image side.
+
+\textbf{Operating points.} Classifier-free guidance evaluates the conditional and null branches
+as one batch (\S\ref{sec:method:directions}), so $\mathrm{NFE}=2\times$steps for guided
+directions and $=$steps for joint generation. Text$\rightarrow$image: deterministic, guidance 2.5
+(CC3M) / 2.0 (CC12M), 10 / 16 steps. Image$\rightarrow$text CLIP: churn $\gamma{=}0.175$,
+guidance 3.0, 256 steps. Captioning: churn $\gamma{=}0.175$, guidance 2.0, 256 steps. Joint:
+deterministic, unguided. Each was chosen by a bracketed sweep at $n{=}5000$ read on CMMD (CIDEr
+for captioning) and confirmed at the full protocol where one exists.
+
+\textbf{Sample-count bias.} FID is strongly biased in $n$: at a fixed configuration CC3M's FID is
+28.10 at $n{=}5000$ and 22.79 at $n{=}30{,}000$ (256 steps), and $24.00$ versus $18.73$ at 10
+steps, so the $+5.3$ bias is a property of $n$ alone; CMMD moves by under one point
+($22.57\rightarrow22.16$). Sweeps are therefore read on CMMD, FID is quoted at $n{=}30{,}000$
+wherever a full-protocol run exists, and FID is never compared across different $n$.
+
+\begin{table}[tb]
+\centering
+\footnotesize
+\begin{tabular}{lrr}
+\toprule
+& \textbf{CoBit-CC3M} & \textbf{CoBit-CC12M} \\
+\midrule
+Training corpus & CC3M ($\approx$2.9M pairs) & CC12M ($\approx$11.7M pairs) \\
+Parameters; layers $\times$ width & 462M; $24\times1024$ & 633M; $26\times1152$ \\
+Image tokenizer (Open-MAGVIT2, 18-bit LFQ) & $f16$: $16{\times}16=256$ & $f8$: $32{\times}32=1{,}024$ \\
+Text budget $L_t$; positions; bits $S$ & 48; 310; 5{,}890 & 96; 1{,}126; 21{,}394 \\
+Training steps & 1{,}000{,}000 & 1{,}744{,}000 (87\% of target) \\
+\midrule
+\emph{Relative training compute} & $1\times$ & $\approx8.7\times$ \\
+\emph{Tokenizer rFID floor (COCO-30K)} & 1.592 & \textbf{0.726} \\
+\emph{Tokenizer PSNR (COCO-30K)} & 22.24 dB & \textbf{26.92 dB} \\
+\bottomrule
+\end{tabular}
+\caption{The two checkpoints. CC12M has $4\times$ the data, $1.37\times$ the parameters,
+$3.63\times$ the positions per step and $1.74\times$ the steps ($\approx8.7\times$ the compute),
+and a materially better codec, so every image-side comparison in \S\ref{app:image:scaling} is
+biased in CC12M's favour. The rFID floor is the Fr\'echet distance between the 30{,}000 real
+images and their own tokenizer round-trip.}
+\label{tab:app:image:modeldiff}
+\end{table}
+
+\subsection{Complete results}
+\label{app:image:headline-full}
+
+Table~\ref{tab:app:image:headline-full} extends Table~\ref{tab:image:headline} with SWD, the
+ViT-L/14 CLIP backbone, precision and recall, the alternative guidance and step settings, and the
+superseded 256-step text$\rightarrow$image operating point.
+
+\begin{table}[tb]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{llrrrrrrrrr}
+\toprule
+\textbf{Direction} & $n$ & gs & Steps & \textbf{FID}$\downarrow$ & \textbf{CMMD}$\downarrow$ & \textbf{SWD}$\downarrow$
+& \multicolumn{2}{c}{\textbf{CLIP}$\uparrow$} & \textbf{Prec.} & \textbf{Rec.} \\
+\cmidrule(lr){8-9}
+& & & & & & & B/32 & L/14 & & \\
+\midrule
+\multicolumn{11}{l}{\emph{CoBit-CC3M}}\\
+text $\rightarrow$ image & 30{,}000 & 2.5 & 10 & \textbf{18.48} & \textbf{18.41} & 0.632 & 27.73 & --- & --- & --- \\
+text $\rightarrow$ image & 30{,}000 & 3.0 & 10 & 18.73 & 18.56 & 0.631 & 28.03 & 21.66 & 0.48 & 0.28 \\
+text $\rightarrow$ image & 30{,}000 & 3.0 & 256 & 22.79 & 22.16 & 0.667 & 28.02 & 21.79 & 0.41 & 0.29 \\
+image $\rightarrow$ text & 10{,}000 & 3.0 & 256 & --- & --- & --- & 24.86 & 18.30 & --- & --- \\
+image $\rightarrow$ text & 5{,}000 & 3.0 & 256 & --- & --- & --- & 24.83 & --- & --- & --- \\
+image $\rightarrow$ text & 10{,}000 & 4.0 & 256 & --- & --- & --- & 24.99 & --- & --- & --- \\
+joint (unconditional) & 30{,}000 & --- & 10 & 50.19 & 41.53 & 0.904 & 23.10 & 16.87 & 0.36 & 0.22 \\
+joint (unconditional) & 30{,}000 & --- & 256 & 61.95 & 46.80 & 0.971 & 25.67 & --- & 0.20 & 0.30 \\
+\midrule
+\multicolumn{11}{l}{\emph{CoBit-CC12M}}\\
+text $\rightarrow$ image & 30{,}000 & 2.0 & 16 & \textbf{16.59} & 17.76 & 0.591 & 26.51 & --- & --- & --- \\
+text $\rightarrow$ image & 30{,}000 & 2.0 & 20 & 16.70 & \textbf{17.68} & 0.585 & 26.54 & --- & --- & --- \\
+image $\rightarrow$ text & 5{,}000 & 3.0 & 256 & --- & --- & --- & 22.98 & --- & --- & --- \\
+image $\rightarrow$ text & 5{,}000 & 4.0 & 256 & --- & --- & --- & 23.08 & --- & --- & --- \\
+joint (unconditional) & 5{,}000 & --- & 20 & 56.18 & 37.60 & 0.837 & 23.19 & --- & --- & --- \\
+joint (unconditional) & 5{,}000 & --- & 256 & 64.47 & 40.33 & 0.878 & 24.01 & --- & --- & --- \\
+\midrule
+\emph{rFID floor, $f16$ / $f8$} & 30{,}000 & & & 1.59 / 0.73 & --- & --- & --- & --- & --- & --- \\
+\bottomrule
+\end{tabular}
+\caption{Full version of Table~\ref{tab:image:headline}. The CLIP column of the joint rows is pair
+coherence between the generated image and caption. Guidance 2.5 is marginally better than 3.0 for
+CC3M text$\rightarrow$image on FID and CMMD and 0.30 worse on CLIP; L/14, precision and recall
+were measured at guidance 3.0 only. Moving CC3M from 256 to 10 steps raises precision from 0.41 to
+0.48 with recall 0.29$\rightarrow$0.28, so the gain is not a diversity-for-fidelity trade. On the
+L/14 column UniDiffuser \citep{image:unidiffuser} reports roughly 25--26 (text$\rightarrow$image)
+and 22 (image$\rightarrow$text) against our 21.66--21.79 and 18.30, consistent with the FID gap
+and its LAION-scale pre-training. Two run-to-run repeats of the 256-step headline gave FID 22.7843
+and 22.7881 (CMMD 22.1704 / 22.1627), so differences above $\approx0.05$ FID at $n{=}30{,}000$
+are real effects.}
+\label{tab:app:image:headline-full}
+\end{table}
+
+\subsection{Sampler characterisation}
+\label{app:image:sampler}
+
+Tables~\ref{tab:app:image:steps}--\ref{tab:app:image:guidance} give the step-count and guidance
+sweeps behind the operating points of \S\ref{app:image:protocol}.
+
+\begin{table}[tb]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{rrrrrr@{\hspace{12pt}}rrrrr}
+\toprule
+\multicolumn{6}{c}{\textbf{CC3M}, text$\rightarrow$image, gs 3.0} & \multicolumn{5}{c}{\textbf{CC12M}, text$\rightarrow$image, gs 2.0} \\
+\cmidrule(lr){1-6}\cmidrule(lr){7-11}
+Steps & NFE & FID & CMMD & SWD & CLIP & Steps & NFE & FID & CMMD & CLIP \\
+\midrule
+4 & 8 & 28.55 & 22.71 & 0.729 & 27.45 & 8 & 16 & 24.97 & 20.90 & 26.29 \\
+6 & 12 & 24.79 & 19.13 & 0.662 & 27.86 & 12 & 24 & 22.21 & 18.20 & 26.51 \\
+8 & 16 & 24.28 & 18.81 & 0.653 & 27.99 & \textbf{16} & 32 & \textbf{21.68} & 17.84 & 26.56 \\
+\textbf{10} & 20 & \textbf{24.00} & \textbf{18.76} & \textbf{0.647} & 28.04 & \textbf{20} & 40 & 21.96 & \textbf{17.79} & 26.54 \\
+12 & 24 & 24.03 & 18.95 & 0.647 & 28.05 & 24 & 48 & 22.22 & 17.84 & 26.57 \\
+16 & 32 & 24.68 & 19.40 & 0.647 & 28.05 & 32 & 64 & 22.81 & 18.21 & 26.60 \\
+32 & 64 & 26.13 & 20.85 & 0.661 & 28.03 & 48 & 96 & 23.58 & 18.90 & 26.58 \\
+64 & 128 & 27.21 & 21.59 & 0.671 & 28.00 & 256 & 512 & 27.22 & 21.25 & 26.45 \\
+128 & 256 & 27.79 & 22.18 & 0.676 & 27.96 & & & & & \\
+256 & 512 & 28.10 & 22.57 & 0.682 & 28.00 & & & & & \\
+\bottomrule
+\end{tabular}
+\caption{Step-count sweeps, $n{=}5000$. Both minima are bracketed on both sides: a shallow bowl
+(8--14 steps for CC3M, 16--24 for CC12M) with a steep wall below and a long monotone climb above.
+The gain over 256 steps is larger for CC12M ($-5.54$ FID / $-3.46$ CMMD) than for CC3M ($-4.10$
+/ $-3.81$); the optimum moving up with model and sequence size is the direction expected if the
+mechanism is error accumulation across steps, but two points do not establish a trend. CLIP is
+flat to within 0.1 between 8 and 256 steps for CC3M and cannot see the effect. At the full
+protocol ($n{=}30{,}000$, guidance 3.0) CC3M moves from FID 22.79 / CMMD 22.16 at 256 steps to
+18.73 / 18.56 at 10 steps, i.e.\ $-4.06$ FID at $1/25.6$ the cost.}
+\label{tab:app:image:steps}
+\end{table}
+
+\begin{table}[tb]
+\centering
+\footnotesize
+\begin{tabular}{rrrrrrr}
+\toprule
+Steps & \textbf{CIDEr}$\uparrow$ & SPICE$\uparrow$ & BLEU-4$\uparrow$ & METEOR$\uparrow$ & ROUGE-L$\uparrow$ & i2t CLIP$\uparrow$ \\
+\midrule
+10 & 0.0131 & 0.0088 & 0.0040 & 0.0483 & 0.1495 & 23.91 \\
+32 & 0.0588 & 0.0259 & 0.0139 & 0.0679 & 0.1807 & 24.34 \\
+64 & 0.0488 & 0.0233 & 0.0128 & 0.0665 & 0.1769 & 24.53 \\
+128 & 0.1304 & 0.0534 & 0.0285 & 0.0965 & 0.2192 & --- \\
+\textbf{256} & \textbf{0.1362} & \textbf{0.0541} & \textbf{0.0291} & \textbf{0.0975} & \textbf{0.2212} & 24.83 \\
+512 & 0.1032 & 0.0435 & 0.0237 & 0.0861 & 0.2019 & \textbf{24.90} \\
+\bottomrule
+\end{tabular}
+\caption{CC3M, text-emitting directions versus step count. Captioning is the complete Karpathy
+test split ($n{=}5000$, guidance 2.0, churn $\gamma{=}0.175$); i2t CLIP is the COCO reference set
+($n{=}5000$, guidance 3.0). Captioning peaks at 256 steps and is bracketed on both sides,
+retaining 10\% of its CIDEr at 10 steps; the 64-step point falling below 32 puts the run-to-run
+noise at roughly 0.01 CIDEr. Image$\rightarrow$text CLIP rises monotonically and saturates (the
+last doubling buys 0.07). In the joint direction both halves come from one trajectory and move in
+opposite directions with the step count (CC3M, $n{=}5000$, 10 / 32 / 64 steps: FID 56.06 / 59.14
+/ 62.66, pair-CLIP 23.16 / 24.71 / 25.17); CC12M shows the same asymmetry (joint CMMD 37.60 at
+20 steps versus 40.33 at 256, pair-CLIP 23.19 versus 24.01).}
+\label{tab:app:image:text-steps}
+\end{table}
+
+\begin{table}[tb]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4.5pt}
+\begin{tabular}{l rrr @{\hspace{10pt}} rrr}
+\toprule
+& \multicolumn{3}{c}{\textbf{CC3M}} & \multicolumn{3}{c}{\textbf{CC12M}} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}
+Guidance & FID & CMMD & CLIP & FID & CMMD & CLIP \\
+\midrule
+1.0 & 33.65 & 25.80 & 25.32 & 31.29 & 22.32 & 24.80 \\
+1.5 & 29.71 & 23.10 & 26.51 & 27.80 & 21.39 & 25.82 \\
+2.0 & 28.61 & \textbf{22.44} & 27.19 & \textbf{27.22} & \textbf{21.25} & 26.45 \\
+3.0 & 28.10 & 22.57 & 28.00 & 27.46 & 22.32 & 27.10 \\
+4.0 & \textbf{28.06} & 22.71 & 28.44 & 28.53 & 23.24 & 27.42 \\
+5.0 & 28.19 & 23.27 & \textbf{28.72} & --- & --- & --- \\
+\bottomrule
+\end{tabular}
+\caption{Guidance sweeps, text$\rightarrow$image, 256 steps, $n{=}5000$ (noise paired across
+guidance values for CC3M). CMMD minimises near guidance 2, FID one to two notches higher, and CLIP
+rises monotonically throughout, so past the peak image quality must be judged on CMMD rather than
+CLIP. Both optima are bracketed on both sides. Guidance and step count are close to separable:
+re-sweeping at the re-tuned step counts leaves the structure unchanged (CC3M at 10 steps, guidance
+2.0 / 2.5 / 3.0: CMMD 18.77 / \textbf{18.50} / 18.76; CC12M at 20 steps, guidance 1.5 / 2.0 / 2.5
+/ 3.0: CMMD 18.70 / \textbf{17.79} / 17.92 / 18.33), which is why the one-dimensional step sweep
+at fixed guidance was a valid search. CC12M loses CLIP to CC3M at every matched guidance value
+(by 0.52--1.02) while winning FID and CMMD at guidance 1--3.}
+\label{tab:app:image:guidance}
+\end{table}
+
+\paragraph{Reading.} The image optimum is about 10 steps and the text optimum about 256, a factor
+of 25, in a model that makes no architectural distinction between the two token populations.
+There is therefore no single operating point for a joint model, and any single-number report of
+one is a choice about which modality to favour; we quote each direction at its own optimum and
+say so in every table. Since architecture, weights, bitstream and $\sigma$ grid are shared, the
+asymmetry must be a property of the token statistics. A plausible account, which we have not
+tested, is that image tokens in an 18-bit LFQ code are locally redundant and strongly correlated
+across the grid, so a coarse trajectory lands in the right basin and additional steps mainly
+accumulate and re-inject self-conditioning error, whereas text tokens carry far more information
+per position, so the fine grid is doing real work. On that account the divergence should move
+with tokenizer bitrate; CC12M's higher image optimum ($f8$, 1{,}024 positions; 16--20 versus 10
+steps) is one weak data point in the predicted direction.
+
+\paragraph{Other inference choices.} Three further choices were measured on CC3M at 256 steps
+(hence far from the image optimum; these are lower bounds on image quality). \emph{Churn} is
+strongly harmful for text$\rightarrow$image---at guidance 3.0 and $n{=}5000$, FID 28.10 / CMMD
+22.57 deterministic against 36.89 / 34.73 at $\gamma{=}0.1$ and 41.87 / 40.51 at
+$\gamma{=}0.175$, while CLIP moves by at most 0.06---yet the same $\gamma{=}0.175$ is what makes
+captioning work (deterministic decoding is degenerate, CIDEr 0.018;
+Table~\ref{tab:app:image:captioning}). \emph{Schedule}: for text$\rightarrow$image the
+entropy-derived and Karras grids are within noise of each other across the guidance sweep (e.g.\
+FID 28.10 versus 27.96 at guidance 3.0); for captioning the entropy-derived grid is decisively
+better, CIDEr 0.136 versus 0.049 and SPICE 0.054 versus 0.023 at guidance 2.0, so a
+text$\rightarrow$image-only ablation would have concluded the schedule does not matter.
+\emph{Self-conditioning}: \texttt{carry} matches \texttt{refined} at guidance 3.0 (CMMD 22.30
+versus 22.44, CLIP 27.98 versus 27.99) at half the NFE, so \texttt{carry} is used throughout. The
+flat CLIP columns of Tables~\ref{tab:app:image:steps} and \ref{tab:app:image:guidance} and the
+churn result are three independent demonstrations that CLIP score cannot arbitrate image quality
+for this model.
+
+\subsection{CC3M versus CC12M}
+\label{app:image:scaling}
+
+\begin{table}[tb]
+\centering
+\small
+\begin{tabular}{lrrl}
+\toprule
+Text$\rightarrow$image, $n{=}30{,}000$ & \textbf{CC3M} & \textbf{CC12M} & $\Delta$ \\
+\midrule
+operating point & 10 steps, gs 2.5 & 16 steps, gs 2.0 & \\
+\midrule
+\textbf{FID} (raw) $\downarrow$ & 18.48 & \textbf{16.59} & $-1.89$ \\
+\quad tokenizer floor (rFID) & 1.59 & 0.73 & $-0.87$ \\
+\quad FID above own floor & 16.89 & \textbf{15.87} & $\mathbf{-1.02}$ \\
+\textbf{CMMD} $\downarrow$ & 18.41 & \textbf{17.76} & $-0.65$ \\
+\textbf{SWD} $\downarrow$ & 0.632 & \textbf{0.591} & $-0.041$ \\
+CLIP B/32 $\uparrow$ & \textbf{27.73} & 26.51 & $-1.22$ \emph{(worse)} \\
+\midrule
+\multicolumn{4}{l}{\emph{Text-emitting directions, matched 256 steps, $n{=}5000$}}\\
+captioning CIDEr $\uparrow$ & \textbf{0.1362} & 0.0571 & $2.4\times$ \emph{worse} \\
+captioning SPICE $\uparrow$ & \textbf{0.0541} & 0.0347 & $1.6\times$ \emph{worse} \\
+captioning BLEU-4 $\uparrow$ & \textbf{0.0291} & 0.0120 & $2.4\times$ \emph{worse} \\
+captioning METEOR $\uparrow$ & \textbf{0.0975} & 0.0752 & $1.3\times$ \emph{worse} \\
+i2t CLIP B/32, gs 3.0 $\uparrow$ & \textbf{24.83} & 22.98 & $-1.85$ \\
+i2t CLIP B/32, gs 4.0 $\uparrow$ & \textbf{24.97} & 23.08 & $-1.89$ \\
+\bottomrule
+\end{tabular}
+\caption{Scaling verdict at each model's own optimum. On the image side CC12M wins every
+distributional metric and the margin survives floor correction: subtracting each tokenizer's own
+rFID leaves CC12M 1.02 ahead, so the codec explains less than half of the raw FID gap (Fr\'echet
+distances are not additive, so the subtraction is a reporting heuristic showing the order of the
+confound). No reconstruction-CMMD floor has been measured, so the CMMD margin retains an
+unquantified codec advantage. On the text side CC3M wins every metric by margins far outside the
+$\sim$0.01 CIDEr run-to-run noise. The image-side gap widens as the sampler approaches its
+optimum: at a matched 32 steps and guidance 2.0 ($n{=}5000$) it is 3.27 FID (26.09 versus 22.81)
+against 1.39 at 256 steps, so the earlier 256-step comparison was masking CC12M's advantage.}
+\label{tab:app:image:scaling-verdict}
+\end{table}
+
+\paragraph{Interpretation, and what it rests on.} Scaling the corpus $4\times$, with the other
+advantages of Table~\ref{tab:app:image:modeldiff}, buys 1.89 FID on text$\rightarrow$image (1.02
+after floor correction) and costs about 60\% of captioning CIDEr. Undertraining (CC12M stopped at
+87\% of its budget with a $3.6\times$ longer sequence) predicts a uniform deficit; noisier
+image--text correspondence in CC12M's alt-text predicts the split observed, since more images
+improve the marginal image distribution while weaker caption--image alignment degrades everything
+conditional on text. The measured pattern is the second. This is an inference from a pattern
+across metrics, not a direct measurement of caption quality: the decisive test, a
+CMMD-versus-checkpoint curve over CC12M's saved checkpoints, has not been run, and CC12M has not
+been evaluated on GenEval.
+
+\subsection{GenEval breakdown}
+\label{app:image:geneval}
+
+\begin{table}[tb]
+\centering
+\small
+\begin{tabular}{lrrrrrrrr}
+\toprule
+\textbf{Model} & \textbf{Params} & Single & Two & Count & Colors & Pos. & Attr. & \textbf{Overall} \\
+\midrule
+Show-o \citep{image:showo} & 1.3B & 0.98 & 0.80 & 0.66 & 0.84 & 0.31 & 0.50 & 0.68 \\
+SD3 & 2B & 0.98 & 0.74 & 0.63 & 0.67 & 0.34 & 0.36 & 0.62 \\
+SD-XL & --- & 0.98 & 0.74 & 0.39 & 0.85 & 0.15 & 0.23 & 0.55 \\
+SD v2.1 & --- & 0.98 & 0.51 & 0.44 & 0.85 & 0.07 & 0.17 & 0.50 \\
+SD v1.5 & --- & 0.97 & 0.38 & 0.35 & 0.76 & 0.04 & 0.06 & 0.43 \\
+CLIP retrieval & --- & 0.89 & 0.22 & 0.37 & 0.62 & 0.03 & 0.00 & 0.35 \\
+LlamaGen & 0.8B & 0.71 & 0.34 & 0.21 & 0.58 & 0.07 & 0.04 & 0.32 \\
+CoBit-CC3M (ours) & 462M & 0.80 & 0.12 & 0.05 & 0.46 & 0.04 & 0.03 & 0.249 \\
+minDALL$\cdot$E & --- & 0.73 & 0.11 & 0.12 & 0.37 & 0.02 & 0.01 & 0.23 \\
+\bottomrule
+\end{tabular}
+\caption{Per-task GenEval scores; prior work as printed in \citet{image:geneval} (Table 2) and
+\citet{image:showo} (Table 3). Our run used the entropy-derived grid, deterministic sampling and
+guidance 3.0 at 256 steps, $25\times$ past the image optimum, and has not been re-measured; the
+score is a lower bound. Single objects render 80\% of the time and colours 46\%, while
+compositional binding stays near the floor (attribute 0.03, position 0.04), as it does for every
+sub-billion-parameter model in the table; CC3M alt-text rarely specifies spatial relations or
+colour--object bindings. The sampler configuration matters materially: an earlier pass of the same
+checkpoint that had silently fallen back to a Karras grid at guidance 2.0 scored 0.209.}
+\label{tab:app:image:geneval}
+\end{table}
+
+\subsection{Captioning}
+\label{app:image:captioning}
+
+\begin{table}[tb]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{lrrrrrrrr}
+\toprule
+\textbf{Configuration} & BLEU-4 & METEOR & ROUGE-L & \textbf{CIDEr} & SPICE & CLIPScore & RefCLIPScore & CLIP L/14 \\
+\midrule
+\multicolumn{9}{l}{\emph{CC3M, 256 steps}}\\
+deterministic, gs 1.0 \emph{(degenerate)} & 0.004 & 0.054 & 0.157 & 0.018 & 0.012 & --- & --- & --- \\
+entropic, churn $\gamma{=}0.175$, gs 4.0 & 0.0147 & 0.0695 & 0.1804 & 0.0520 & 0.0247 & \textbf{0.623} & \textbf{0.6678} & 18.34 \\
+entropic, churn $\gamma{=}0.175$, gs 2.0 & \textbf{0.0291} & \textbf{0.0975} & \textbf{0.2212} & \textbf{0.1362} & \textbf{0.0541} & 0.612 & 0.6606 & 17.86 \\
+Karras, churn $\gamma{=}0.175$, gs 2.0 & 0.0131 & 0.0672 & 0.1792 & 0.0485 & 0.0232 & --- & 0.6578 & --- \\
+\midrule
+\multicolumn{9}{l}{\emph{CC12M, 256 steps}}\\
+entropic, churn $\gamma{=}0.175$, gs 2.0 & 0.0120 & 0.0752 & 0.1719 & 0.0571 & 0.0347 & --- & --- & --- \\
+\bottomrule
+\end{tabular}%
+}
+\caption{Zero-shot captioning on the complete Karpathy test split ($n{=}5000$, no empty
+captions). Guidance 2.0 maximises the $n$-gram metrics and guidance 4.0 the CLIP-space metrics;
+the two families disagree, so both are reported. The entropy-derived grid beats Karras by
+$2.81\times$ on CIDEr while RefCLIPScore moves by 0.003.}
+\label{tab:app:image:captioning}
+\end{table}
+
+\textbf{No published zero-shot baseline exists for this number.} UniDiffuser
+\citep{image:unidiffuser} evaluates image$\rightarrow$text with CLIP score only, and L-Verse's
+captioning numbers \citep{image:lverse} are for a model trained on the MS-COCO Karpathy splits.
+For scale, on the $\times100$ convention those papers use, L-Verse reaches BLEU-4 39.9 / METEOR
+31.4 / ROUGE 60.4 / CIDEr 102.2 / SPICE 23.3, $M^2$ Transformer \citep{image:m2transformer} CIDEr
+131.2 and OSCAR$_L$ \citep{image:oscar} 140.0, all trained on MS-COCO; our 0.136 is roughly
+$7.5\times$ below L-Verse, not $100\times$. L-Verse's own no-truncation variant moves CIDEr from
+102.2 to 181.6 while BLEU-4 falls from 39.9 to 27.6 on the same model and images, so caption
+length and phrasing alone swing these metrics by tens of points: they track surface form at least
+as much as content. That is the failure here. The model writes fluent CC3M-style alt-text
+(\emph{``example of a classic bathroom design with stainless countertops''}) against COCO
+references written as \emph{``A bathroom with a shower and a sink.''}; CIDEr's IDF-weighted
+$n$-grams penalise the register mismatch almost regardless of content, whereas on in-domain CC3M
+captions the same model reaches 0.90 of the real-caption CLIP ceiling. We report CIDEr for
+completeness and read the result through RefCLIPScore.
+
+\subsection{Notes on comparability and measurement hygiene}
+\label{app:image:repro}
+
+\textbf{Literature figures.} Every number in Table~\ref{tab:image:litcomparison} was read from
+the cited paper's own table or from the compilation tables of \citet{image:showo},
+\citet{image:unidiffuser} and \citet{image:lafite}. Improved VQ-Diffusion
+\citep{image:vqdiffusion-improved}, our closest architectural relative (discrete diffusion over
+VQ tokens, trained on CC3M+CC12M), reports FID 8.44 on MS-COCO and 15.58 on Conceptual Captions;
+neither is a zero-shot COCO number (its COCO table compares against COCO-trained models, and the
+CC figure is in-domain), so it is excluded. Only the ViT-L/14 column of
+Table~\ref{tab:app:image:headline-full} may be placed beside published CLIP scores; the B/32 and
+L/14 scales differ substantially (28.02 versus 21.79 for the same samples). Generations
+faithfully reproduce CC3M's distribution (stock-photo watermarks, white-background product shots,
+single subjects) against COCO's clean multi-object scenes; that distance penalises FID
+independently of image quality, and \citet{image:showo} make the same observation from the other
+side for models fine-tuned on aesthetic data.
+
+\textbf{Schedule audit.} If the entropy tables are absent from a run directory the sampler
+silently reverts to a Karras grid. Every run reported here was audited for the corresponding
+warning; all headline, sweep and CC12M numbers come from runs with a count of zero, and the only
+runs in which it occurred supply the ``Karras'' arms of the schedule comparison, where the
+fallback is the treatment. The audit is not optional: the unaudited GenEval pass that scored
+0.209 had fallen back.
 
 \section{Audio and text experiments}
 \label{app:audio}

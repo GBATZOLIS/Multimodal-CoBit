@@ -1,14 +1,199 @@
 \section{Method}
 \label{sec:method}
 
+Our model is the continuous bitstream diffusion model of \citet{method:cobit} (CoBit), a
+text-generation framework, applied \emph{unchanged} to sequences that interleave several
+modalities. The corruption process, the denoiser parameterisation and its loss, the noise
+schedule and its estimator, the self-conditioning mechanism, the sampler and the backbone are
+those of the text-only model, with the same hyperparameters. What is added is small and lives
+entirely in the data pipeline: (i) a way of writing any set of tokenised modalities into one
+shared binary vocabulary, so that a single network reads and writes all of them through one
+interface (\S\ref{sec:method:multimodal}); and (ii) a training recipe under which one set of
+weights supports unconditional co-generation of all modalities present, conditional generation
+in every direction between them, and any mixture of the two, with the direction chosen at
+inference time by deciding which positions are held fixed (\S\ref{sec:method:directions}).
+There are no modality-specific encoders, decoders, heads, embedding tables or losses, and no
+modality-specific training stages. We recap the base model first, to the extent needed to make
+these two additions precise.
+
 \subsection{Continuous bitstream diffusion}
 \label{sec:method:cobit}
-\note{Recap of CoBit.}
+
+\textbf{Bits as the universal representation.} CoBit models a sequence of $N$ discrete tokens
+$t_1,\dots,t_N$ from a vocabulary of size $V$ by writing each token as its
+$m=\lceil\log_2 V\rceil$-bit binary index, giving a flat bitstream $\vx_0\in\{0,1\}^{S}$ with
+$S=Nm$. Nothing else about the data is used: the framework does not know whether a token is a
+word piece, an image patch code, a speech frame or a residue, and it never sees a token
+identity, only its bits. Once written as bits, the sequence is treated as continuous data. A
+standard variance-exploding Gaussian diffusion is run on it, $\vx_\sigma=\vx_0+\sigma\,\bm{\epsilon}$
+with $\bm{\epsilon}\sim\mathcal N(\vzero,\mathbf I)$ and
+$\sigma\in[\sigma_{\min},\sigma_{\max}]=[0.002,80]$, taking the data centre to be $1/2$ and
+$\sigma_{\mathrm{data}}=1/2$. A denoiser $D_\theta(\vx_\sigma,\sigma)\in(0,1)^S$ predicts the
+posterior probability that each bit is one and is trained with the EDM-weighted denoising loss
+\citep{image:edm} in probability space,
+\begin{equation}
+\Ls(\theta)=\E\Big[w(\sigma)\,\tfrac1S\big\|D_\theta(\vx_\sigma,\sigma)-\vx_0\big\|^2\Big],
+\qquad
+w(\sigma)=\frac{\sigma^2+\sigma_{\mathrm{data}}^2}{\sigma^2\sigma_{\mathrm{data}}^2},
+\label{eq:loss}
+\end{equation}
+which induces the score $\nabla\log p_\sigma(\vx_\sigma)\approx(D_\theta-\vx_\sigma)/\sigma^2$
+used by the sampler. The network is not asked to learn the local Gaussian denoising problem:
+the analytic posterior logit of an isolated bit under a uniform prior,
+$(\vx_\sigma-\tfrac12)/\sigma^2$ (clipped to $\pm30$), is added to a learned contextual
+residual, so that the network models only the dependence \emph{between} bits---which is where
+all modality-specific structure resides. Three components of the base recipe matter for what
+follows.
+
+\textbf{Entropy-derived noise schedule.} The rate at which information about $\vx_0$ is
+destroyed as $\sigma$ grows depends on the data, and different modalities---and mixtures of
+modalities---lose their information at different noise levels. Rather than fixing a proposal
+over $\sigma$ by hand, CoBit measures this rate on the data being modelled and allocates both
+training noise levels and sampling steps according to it. The conditional entropy rate per
+unit $\log\sigma$ is estimated online from the unweighted per-example denoising error,
+$\hat h(\sigma)\propto e(\sigma)/\sigma^2$ with $e(\sigma)=\tfrac1S\|D_\theta-\vx_0\|^2$, kept
+in a FIFO buffer over recent training examples ($8\times10^5$) and binned into 128 log-spaced
+bins. The training proposal for $\sigma$, and through its inverse CDF the sampling grid, is
+$q(\sigma)\propto g(\sigma;c,n)\,\hat h(\sigma)^{1/2}$, where $g(\sigma;c,n)=\sigma^n/(\sigma^n+c^n)$
+($c=0.1$, $n=3$) is a smooth gate removing mass from very small $\sigma$. Training starts from
+the EDM log-normal proposal ($P_{\mathrm{mean}}=-1.2$, $P_{\mathrm{std}}=1.2$), ramps linearly to
+$q$ over steps $4$--$5\times10^4$, and refreshes $q$ every $2\times10^3$ steps thereafter.
+Because $\hat h$ is measured rather than assumed, the schedule is self-calibrating: the same
+estimator with the same hyperparameters is used for every modality combination, and it adapts
+itself to each.
+
+\textbf{Self-conditioning.} Following \citet{method:analogbits}, the denoiser takes a second
+input $\hat\vx_0$, an estimate of the clean bits, concatenated bitwise with $\vx_\sigma$. During
+training, with probability $p_{\mathrm{sc}}=0.5$ a first no-gradient pass produces
+$\hat\vx_0=D_\theta(\vx_\sigma,\sigma,\vzero)$, which is detached and fed to the second, trained
+pass; otherwise $\hat\vx_0=\vzero$. At sampling time two refresh modes are available. In
+\texttt{carry} mode the probabilities returned at step $i$ are passed as $\hat\vx_0$ to step
+$i{+}1$, so self-conditioning costs no additional network evaluations; in \texttt{refined} mode
+an extra denoiser pass is run at the new state $(\vx_{\sigma_{i+1}},\sigma_{i+1})$ conditioned on
+the carried estimate, doubling the evaluations per step. We use \texttt{carry} throughout
+unless stated otherwise.
+
+\textbf{Sampler and backbone.} We integrate the probability-flow ODE
+$\mathrm d\vx/\mathrm d\sigma=(\vx-D_\theta(\vx,\sigma))/\sigma$ with a first-order
+(DDIM/Euler) step \citep{method:ddim} on the entropy-derived grid, optionally with EDM-style
+churn (re-noising by a factor $1+\gamma_i$ before each step; \citealp{image:edm}) as the
+stochastic variant. Integration stops at a terminal $\sigma_{\mathrm{dec}}>\sigma_{\min}$; the
+final probabilities are thresholded at $1/2$, regrouped into $m$-bit codes and handed to the
+appropriate tokenizer's decoder. The number of steps, the guidance scale
+(\S\ref{sec:method:directions}) and the churn are inference-time choices that require no
+retraining. The denoiser is the Sequence Diffusion Transformer of \citet{method:cobit}: the
+$m$ bits of a position, with their per-bit positional features, form one patch that is linearly
+projected to one trunk token, so the transformer runs at the token length $N$ rather than the
+bit length $Nm$; the trunk uses RoPE, SwiGLU and adaLN-zero conditioning on $\sigma$, and a light
+skip-connection head combines the trunk output with the raw noisy bits to produce the $m$
+per-bit logits of each position. The same backbone is used for every modality combination;
+only its depth and width vary between checkpoints.
 
 \subsection{Multimodal bitstreams}
 \label{sec:method:multimodal}
-\note{How arbitrary modalities are encoded into a joint bitstream.}
+
+The base model needs nothing from its input except that it be a sequence of fixed-width binary
+codes. This is what makes it modality-agnostic, and it makes extending it to new modalities a
+data-preparation step rather than a modelling one. Three ingredients are required.
+
+\textbf{Modality-specific tokenizers.} Each modality is mapped to a run of integer codes by a
+discrete tokenizer of its own---a byte-pair vocabulary for text, a vector- or lookup-free
+quantiser for images or audio, a residue alphabet or a structure quantiser for proteins---and
+back by the matching decoder. The tokenizers are the \emph{only} modality-specific components
+in the system. They are frozen, they are not trained or fine-tuned jointly with the diffusion
+model, and they sit outside it: the diffusion model never sees an embedding, a spectrogram or a
+pixel, only bits. Any tokenizer that yields fixed-width codes can be used; quantisers whose
+codebook is the full set of sign patterns of a latent vector (lookup-free or finite-scalar
+quantisation; \citealp{image:lfq,audio:fsq}) pair especially naturally with bitstream
+diffusion, since every bit string is then a valid code and the bits are the quantiser's own
+latent coordinates rather than an arbitrary index. The tokenizers used for each modality pair
+are stated in the corresponding experimental subsection (\S\ref{sec:exp}).
+
+\textbf{One shared code space.} The per-modality vocabularies are placed in disjoint ranges of
+a single integer code space, together with a small reserved block of control codes (padding and
+segment markers), and $m$ is chosen as the bit width of that union---in practice by offsetting
+the vocabularies or, equivalently, by prepending one or more namespace bits that select the
+modality. The $m$ bits of a position therefore determine both the modality and the content of a
+token, every position is a ``token of any modality'', and the patch size of the backbone is $m$
+for all of them. Consequently there are no modality-specific embedding tables, encoders, heads
+or losses, and the shared Bernoulli output head costs $O(m)=O(\log V)$ per position regardless
+of how many vocabularies are merged. The one modality-aware parameter we add is a learned
+segment embedding: a zero-initialised vector per segment type (control, text, image, audio,
+\dots) added to the per-bit trunk input, which tells the network which segment a bit belongs to
+without introducing any per-modality computation.
+
+\textbf{A fixed sequence template.} A training example is laid out as a fixed-length template
+of segments, one per modality, each of a fixed token budget (truncated or padded), separated by
+structural markers (start/end of sequence and of each segment). Markers are ordinary codes in
+the reserved block; they are always presented clean, at training and at sampling, and are never
+denoised. Two-dimensional or higher-dimensional token grids are flattened along a
+locality-preserving (Hilbert) curve so that 1-D adjacency reflects spatial adjacency. Modalities
+that are aligned position by position (for instance a residue identity and a structure token
+describing the same site) may also share one position by concatenating their codes into a single
+$m$-bit word; this too is only a layout choice.\note{Confirm against the final protein codec in
+\S\ref{sec:exp:protein}: the current stub describes an 18-bit position formed by a 5-bit residue
+code and a 13-bit DPLM-2 structure code.} The transformer sees only the flat bitstream; the same
+code path decodes each segment through its own tokenizer's decoder.
+
+\textbf{What is, and is not, modality-specific.} Across every experiment in this paper the
+corruption process, the $\sigma$ range and $\sigma_{\mathrm{data}}$, the loss and its weighting,
+the entropy-schedule estimator and all of its hyperparameters, self-conditioning, the sampler
+family and the backbone architecture are identical.\note{Verify against the final audio and
+protein training configurations before submission; this sentence is the paper's central claim
+and should be checked field by field.} What changes between modality pairs is confined to the
+data pipeline: the tokenizers and their decoders, the segment layout (which modalities, in
+which order, with what token budgets), and the list of training regimes of
+\S\ref{sec:method:directions}. The only quantities chosen \emph{per direction} at inference are
+the sampler settings (step count, guidance scale, churn), which are free hyperparameters of any
+diffusion sampler and involve no retraining and no architectural difference.
 
 \subsection{Generative directions}
 \label{sec:method:directions}
-\note{Unconditional, conditional and any-to-any generation via partial denoising.}
+
+A sequence built as above is partitioned into segments $\gS_1,\dots,\gS_K$ (one per modality,
+plus markers). Any generation task over these modalities is a choice of a \emph{conditioning
+set} $\gC$ of segments that are given and a \emph{target set} $\gT$ that must be produced:
+$\gC=\emptyset$ is unconditional joint co-generation of everything; conditioning on a text
+segment gives text-to-image or text-to-speech; conditioning on an image or a speech segment
+gives captioning or transcription; conditioning on a prefix of a segment gives continuation; and
+so on. CoBit implements every such task with the same network and the same weights through a
+single mechanism, which we call \emph{partial denoising}: the positions in $\gC$ are held at
+their clean values $\vx_0$ throughout, and diffusion acts only on the positions in $\gT$.
+Because the model is a bidirectional denoiser over the whole sequence, a clean segment is simply
+part of the input it conditions on; no task token, task-specific head or encoder is involved.
+
+\textbf{Training.} For each training example we draw a task from a small list of
+\emph{regimes}---conditioning sets with sampling probabilities---and construct the noisy input
+accordingly. Let $M\in\{0,1\}^S$ be the bit mask of the conditioned positions (the segments in
+$\gC$, always including the markers). The input to the denoiser is
+$\vx_\sigma=M\odot\vx_0+(1-M)\odot(\vx_0+\sigma\bm{\epsilon})$, i.e.\ the conditioning segments
+are clamped clean rather than noised, and the loss~\eqref{eq:loss} is averaged only over the
+denoised positions $1-M$. When self-conditioning is active the clean conditioning bits are also
+written into $\hat\vx_0$ on the masked positions, so the network never has to predict what it is
+given. To enable classifier-free guidance \citep{method:cfg}, with probability
+$p_{\mathrm{uncond}}=0.1$ the conditioning segments (but never the markers) are replaced by the
+null value $1/2$---the data centre and the point of zero information for a bit under Gaussian
+corruption---so that the network also learns the unconditional denoiser for each target set.
+The regime list is the whole specification of which directions a model supports: adding a
+direction for a given modality set means adding an entry to this list, without touching the
+model. Each experimental subsection states the regimes used. Examples whose conditioning was
+dropped are excluded from the entropy-rate buffer of \S\ref{sec:method:cobit}, so the schedule
+reflects the conditional denoising problems the model is actually asked to solve.
+
+\textbf{Sampling.} At inference the task fixes $M$ and the clean values on the conditioned
+positions; the sampler of \S\ref{sec:method:cobit} initialises the target positions from noise,
+clamps the conditioned positions to their clean bits before every denoiser call, zeroes the ODE
+velocity on those positions after every call (so they never move) and clamps them once more in
+the returned probabilities. Guidance uses the standard two-branch estimate in probability
+space: a conditional branch sees the clean conditioning, an unconditional branch sees the null
+value $1/2$ on the same positions (markers protected), the two are evaluated as one batch of
+size $2B$, and the guided estimate $D_g=D_u+w\,(D_c-D_u)$ replaces $D_\theta$ in the score, where
+$w=1$ recovers the plain conditional model and $w>1$ sharpens it. In \texttt{carry} mode each
+branch carries its own self-conditioning estimate. Joint co-generation ($\gC=\emptyset$) uses a
+single branch, so its cost per step is one network evaluation while every guided conditional
+direction costs two; we report the number of function evaluations (NFE) accordingly. Since the
+direction is decided entirely by $M$, the remaining sampler choices---step count, guidance
+scale, churn---can be set per direction on the same weights, and nothing in the framework
+requires them to agree across directions. The same weights therefore act as an unconditional
+co-generator, as a family of conditional generators in every direction seen in training, and as
+a model that fills in an arbitrary subset of positions given the rest.

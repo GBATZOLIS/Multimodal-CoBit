@@ -1,20 +1,26 @@
-\subsection{Image and text (CC3M, CC12M)}
+\subsection{Image and text}
 \label{sec:exp:imagetext}
+
+Images and captions are where unified generative models are most often measured, and also where
+the ingredients that usually carry them---a text-pretrained backbone, a frozen text encoder,
+curated or re-captioned data---are hardest to separate from the modelling choice itself. We
+therefore ask what the bitstream formulation transfers on its own, with none of those ingredients
+present: two models trained from scratch on alt-text pairs, evaluated zero-shot in all four
+generative directions from one set of weights.
 
 \textbf{Setup.} We train CoBit-CC3M (462M parameters, $24\times1024$) on Conceptual Captions 3M
 \citep{image:cc3m} ($\approx$2.9M pairs, $10^6$ steps) and CoBit-CC12M (633M, $26\times1152$) on
-Conceptual 12M \citep{image:cc12m} ($\approx$11.7M pairs, $1.744\times10^6$ steps, 87\% of its
-planned budget). Images are tokenized by a frozen Open-MAGVIT2 lookup-free quantiser
-\citep{image:magvit2,image:lfq} into 18-bit codes, $16{\times}16=256$ tokens ($f16$) for CC3M
-and $32{\times}32=1{,}024$ ($f8$) for CC12M; text by the \texttt{o200k} byte-pair vocabulary
-(caption budgets of 48 and 96 tokens). A 19th namespace bit separates image from text and control codes, so every
-position is one 19-bit token (\S\ref{sec:method:multimodal}); training regimes are $0.35$
-text-conditioned, $0.35$ image-conditioned, $0.30$ joint. Neither model sees MS-COCO
-\citep{image:mscoco}: all numbers are zero-shot on COCO \texttt{val2014} under one fixed protocol
-(FID-30K, CMMD \citep{image:cmmd}, CLIP ViT-B/32 \citep{image:clip}; captioning on the Karpathy
-test split; Appendix~\ref{app:image:protocol}). Deliberately absent are text-only pre-training, tokenizer surgery, auxiliary alignment losses and
-staged curricula. All are known to help and we expect them to help here; we omit them so that
-the result measures what the unmodified framework transfers, and leave them to future work.
+Conceptual 12M \citep{image:cc12m} ($\approx$11.7M pairs, 87\% of its planned budget). Images are
+tokenized by a frozen Open-MAGVIT2 lookup-free quantiser \citep{image:magvit2,image:lfq} into
+18-bit codes, $16{\times}16=256$ tokens ($f16$) for CC3M and $32{\times}32=1{,}024$ ($f8$) for
+CC12M; text uses the \texttt{o200k} byte-pair vocabulary. A 19th namespace bit separates image
+from text and control codes, so every position of either modality is one 19-bit token
+(\S\ref{sec:method:multimodal}). Neither model sees MS-COCO \citep{image:mscoco}: every number
+below is zero-shot on COCO \texttt{val2014} under one fixed protocol, with captioning on the
+Karpathy test split (Appendix~\ref{app:image:protocol}). Text-only pre-training, tokenizer
+surgery, auxiliary alignment losses and staged curricula are all deliberately absent. Each is
+known to help and we expect it to help here; we omit them so that the result measures what the
+unmodified framework transfers, and leave them to future work.
 
 \begin{table}[t]
 \centering
@@ -44,28 +50,30 @@ joint, 256 steps & 5{,}000$^{\ddagger}$ & 256 (256) & 64.47 & 40.33 & 24.01$^{\d
 \end{tabular}
 \caption{Zero-shot MS-COCO, all four generative directions from a single set of weights per
 model. Each conditional row is quoted at the step count that is best for that direction
-(\emph{Sampler} below); joint (unconditional) generation has no single optimum, so both ends of
-its trade-off are shown. CLIP is ViT-B/32, reported as $100\cdot\overline{\cos}$; per-direction guidance and churn are listed in
-Appendix~\ref{app:image:protocol}, and ViT-L/14 scores, SWD and precision/recall in Appendix
-Table~\ref{tab:app:image:headline-full}. $^{\dagger}$Pair
-coherence $\cos(\text{generated image},\text{generated caption})$, not comparable to the
-conditional CLIP scores; FID of the joint rows is of the generated image half. $^{\ddagger}$FID is
-strongly biased in $n$ ($+5.3$ at $n{=}5000$ versus $30{,}000$), so these rows are not
-FID-comparable to CC3M's (CC3M at $n{=}5000$: 56.06 / 67.47 at 10 / 256 steps). The last two rows
-are the floor of the FID column on the same unpaired estimator
-(Appendix~\ref{app:image:protocol}): a perfect model scores 2.35 at this $n$ and 2.94 / 2.55
-through the tokenizer, so the codec contributes 0.59 / 0.20.}
+(\emph{Sampler} below); joint generation has no single optimum, so both ends of its trade-off are
+shown. CLIP is ViT-B/32. The last two rows are the floor of the FID column: the distance between
+the reference images and a disjoint draw of real COCO images, and the same draw after the
+tokenizer round-trip (Appendix~\ref{app:image:protocol}). $^{\dagger}$Pair coherence between the
+generated image and caption, not comparable to the conditional CLIP scores; FID of the joint rows
+is of the generated image half. $^{\ddagger}$FID is strongly biased in $n$ ($+5.3$ at $n{=}5000$
+versus $30{,}000$), so these rows are not FID-comparable to CC3M's (CC3M at $n{=}5000$: 56.06 /
+67.47 at 10 / 256 steps). Guidance, churn, ViT-L/14 scores, SWD and precision/recall are in
+Appendix~\ref{app:image:headline-full}.}
 \label{tab:image:headline}
 \end{table}
 
-\textbf{Results.} Table~\ref{tab:image:headline} reports all four directions for both models,
-each from a single set of weights. CC3M reaches zero-shot FID-30K \textbf{18.48} at NFE 20. Measured against a disjoint set of
-real images, as that FID itself is, the floor of the column is 2.94, of which 2.35 is the
-finite-sample floor any model pays at this $n$ and 0.59 the codec, so the gap to larger systems
-lies in the model, not in the token space. Joint co-generation is much harder than either conditional direction (FID 50.19 at
-10 steps), as with no prompt the model samples its own CC3M-like training distribution, yet the
-co-generated image and caption agree with each other (pair coherence 25.67 at 256 steps) about
-as well as a conditional caption agrees with its image (24.83).
+\textbf{Results.} Table~\ref{tab:image:headline} reports all four directions for both models.
+Text$\rightarrow$image is the strongest: CC3M reaches zero-shot FID-30K \textbf{18.48} at NFE 20
+and CC12M \textbf{16.59}. Neither is anywhere near the floor of that column---at this sample size
+two disjoint sets of real COCO images already score 2.35 against each other, and the tokenizer
+round-trip lifts that only to 2.94 and 2.55---so the distance to larger systems lies in the model
+rather than in the token space. The text-emitting directions are weaker, at CIDEr 0.136 for
+captioning and image$\rightarrow$text CLIP 24.83. Joint co-generation, where nothing is given at
+all, is harder again (FID 50.19): with no prompt the model samples its own CC3M-like
+distribution rather than COCO's, and the distributional metrics charge it for the difference.
+What survives is the agreement between the two halves it produces---pair coherence 25.67 is about
+as high as a conditional caption's agreement with its own image (24.83)---so the shortfall is in
+matching the evaluation corpus, not in keeping the modalities together.
 
 \begin{table}[t]
 \centering
@@ -103,71 +111,61 @@ Imagen \citep{image:imagen} & 3B & 860M & 7.27 & --- \\
 \caption{Zero-shot MS-COCO FID-30K and GenEval overall score against published systems. Prior
 figures are as printed in the cited papers and in the compilation tables of \citet{image:showo}
 (Tables 2--3), \citet{image:unidiffuser} (Table 1), \citet{image:lafite} (Table 2) and
-\citet{image:geneval} (Table 2). Rows are not strictly comparable (see text): corpora,
-backbones, pretrained components and FID pipelines all differ, and the same nominal metric varies
-by about one FID point between sources (Stable Diffusion is 8.59 in one compilation and 9.62 in
-another). Parameter counts follow each source's own convention and do not consistently include
-frozen components (PixArt-$\alpha$'s 0.6B excludes a 4.3B T5 encoder, Imagen's 3B a frozen
-T5-XXL, DALL$\cdot$E~2's 6.5B includes CLIP), so the column orders magnitude, not cost;
-DALL$\cdot$E~2's prior, decoder and upsamplers saw 250M pairs, not the 650M of its CLIP encoder,
-and CC3M is 3.3M pairs as released against the 2.9M we could download. CogView
-\citep{image:cogview} (blurred, machine-translated MS-COCO, best-of-60 re-ranking) and Improved
-VQ-Diffusion's 8.44 \citep{image:vqdiffusion-improved} (COCO-trained) are omitted.
-$^{\dagger}$\citet{image:unidiffuser} draw 10K and 30K prompts for FID and CLIP score without
-saying which is which.}
+\citet{image:geneval} (Table 2). The rows are not strictly comparable and are not meant to be
+ranked: parameter counts follow each source's own convention and exclude frozen components
+inconsistently, the pair counts count different things, and the same nominal FID moves by about a
+point between compilations. Appendix~\ref{app:image:repro} gives the per-row caveats and the
+systems left out. $^{\dagger}$\citet{image:unidiffuser} draw 10K and 30K prompts for FID and CLIP
+score without saying which is which.}
 \label{tab:image:litcomparison}
 \end{table}
 
 \textbf{Comparison to prior work.} Table~\ref{tab:image:litcomparison} places the result among
-published zero-shot MS-COCO numbers. Exact comparability is not attainable in this setting and we
-do not claim it; the table is read for where the model sits, not for rank. Against the one
-system with the same pre-training corpus and protocol, LAFITE, FID improves by 8.46 without its
-frozen CLIP encoder. Among unified image$+$text models we sit between CoDI (400M pairs) and
-SEED-X (17B parameters), and ahead of the 12B-parameter DALL$\cdot$E specialist. Every system
-with a lower FID than ours uses pretrained language or vision components---a text-pretrained
-backbone or text encoder, a pretrained CLIP or VAE---and most also use substantially more paired
-data, though several publish no comparable pair count. On GenEval, 0.249 (CC3M) and 0.222
-(CC12M) sit above minDALL$\cdot$E and below CoDI and LlamaGen, far below the LLM-backed unified
-models. For captioning no zero-shot COCO baseline has
-been published; COCO-trained specialists reach CIDEr 1.02--1.40 against our 0.136
-(\emph{Limitations} below). Taken together, a 462M-parameter model trained from scratch on 2.9M
-alt-text pairs, with no modality-specific machinery, generates images in the range of unified
-systems one to two orders of magnitude larger and captions and co-generates from the same
-weights. That is the claim: capable transfer, not a leaderboard entry.
+published zero-shot MS-COCO numbers. Against LAFITE, the one system trained on the same corpus
+under the same protocol, FID improves by 8.46 without its frozen CLIP encoder. Among unified
+image$+$text models we sit between CoDI and SEED-X, and ahead of the 12B-parameter
+DALL$\cdot$E specialist. Every system with a lower FID than ours uses pretrained language or
+vision components, and most also train on substantially more paired data. Compositional prompt
+following is where the gap is widest: GenEval 0.249 for CC3M and 0.222 for CC12M sit above
+minDALL$\cdot$E but far below the LLM-backed unified models. For captioning there is no published
+zero-shot COCO baseline at all; COCO-trained specialists reach CIDEr 1.02--1.40 against our
+0.136. Taken together, a 462M-parameter model trained from scratch on 2.9M alt-text pairs, with
+no modality-specific machinery, generates images in the range of unified systems one to two
+orders of magnitude larger, and captions and co-generates from the same weights. That is the
+claim: capable transfer, not a leaderboard entry.
 
 \textbf{Sampler: the two modalities want step counts $\mathbf{25\times}$ apart.} Sweeping the
-step count from 4 to 512 on the same weights (Appendix~\ref{app:image:sampler}),
-text$\rightarrow$image FID and CMMD minimise at 10 steps for CC3M (16--20 for CC12M) and degrade
-monotonically beyond; at $n{=}30{,}000$ the conventional 256 steps costs 4.06 FID for
-$25.6\times$ the compute. Captioning inverts this: CIDEr is 0.013 at 10 steps, peaks at 0.136 at
-256 and falls to 0.103 at 512 (image$\rightarrow$text CLIP behaves alike). The joint direction shows both effects inside single samples: every
-step added improves the text half and degrades the image half (10, 32, 64 steps at $n{=}5000$:
-pair-CLIP 23.16, 24.71, 25.17; FID 56.06, 59.14, 62.66), hence the two joint rows of
-Table~\ref{tab:image:headline}. This is not a modification of the framework: the step count, like
-the per-direction churn and guidance (Appendix~\ref{app:image:sampler}), is an inference-time
-hyperparameter of any diffusion sampler, set per direction on the same weights without
-retraining---and such sampler settings are the only thing that had to be adapted per modality.
+step count from 4 to 512 on the same weights, text$\rightarrow$image FID and CMMD minimise at 10
+steps for CC3M and 16--20 for CC12M, and degrade monotonically beyond; the conventional 256 steps
+costs 4.06 FID for $25.6\times$ the compute. Captioning inverts this, rising from CIDEr 0.013 at
+10 steps to 0.136 at 256 before falling again at 512, and image$\rightarrow$text CLIP behaves
+alike. The joint direction shows both effects inside single samples, every added step improving
+the text half and degrading the image half, which is why Table~\ref{tab:image:headline} quotes it
+at both ends. None of this modifies the framework: the step count, like the per-direction churn
+and guidance, is an inference-time hyperparameter of any diffusion sampler, set per direction on
+the same weights without retraining---and such sampler settings are the only thing that had to be
+adapted per modality (Appendix~\ref{app:image:sampler}).
 
-\textbf{Scaling the corpus.} Moving to CC12M ($4\times$ the pairs, $1.37\times$ the parameters,
-$\approx8.7\times$ the compute, a better codec) improves images and degrades text:
-text$\rightarrow$image FID falls $18.48\rightarrow16.59$, a margin that survives subtracting each
-tokenizer's own codec contribution ($17.90$ versus $16.39$; CMMD, $18.41\rightarrow17.76$, has no such
-correction and retains an unquantified codec advantage), while at a matched 256 steps captioning
-CIDEr falls $0.136\rightarrow0.057$ and image$\rightarrow$text CLIP $24.83\rightarrow22.98$. This
-split is what noisier CC12M alt-text predicts and uniform undertraining does not, but that is an
-inference from a pattern across metrics, not a measurement; the decisive checkpoint-progression
-test has not been run (Appendix~\ref{app:image:scaling}).
+\textbf{Scaling the corpus.} Moving to CC12M---$4\times$ the pairs, $1.37\times$ the parameters,
+$\approx8.7\times$ the compute and a better codec---improves images and degrades text.
+Text$\rightarrow$image FID falls $18.48\rightarrow16.59$, a margin that survives subtracting each
+tokenizer's own contribution to the floor ($17.90$ versus $16.39$), while captioning CIDEr falls
+$0.136\rightarrow0.057$ and image$\rightarrow$text CLIP $24.83\rightarrow22.98$ at matched
+settings. That split is what noisier CC12M alt-text predicts and what uniform undertraining does
+not: more images sharpen the marginal image distribution, while weaker caption--image alignment
+degrades everything conditioned on text. It remains an inference from a pattern across metrics
+rather than a measurement of caption quality, and the decisive checkpoint-progression test has
+not been run (Appendix~\ref{app:image:scaling}).
 
-\textbf{Limitations.} Compositional prompt following is near the floor: CC3M scores 0.249 on
-GenEval \citep{image:geneval} (single object 0.80, colours 0.46, position 0.04, attribute
-binding 0.03; Appendix~\ref{app:image:geneval}) and CC12M 0.222. The score is flat in the step
-count---0.235 for CC3M at its 10-step image optimum against 0.249 at 256, 0.221 versus 0.222 for
-CC12M---so this is the model's compositional ceiling and not a sampler artefact. Captioning is weak in absolute terms (CIDEr 0.136, roughly $7.5\times$
-below the COCO-trained L-Verse \citep{image:lverse} at 1.022; no zero-shot COCO captioning
-baseline has been published), and the outputs are fluent CC3M-style alt-text scored against
-COCO's terse references (RefCLIPScore \citep{image:clipscore} 0.661;
-Appendix~\ref{app:image:captioning}). Both limitations are
-consistent with CC3M alt-text rarely specifying relations, attribute bindings or COCO-style
-descriptions, and both are exactly what the omitted ingredients---text pre-training, curated or
-re-captioned data, alignment losses---are expected to buy. That is the point of the experiment:
-it shows what unmodified transfer does and does not provide.
+\textbf{Limitations.} The two weaknesses are compositional prompt following and captioning, and
+they have the same shape. On GenEval, single objects render 80\% of the time and colours 46\%,
+while position and attribute binding sit near zero; the score is flat across a $16\times$ range
+of step counts, so it is the model's ceiling rather than a sampler artefact
+(Appendix~\ref{app:image:geneval}). Captioning is weak in absolute terms, and the outputs are
+fluent CC3M-style alt-text scored against COCO's terse references, which the $n$-gram metrics
+penalise almost regardless of content (RefCLIPScore \citep{image:clipscore} 0.661;
+Appendix~\ref{app:image:captioning}). Both are consistent with CC3M alt-text rarely specifying
+relations, attribute bindings or COCO-style descriptions, and both are exactly what the omitted
+ingredients---text pre-training, curated or re-captioned data, alignment losses---are expected to
+buy. That is the point of the experiment: it shows what unmodified transfer does and does not
+provide.

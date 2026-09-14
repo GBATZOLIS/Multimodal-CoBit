@@ -398,10 +398,24 @@ the cited paper's own table or from the compilation tables of \citet{image:showo
 \citet{image:unidiffuser} and \citet{image:lafite}. Improved VQ-Diffusion
 \citep{image:vqdiffusion-improved}, our closest architectural relative (discrete diffusion over
 VQ tokens, trained on CC3M+CC12M), reports FID 8.44 on MS-COCO and 15.58 on Conceptual Captions;
-neither is a zero-shot COCO number (its COCO table compares against COCO-trained models, and the CC figure is in-domain), so it is excluded. DALL$\cdot$E's 27.50 is a best-of-512
-CLIP-reranked figure its own paper does not print, reproduced here as the compilation tables give
-it; CogView's 27.10 is excluded because that evaluation blurs MS-COCO, translates the captions
-and re-ranks 60 samples each. Only the ViT-L/14 column of
+neither is a zero-shot COCO number (its COCO table compares against COCO-trained
+models, and the CC figure is in-domain), so it is excluded. CogView \citep{image:cogview} is
+excluded for a different reason: its 27.10 comes from an evaluation that blurs MS-COCO,
+translates the captions into Chinese and re-ranks 60 samples per caption, and is not on the same
+axis as the rest of the column. DALL$\cdot$E's 27.50 is likewise a best-of-512 CLIP-reranked
+figure that its own paper does not print; we reproduce it as the compilation tables give it.
+
+Three conventions in the table deserve stating, because each one flatters a different row.
+\emph{Parameters} are as each source counts them, and frozen components are included
+inconsistently: PixArt-$\alpha$'s 0.6B is the diffusion backbone alone and excludes a 4.3B T5
+encoder, Imagen's 3B excludes a frozen T5-XXL, LAFITE's 75M counts only trainable weights, while
+DALL$\cdot$E~2's 6.5B includes CLIP. The column therefore orders magnitude, not cost.
+\emph{Pre-train pairs} are similarly uneven: DALL$\cdot$E~2's prior, decoder and upsamplers saw
+about 250M images and only its CLIP encoder saw the 650M usually quoted, and CC3M is 3.3M pairs
+as released against the 2.9M still downloadable when we built it, which is why the LAFITE and
+CoBit-CC3M rows differ on a shared corpus. \emph{FID} is not one pipeline: Stable Diffusion is
+8.59 in \citet{image:unidiffuser}'s compilation and 9.62 in \citet{image:showo}'s, the same model
+measured twice, which sets the scale on which small differences between rows should be read. Only the ViT-L/14 column of
 Table~\ref{tab:app:image:headline-full} may be placed beside published CLIP scores; the B/32 and
 L/14 scales differ substantially (28.02 versus 21.79 for the same samples). Generations
 faithfully reproduce CC3M's distribution (stock-photo watermarks, white-background product shots,

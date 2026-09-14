@@ -1,8 +1,685 @@
-\begin{thebibliography}{0}
+\begin{thebibliography}{85}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
   \providecommand{\doi}[1]{doi: #1}\else
   \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Allal et~al.(2025)Allal, Lozhkov, Bakouch, Blázquez, Penedo,
+  Tunstall, Marafioti, Kydlíček, Lajarín, Srivastav, Lochner, Fahlgren,
+  Nguyen, Fourrier, Burtenshaw, Larcher, Zhao, Zakka, Morlon, Raffel, von
+  Werra, and Wolf]{audio:smollm}
+Loubna~Ben Allal, Anton Lozhkov, Elie Bakouch, Gabriel~Martín Blázquez,
+  Guilherme Penedo, Lewis Tunstall, Andrés Marafioti, Hynek Kydlíček,
+  Agustín~Piqueres Lajarín, Vaibhav Srivastav, Joshua Lochner, Caleb
+  Fahlgren, Xuan-Son Nguyen, Clémentine Fourrier, Ben Burtenshaw, Hugo
+  Larcher, Haojun Zhao, Cyril Zakka, Mathieu Morlon, Colin Raffel, Leandro von
+  Werra, and Thomas Wolf.
+\newblock Smollm2: When smol goes big -- data-centric training of a small
+  language model, 2025.
+\newblock URL \url{https://arxiv.org/abs/2502.02737}.
+
+\bibitem[Anderson et~al.(2016)Anderson, Fernando, Johnson, and
+  Gould]{image:spice}
+Peter Anderson, Basura Fernando, Mark Johnson, and Stephen Gould.
+\newblock Spice: Semantic propositional image caption evaluation.
+\newblock In \emph{European Conference on Computer Vision (ECCV)}, 2016.
+
+\bibitem[Austin et~al.(2021)Austin, Johnson, Ho, Tarlow, and van~den
+  Berg]{austin2021structured}
+Jacob Austin, Daniel~D. Johnson, Jonathan Ho, Daniel Tarlow, and Rianne van~den
+  Berg.
+\newblock Structured denoising diffusion models in discrete state-spaces.
+\newblock In \emph{Advances in Neural Information Processing Systems}, 2021.
+\newblock URL \url{https://arxiv.org/abs/2107.03006}.
+
+\bibitem[Bao et~al.(2023{\natexlab{a}})Bao, Nie, Xue, Cao, Li, Su, and
+  Zhu]{image:unidiffuser}
+Fan Bao, Shen Nie, Kaiwen Xue, Yue Cao, Chongxuan Li, Hang Su, and Jun Zhu.
+\newblock One transformer fits all distributions in multi-modal diffusion at
+  scale.
+\newblock In \emph{International Conference on Machine Learning (ICML)},
+  2023{\natexlab{a}}.
+
+\bibitem[Bao et~al.(2023{\natexlab{b}})Bao, Nie, Xue, Li, Pu, Wang, Yue, Cao,
+  Su, and Zhu]{bao2023unidiffuser}
+Fan Bao, Shen Nie, Kaiwen Xue, Chongxuan Li, Shi Pu, Yaole Wang, Gang Yue, Yue
+  Cao, Hang Su, and Jun Zhu.
+\newblock One transformer fits all distributions in multi-modal diffusion at
+  scale.
+\newblock In \emph{Proceedings of the 40th International Conference on Machine
+  Learning}, 2023{\natexlab{b}}.
+\newblock URL \url{https://proceedings.mlr.press/v202/bao23a.html}.
+
+\bibitem[Batzolis et~al.(2026{\natexlab{a}})Batzolis, Girolami, and
+  Ambrogioni]{batzolis2026cobit}
+Georgios Batzolis, Mark Girolami, and Luca Ambrogioni.
+\newblock {CoBit}: Language modeling with bitstream diffusion,
+  2026{\natexlab{a}}.
+\newblock URL \url{https://arxiv.org/abs/2605.07013}.
+
+\bibitem[Batzolis et~al.(2026{\natexlab{b}})Batzolis, Girolami, and
+  Ambrogioni]{method:cobit}
+Georgios Batzolis, Mark Girolami, and Luca Ambrogioni.
+\newblock Cobit: Language modeling with bitstream diffusion.
+\newblock \emph{arXiv preprint arXiv:2605.07013}, 2026{\natexlab{b}}.
+
+\bibitem[Berman et~al.(2000)Berman, Westbrook, Feng, Gilliland, Bhat, Weissig,
+  Shindyalov, and Bourne]{protein:pdb}
+Helen~M. Berman, John Westbrook, Zukang Feng, Gary Gilliland, T.~N. Bhat, Helge
+  Weissig, Ilya~N. Shindyalov, and Philip~E. Bourne.
+\newblock The protein data bank.
+\newblock \emph{Nucleic Acids Research}, 28\penalty0 (1):\penalty0 235--242,
+  2000.
+\newblock \doi{10.1093/nar/28.1.235}.
+
+\bibitem[Cai et~al.(2026)Cai, Lin, Wang, Fu, and Zeng]{audio:gpa}
+Runyuan Cai, Yu~Lin, Yiming Wang, Chunlin Fu, and Xiaodong Zeng.
+\newblock Unifying speech recognition, synthesis and conversion with
+  autoregressive transformers, 2026.
+\newblock URL \url{https://arxiv.org/abs/2601.10770}.
+
+\bibitem[Campbell et~al.(2024)Campbell, Yim, Barzilay, Rainforth, and
+  Jaakkola]{campbell2024multiflow}
+Andrew Campbell, Jason Yim, Regina Barzilay, Tom Rainforth, and Tommi Jaakkola.
+\newblock Generative flows on discrete state-spaces: Enabling multimodal flows
+  with applications to protein co-design.
+\newblock In \emph{Proceedings of the 41st International Conference on Machine
+  Learning}, 2024.
+\newblock URL \url{https://arxiv.org/abs/2402.04997}.
+
+\bibitem[Changpinyo et~al.(2021)Changpinyo, Sharma, Ding, and
+  Soricut]{image:cc12m}
+Soravit Changpinyo, Piyush Sharma, Nan Ding, and Radu Soricut.
+\newblock Conceptual 12m: Pushing web-scale image-text pre-training to
+  recognize long-tail visual concepts.
+\newblock In \emph{IEEE/CVF Conference on Computer Vision and Pattern
+  Recognition (CVPR)}, 2021.
+
+\bibitem[Chen et~al.(2024)Chen, Yu, Ge, Yao, Xie, Wu, Wang, Kwok, Luo, Lu, and
+  Li]{image:pixart}
+Junsong Chen, Jincheng Yu, Chongjian Ge, Lewei Yao, Enze Xie, Yue Wu, Zhongdao
+  Wang, James Kwok, Ping Luo, Huchuan Lu, and Zhenguo Li.
+\newblock Pixart-{\(\alpha\)}: Fast training of diffusion transformer for
+  photorealistic text-to-image synthesis.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2024.
+
+\bibitem[Chen et~al.(2022)Chen, Wang, Chen, Wu, Liu, Chen, Li, Kanda, Yoshioka,
+  Xiao, et~al.]{audio:wavlm}
+Sanyuan Chen, Chengyi Wang, Zhengyang Chen, Yu~Wu, Shujie Liu, Zhuo Chen, Jinyu
+  Li, Naoyuki Kanda, Takuya Yoshioka, Xiong Xiao, et~al.
+\newblock Wavlm: Large-scale self-supervised pre-training for full stack speech
+  processing.
+\newblock \emph{IEEE Journal of Selected Topics in Signal Processing},
+  16\penalty0 (6):\penalty0 1505--1518, 2022.
+
+\bibitem[Chen et~al.(2023{\natexlab{a}})Chen, Zhang, and
+  Hinton]{chen2023analog}
+Ting Chen, Ruixiang Zhang, and Geoffrey Hinton.
+\newblock Analog bits: Generating discrete data using diffusion models with
+  self-conditioning.
+\newblock In \emph{International Conference on Learning Representations},
+  2023{\natexlab{a}}.
+\newblock URL \url{https://openreview.net/forum?id=3itjR9QxFw}.
+
+\bibitem[Chen et~al.(2023{\natexlab{b}})Chen, Zhang, and
+  Hinton]{method:analogbits}
+Ting Chen, Ruixiang Zhang, and Geoffrey Hinton.
+\newblock Analog bits: Generating discrete data using diffusion models with
+  self-conditioning.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2023{\natexlab{b}}.
+
+\bibitem[Chen et~al.(2026)Chen, Liang, Sui, Guo, Cheng, You, and
+  Liu]{chen2026langflow}
+Yuxin Chen, Chumeng Liang, Hangke Sui, Ruihan Guo, Chaoran Cheng, Jiaxuan You,
+  and Ge~Liu.
+\newblock {LangFlow}: Continuous diffusion rivals discrete in language
+  modeling, 2026.
+\newblock URL \url{https://arxiv.org/abs/2604.11748}.
+
+\bibitem[Chou et~al.(2025)Chou, Zhou, and Livescu]{audio:flow-slm}
+Ju-Chieh Chou, Jiawei Zhou, and Karen Livescu.
+\newblock Flow-slm: Joint learning of linguistic and acoustic information for
+  spoken language modeling.
+\newblock \emph{arXiv preprint arXiv:2508.09350}, 2025.
+
+\bibitem[Cornia et~al.(2020)Cornia, Stefanini, Baraldi, and
+  Cucchiara]{image:m2transformer}
+Marcella Cornia, Matteo Stefanini, Lorenzo Baraldi, and Rita Cucchiara.
+\newblock Meshed-memory transformer for image captioning.
+\newblock In \emph{IEEE/CVF Conference on Computer Vision and Pattern
+  Recognition (CVPR)}, 2020.
+
+\bibitem[Dauparas et~al.(2022)Dauparas, Anishchenko, Bennett, Bai, Ragotte,
+  Milles, Wicky, Courbet, de~Haas, Bethel, et~al.]{protein:proteinmpnn}
+Justas Dauparas, Ivan Anishchenko, Nathaniel Bennett, Hua Bai, Robert~J.
+  Ragotte, Lukas~F. Milles, Basile I.~M. Wicky, Alexis Courbet, Rob~J. de~Haas,
+  Neville Bethel, et~al.
+\newblock Robust deep learning--based protein sequence design using
+  {ProteinMPNN}.
+\newblock \emph{Science}, 378\penalty0 (6615):\penalty0 49--56, 2022.
+\newblock \doi{10.1126/science.add2187}.
+
+\bibitem[D{\'e}fossez et~al.(2024)D{\'e}fossez, Mazar{\'e}, Orsini, Royer,
+  P{\'e}rez, J{\'e}gou, Grave, and Zeghidour]{audio:moshi}
+Alexandre D{\'e}fossez, Laurent Mazar{\'e}, Manu Orsini, Am{\'e}lie Royer,
+  Patrick P{\'e}rez, Herv{\'e} J{\'e}gou, Edouard Grave, and Neil Zeghidour.
+\newblock Moshi: a speech-text foundation model for real-time dialogue.
+\newblock \emph{arXiv preprint arXiv:2410.00037}, 2024.
+
+\bibitem[Desplanques et~al.(2020)Desplanques, Thienpondt, and
+  Demuynck]{audio:ecapa-tdnn}
+Brecht Desplanques, Jenthe Thienpondt, and Kris Demuynck.
+\newblock Ecapa-tdnn: Emphasized channel attention, propagation and aggregation
+  in tdnn based speaker verification.
+\newblock \emph{arXiv preprint arXiv:2005.07143}, 2020.
+
+\bibitem[Dieleman et~al.(2022)Dieleman, Sartran, Roshannai, Savinov, Ganin,
+  Richemond, Doucet, Strudel, Dyer, Durkan, Hawthorne, Leblond, Grathwohl, and
+  Adler]{dieleman2022continuous}
+Sander Dieleman, Laurent Sartran, Arman Roshannai, Nikolay Savinov, Yaroslav
+  Ganin, Pierre~H. Richemond, Arnaud Doucet, Robin Strudel, Chris Dyer, Conor
+  Durkan, Curtis Hawthorne, R{\'e}mi Leblond, Will Grathwohl, and Jonas Adler.
+\newblock Continuous diffusion for categorical data, 2022.
+\newblock URL \url{https://arxiv.org/abs/2211.15089}.
+
+\bibitem[Ding et~al.(2021)Ding, Yang, Hong, Zheng, Zhou, Yin, Lin, Zou, Shao,
+  Yang, and Tang]{image:cogview}
+Ming Ding, Zhuoyi Yang, Wenyi Hong, Wendi Zheng, Chang Zhou, Da~Yin, Junyang
+  Lin, Xu~Zou, Zhou Shao, Hongxia Yang, and Jie Tang.
+\newblock Cogview: Mastering text-to-image generation via transformers.
+\newblock In \emph{Advances in Neural Information Processing Systems
+  (NeurIPS)}, 2021.
+
+\bibitem[Ge et~al.(2024)Ge, Zhao, Zhu, Ge, Yi, Song, Li, Ding, and
+  Shan]{image:seedx}
+Yuying Ge, Sijie Zhao, Jinguo Zhu, Yixiao Ge, Kun Yi, Lin Song, Chen Li,
+  Xiaohan Ding, and Ying Shan.
+\newblock Seed-x: Multimodal models with unified multi-granularity
+  comprehension and generation.
+\newblock \emph{arXiv preprint arXiv:2404.14396}, 2024.
+
+\bibitem[Ghosh et~al.(2023)Ghosh, Hajishirzi, and Schmidt]{image:geneval}
+Dhruba Ghosh, Hannaneh Hajishirzi, and Ludwig Schmidt.
+\newblock Geneval: An object-focused framework for evaluating text-to-image
+  alignment.
+\newblock In \emph{Advances in Neural Information Processing Systems
+  (NeurIPS)}, 2023.
+
+\bibitem[Haas et~al.(2018)Haas, Barbato, Behringer, Studer, Roth, Bertoni,
+  Mostaguir, Gumienny, and Schwede]{protein:cameo}
+J{\"u}rgen Haas, Alessandro Barbato, Dario Behringer, Gabriel Studer, Steven
+  Roth, Martino Bertoni, Khaled Mostaguir, Rafal Gumienny, and Torsten Schwede.
+\newblock Continuous automated model {EvaluatiOn} ({CAMEO}) complementing the
+  critical assessment of structure prediction in {CASP12}.
+\newblock \emph{Proteins: Structure, Function, and Bioinformatics}, 86\penalty0
+  (Suppl. 1):\penalty0 387--398, 2018.
+\newblock \doi{10.1002/prot.25431}.
+\newblock URL \url{https://pmc.ncbi.nlm.nih.gov/articles/PMC5820194/}.
+
+\bibitem[Hassid et~al.(2023)Hassid, Remez, Nguyen, Gat, Conneau, Kreuk, Copet,
+  Defossez, Synnaeve, Dupoux, et~al.]{audio:twist}
+Michael Hassid, Tal Remez, Tu~Anh Nguyen, Itai Gat, Alexis Conneau, Felix
+  Kreuk, Jade Copet, Alexandre Defossez, Gabriel Synnaeve, Emmanuel Dupoux,
+  et~al.
+\newblock Textually pretrained speech language models.
+\newblock \emph{Advances in Neural Information Processing Systems},
+  36:\penalty0 63483--63501, 2023.
+
+\bibitem[Hessel et~al.(2021)Hessel, Holtzman, Forbes, Bras, and
+  Choi]{image:clipscore}
+Jack Hessel, Ari Holtzman, Maxwell Forbes, Ronan~Le Bras, and Yejin Choi.
+\newblock Clipscore: A reference-free evaluation metric for image captioning.
+\newblock In \emph{Empirical Methods in Natural Language Processing (EMNLP)},
+  2021.
+
+\bibitem[Heusel et~al.(2017)Heusel, Ramsauer, Unterthiner, Nessler, and
+  Hochreiter]{image:fid}
+Martin Heusel, Hubert Ramsauer, Thomas Unterthiner, Bernhard Nessler, and Sepp
+  Hochreiter.
+\newblock Gans trained by a two time-scale update rule converge to a local nash
+  equilibrium.
+\newblock In \emph{Advances in Neural Information Processing Systems
+  (NeurIPS)}, 2017.
+
+\bibitem[Ho \& Salimans(2021)Ho and Salimans]{method:cfg}
+Jonathan Ho and Tim Salimans.
+\newblock Classifier-free diffusion guidance.
+\newblock In \emph{NeurIPS 2021 Workshop on Deep Generative Models and
+  Downstream Applications}, 2021.
+
+\bibitem[Ho et~al.(2020)Ho, Jain, and Abbeel]{ho2020denoising}
+Jonathan Ho, Ajay Jain, and Pieter Abbeel.
+\newblock Denoising diffusion probabilistic models.
+\newblock In \emph{Advances in Neural Information Processing Systems}, 2020.
+\newblock URL \url{https://arxiv.org/abs/2006.11239}.
+
+\bibitem[Ho et~al.(2022)Ho, Salimans, Gritsenko, Chan, Norouzi, and
+  Fleet]{ho2022video}
+Jonathan Ho, Tim Salimans, Alexey Gritsenko, William Chan, Mohammad Norouzi,
+  and David~J. Fleet.
+\newblock Video diffusion models.
+\newblock In \emph{Advances in Neural Information Processing Systems}, 2022.
+\newblock URL \url{https://arxiv.org/abs/2204.03458}.
+
+\bibitem[Hsu et~al.(2026)Hsu, Tseng, Lin, Kuo, Chou, Chang, Lee, and
+  Busso]{audio:gen-salmon}
+Chan-Jan Hsu, Liang-Hsuan Tseng, Yi-Cheng Lin, Yen-Chun Kuo, Ju-Chieh Chou,
+  Kai-Wei Chang, Hung-yi Lee, and Carlos Busso.
+\newblock On the fallacy of global token perplexity in spoken language model
+  evaluation.
+\newblock In \emph{Findings of the Association for Computational Linguistics:
+  ACL 2026}, pp.\  37000--37020, 2026.
+
+\bibitem[Hu et~al.(2026)Hu, Qiu, Lu, Zhao, Li, Kim, Andreas, and He]{hu2026elf}
+Keya Hu, Linlu Qiu, Yiyang Lu, Hanhong Zhao, Tianhong Li, Yoon Kim, Jacob
+  Andreas, and Kaiming He.
+\newblock {ELF}: Embedded language flows, 2026.
+\newblock URL \url{https://arxiv.org/abs/2605.10938}.
+
+\bibitem[Jayasumana et~al.(2024)Jayasumana, Ramalingam, Veit, Glasner,
+  Chakrabarti, and Kumar]{image:cmmd}
+Sadeep Jayasumana, Srikumar Ramalingam, Andreas Veit, Daniel Glasner, Ayan
+  Chakrabarti, and Sanjiv Kumar.
+\newblock Rethinking fid: Towards a better evaluation metric for image
+  generation.
+\newblock In \emph{IEEE/CVF Conference on Computer Vision and Pattern
+  Recognition (CVPR)}, 2024.
+
+\bibitem[Karras et~al.(2022)Karras, Aittala, Aila, and Laine]{image:edm}
+Tero Karras, Miika Aittala, Timo Aila, and Samuli Laine.
+\newblock Elucidating the design space of diffusion-based generative models.
+\newblock In \emph{Advances in Neural Information Processing Systems
+  (NeurIPS)}, 2022.
+
+\bibitem[Kim et~al.(2022)Kim, Song, Lee, Kim, Seo, Lee, Kim, Lee, and
+  Bae]{image:lverse}
+Taehoon Kim, Gwangmo Song, Sihaeng Lee, Sangyun Kim, Yewon Seo, Soonyoung Lee,
+  Seung~Hwan Kim, Honglak Lee, and Kyunghoon Bae.
+\newblock L-verse: Bidirectional generation between image and text.
+\newblock In \emph{IEEE/CVF Conference on Computer Vision and Pattern
+  Recognition (CVPR)}, 2022.
+
+\bibitem[Koluguri et~al.(2022)Koluguri, Park, and Ginsburg]{audio:titanet}
+Nithin~Rao Koluguri, Taejin Park, and Boris Ginsburg.
+\newblock Titanet: Neural model for speaker representation with 1d depth-wise
+  separable convolutions and global context.
+\newblock In \emph{ICASSP 2022-2022 IEEE international conference on acoustics,
+  speech and signal processing (ICASSP)}, pp.\  8102--8106. IEEE, 2022.
+
+\bibitem[Kong et~al.(2021)Kong, Ping, Huang, Zhao, and
+  Catanzaro]{kong2021diffwave}
+Zhifeng Kong, Wei Ping, Jiaji Huang, Kexin Zhao, and Bryan Catanzaro.
+\newblock {DiffWave}: A versatile diffusion model for audio synthesis.
+\newblock In \emph{International Conference on Learning Representations}, 2021.
+\newblock URL \url{https://arxiv.org/abs/2009.09761}.
+
+\bibitem[Kynk{\"a}{\"a}nniemi et~al.(2019)Kynk{\"a}{\"a}nniemi, Karras, Laine,
+  Lehtinen, and Aila]{image:precision-recall}
+Tuomas Kynk{\"a}{\"a}nniemi, Tero Karras, Samuli Laine, Jaakko Lehtinen, and
+  Timo Aila.
+\newblock Improved precision and recall metric for assessing generative models.
+\newblock In \emph{Advances in Neural Information Processing Systems
+  (NeurIPS)}, 2019.
+
+\bibitem[La~Quatra et~al.(2024)La~Quatra, Koudounas, Vaiani, Baralis, Cagliero,
+  Garza, and Siniscalchi]{audio:ARCH}
+Moreno La~Quatra, Alkis Koudounas, Lorenzo Vaiani, Elena Baralis, Luca
+  Cagliero, Paolo Garza, and Sabato~Marco Siniscalchi.
+\newblock Benchmarking representations for speech, music, and acoustic events.
+\newblock In \emph{2024 IEEE International Conference on Acoustics, Speech, and
+  Signal Processing Workshops (ICASSPW)}, pp.\  505--509, 2024.
+\newblock \doi{10.1109/ICASSPW62465.2024.10625960}.
+
+\bibitem[Li et~al.(2022)Li, Thickstun, Gulrajani, Liang, and
+  Hashimoto]{li2022diffusionlm}
+Xiang~Lisa Li, John Thickstun, Ishaan Gulrajani, Percy Liang, and Tatsunori~B.
+  Hashimoto.
+\newblock {Diffusion-LM} improves controllable text generation.
+\newblock In \emph{Advances in Neural Information Processing Systems}, 2022.
+\newblock URL \url{https://arxiv.org/abs/2205.14217}.
+
+\bibitem[Li et~al.(2020)Li, Yin, Li, Zhang, Hu, Zhang, Wang, Hu, Dong, Wei,
+  Choi, and Gao]{image:oscar}
+Xiujun Li, Xi~Yin, Chunyuan Li, Pengchuan Zhang, Xiaowei Hu, Lei Zhang, Lijuan
+  Wang, Houdong Hu, Li~Dong, Furu Wei, Yejin Choi, and Jianfeng Gao.
+\newblock Oscar: Object-semantics aligned pre-training for vision-language
+  tasks.
+\newblock In \emph{European Conference on Computer Vision (ECCV)}, 2020.
+
+\bibitem[Lin et~al.(2014)Lin, Maire, Belongie, Hays, Perona, Ramanan,
+  Doll{\'a}r, and Zitnick]{image:mscoco}
+Tsung-Yi Lin, Michael Maire, Serge Belongie, James Hays, Pietro Perona, Deva
+  Ramanan, Piotr Doll{\'a}r, and C.~Lawrence Zitnick.
+\newblock Microsoft coco: Common objects in context.
+\newblock In \emph{European Conference on Computer Vision (ECCV)}, 2014.
+
+\bibitem[Lin et~al.(2023)Lin, Akin, Rao, Hie, Zhu, Lu, et~al.]{protein:esmfold}
+Zeming Lin, Halil Akin, Roshan Rao, Brian Hie, Zhongkai Zhu, Wenting Lu, et~al.
+\newblock Evolutionary-scale prediction of atomic-level protein structure with
+  a language model.
+\newblock \emph{Science}, 379:\penalty0 1123--1130, 2023.
+\newblock \doi{10.1126/science.ade2574}.
+
+\bibitem[Liu et~al.(2024)Liu, Yan, Zaharia, and Abbeel]{image:lwm}
+Hao Liu, Wilson Yan, Matei Zaharia, and Pieter Abbeel.
+\newblock World model on million-length video and language with blockwise
+  ringattention.
+\newblock \emph{arXiv preprint arXiv:2402.08268}, 2024.
+
+\bibitem[Lu et~al.(2026)Lu, Wang, Zhang, Gu, Jaitly, Susskind, and
+  Bautista]{protein:simpledesign}
+Jiarui Lu, Yuyang Wang, Yizhe Zhang, Jiatao Gu, Navdeep Jaitly, Joshua~M.
+  Susskind, and Miguel~{\'A}ngel Bautista.
+\newblock {SimpleDesign}: A joint model for protein sequence and structure
+  codesign.
+\newblock \emph{Transactions on Machine Learning Research}, 2026.
+\newblock URL \url{https://arxiv.org/abs/2609.03377}.
+
+\bibitem[Luo et~al.(2024)Luo, Shi, Ge, Yang, Wang, and Shan]{image:magvit2}
+Zhuoyan Luo, Fengyuan Shi, Yixiao Ge, Yujiu Yang, Limin Wang, and Ying Shan.
+\newblock Open-magvit2: An open-source project toward democratizing
+  auto-regressive visual generation.
+\newblock In \emph{arXiv preprint arXiv:2409.04410}, 2024.
+
+\bibitem[Ma et~al.(2024)Ma, Zheng, Ye, Li, Gao, Zhang, and
+  Chen]{audio:emotion2vec}
+Ziyang Ma, Zhisheng Zheng, Jiaxin Ye, Jinchao Li, Zhifu Gao, Shiliang Zhang,
+  and Xie Chen.
+\newblock emotion2vec: Self-supervised pre-training for speech emotion
+  representation.
+\newblock In \emph{Findings of the Association for Computational Linguistics:
+  ACL 2024}, pp.\  15747--15760, 2024.
+
+\bibitem[Maiti et~al.(2024)Maiti, Peng, Choi, Jung, Chang, and
+  Watanabe]{audio:voxtlm}
+Soumi Maiti, Yifan Peng, Shukjae Choi, Jee-weon Jung, Xuankai Chang, and Shinji
+  Watanabe.
+\newblock Voxtlm: Unified decoder-only models for consolidating speech
+  recognition, synthesis and speech, text continuation tasks.
+\newblock In \emph{ICASSP 2024-2024 IEEE International Conference on Acoustics,
+  Speech and Signal Processing (ICASSP)}, pp.\  13326--13330. IEEE, 2024.
+
+\bibitem[Mentzer et~al.(2024)Mentzer, Minnen, Agustsson, and
+  Tschannen]{audio:fsq}
+Fabian Mentzer, David Minnen, Eirikur Agustsson, and Michael Tschannen.
+\newblock Finite scalar quantization: Vq-vae made simple.
+\newblock In \emph{International Conference on Learning Representations},
+  volume 2024, pp.\  51772--51783, 2024.
+
+\bibitem[Nguyen et~al.(2025)Nguyen, Muller, Yu, Costa-Jussa, Elbayad, Popuri,
+  Ropers, Duquenne, Algayres, Mavlyutov, et~al.]{audio:spirit-lm}
+Tu~Anh Nguyen, Benjamin Muller, Bokai Yu, Marta~R Costa-Jussa, Maha Elbayad,
+  Sravya Popuri, Christophe Ropers, Paul-Ambroise Duquenne, Robin Algayres,
+  Ruslan Mavlyutov, et~al.
+\newblock Spirit-lm: Interleaved spoken and written language model.
+\newblock \emph{Transactions of the Association for Computational Linguistics},
+  13:\penalty0 30--52, 2025.
+
+\bibitem[Parker et~al.(2025)Parker, Smirnov, Pons, Carr, Zukowski, Evans, and
+  Liu]{audio:stablecodec}
+Julian Parker, Anton Smirnov, Jordi Pons, CJ~Carr, Zack Zukowski, Zach Evans,
+  and Xubo Liu.
+\newblock Scaling transformers for low-bitrate high-quality speech coding.
+\newblock In \emph{International Conference on Learning Representations},
+  volume 2025, pp.\  51997--52021, 2025.
+
+\bibitem[Pratap et~al.(2020)Pratap, Xu, Sriram, Synnaeve, and
+  Collobert]{audio:mls}
+Vineel Pratap, Qiantong Xu, Anuroop Sriram, Gabriel Synnaeve, and Ronan
+  Collobert.
+\newblock Mls: A large-scale multilingual dataset for speech research.
+\newblock \emph{arXiv preprint arXiv:2012.03411}, 2020.
+
+\bibitem[Radford et~al.(2021)Radford, Kim, Hallacy, Ramesh, Goh, Agarwal,
+  Sastry, Askell, Mishkin, Clark, Krueger, and Sutskever]{image:clip}
+Alec Radford, Jong~Wook Kim, Chris Hallacy, Aditya Ramesh, Gabriel Goh,
+  Sandhini Agarwal, Girish Sastry, Amanda Askell, Pamela Mishkin, Jack Clark,
+  Gretchen Krueger, and Ilya Sutskever.
+\newblock Learning transferable visual models from natural language
+  supervision.
+\newblock In \emph{International Conference on Machine Learning (ICML)}, 2021.
+
+\bibitem[Radford et~al.(2023)Radford, Kim, Xu, Brockman, McLeavey, and
+  Sutskever]{audio:whisper}
+Alec Radford, Jong~Wook Kim, Tao Xu, Greg Brockman, Christine McLeavey, and
+  Ilya Sutskever.
+\newblock Robust speech recognition via large-scale weak supervision.
+\newblock In \emph{International conference on machine learning}, pp.\
+  28492--28518. PMLR, 2023.
+
+\bibitem[Ramesh et~al.(2021)Ramesh, Pavlov, Goh, Gray, Voss, Radford, Chen, and
+  Sutskever]{image:dalle}
+Aditya Ramesh, Mikhail Pavlov, Gabriel Goh, Scott Gray, Chelsea Voss, Alec
+  Radford, Mark Chen, and Ilya Sutskever.
+\newblock Zero-shot text-to-image generation.
+\newblock In \emph{International Conference on Machine Learning (ICML)}, 2021.
+
+\bibitem[Ramesh et~al.(2022)Ramesh, Dhariwal, Nichol, Chu, and
+  Chen]{image:dalle2}
+Aditya Ramesh, Prafulla Dhariwal, Alex Nichol, Casey Chu, and Mark Chen.
+\newblock Hierarchical text-conditional image generation with clip latents.
+\newblock \emph{arXiv preprint arXiv:2204.06125}, 2022.
+
+\bibitem[Raya et~al.(2026)Raya, Nguyen, Batzolis, Takida, Stancevic, Murata,
+  Lai, Mitsufuji, and Ambrogioni]{raya2026infonoise}
+Gabriel Raya, Bac Nguyen, Georgios Batzolis, Yuhta Takida, Dejan Stancevic,
+  Naoki Murata, Chieh-Hsin Lai, Yuki Mitsufuji, and Luca Ambrogioni.
+\newblock Noise scheduling as information-guided allocation in diffusion
+  training, 2026.
+\newblock URL \url{https://arxiv.org/abs/2602.18647}.
+
+\bibitem[Rombach et~al.(2022{\natexlab{a}})Rombach, Blattmann, Lorenz, Esser,
+  and Ommer]{image:ldm}
+Robin Rombach, Andreas Blattmann, Dominik Lorenz, Patrick Esser, and Bj{\"o}rn
+  Ommer.
+\newblock High-resolution image synthesis with latent diffusion models.
+\newblock In \emph{IEEE/CVF Conference on Computer Vision and Pattern
+  Recognition (CVPR)}, 2022{\natexlab{a}}.
+
+\bibitem[Rombach et~al.(2022{\natexlab{b}})Rombach, Blattmann, Lorenz, Esser,
+  and Ommer]{rombach2022high}
+Robin Rombach, Andreas Blattmann, Dominik Lorenz, Patrick Esser, and Bj{\"o}rn
+  Ommer.
+\newblock High-resolution image synthesis with latent diffusion models.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision
+  and Pattern Recognition}, 2022{\natexlab{b}}.
+\newblock URL
+  \url{https://openaccess.thecvf.com/content/CVPR2022/html/Rombach_High-Resolution_Image_Synthesis_With_Latent_Diffusion_Models_CVPR_2022_paper.html}.
+
+\bibitem[Saharia et~al.(2022)Saharia, Chan, Saxena, Li, Whang, Denton,
+  Ghasemipour, Gontijo~Lopes, Karagol~Ayan, Salimans, Ho, Fleet, and
+  Norouzi]{image:imagen}
+Chitwan Saharia, William Chan, Saurabh Saxena, Lala Li, Jay Whang, Emily~L.
+  Denton, Kamyar Ghasemipour, Raphael Gontijo~Lopes, Burcu Karagol~Ayan, Tim
+  Salimans, Jonathan Ho, David~J. Fleet, and Mohammad Norouzi.
+\newblock Photorealistic text-to-image diffusion models with deep language
+  understanding.
+\newblock In \emph{Advances in Neural Information Processing Systems
+  (NeurIPS)}, 2022.
+
+\bibitem[Sahoo et~al.(2024)Sahoo, Arriola, Schiff, Gokaslan, Marroquin, Chiu,
+  Rush, and Kuleshov]{sahoo2024simple}
+Subham~S. Sahoo, Marianne Arriola, Yair Schiff, Aaron Gokaslan, Edgar
+  Marroquin, Justin~T. Chiu, Alexander Rush, and Volodymyr Kuleshov.
+\newblock Simple and effective masked diffusion language models.
+\newblock In \emph{Advances in Neural Information Processing Systems}, 2024.
+\newblock URL
+  \url{https://proceedings.neurips.cc/paper_files/paper/2024/hash/eb0b13cc515724ab8015bc978fdde0ad-Abstract-Conference.html}.
+
+\bibitem[{Schr\"odinger, LLC}(2026)]{protein:pymol}
+{Schr\"odinger, LLC}.
+\newblock The {PyMOL} molecular graphics system.
+\newblock Version 3.2, open-source build, 2026.
+\newblock URL \url{https://pymol.org/}.
+
+\bibitem[Sharma et~al.(2018)Sharma, Ding, Goodman, and Soricut]{image:cc3m}
+Piyush Sharma, Nan Ding, Sebastian Goodman, and Radu Soricut.
+\newblock Conceptual captions: A cleaned, hypernymed, image alt-text dataset
+  for automatic image captioning.
+\newblock In \emph{Annual Meeting of the Association for Computational
+  Linguistics (ACL)}, 2018.
+
+\bibitem[Sillitoe et~al.(2021)Sillitoe, Bordin, Dawson, Waman, Ashford,
+  Scholes, Pang, Woodridge, Rauer, Sen, et~al.]{protein:cath}
+Ian Sillitoe, Nicola Bordin, Natalie Dawson, Vaishali~P. Waman, Paul Ashford,
+  Harry~M. Scholes, Camilla S.~M. Pang, Laurel Woodridge, Clemens Rauer,
+  Neeladri Sen, et~al.
+\newblock {CATH}: Increased structural coverage of functional space.
+\newblock \emph{Nucleic Acids Research}, 49\penalty0 (D1):\penalty0 D266--D273,
+  2021.
+\newblock \doi{10.1093/nar/gkaa1079}.
+\newblock URL \url{https://pmc.ncbi.nlm.nih.gov/articles/PMC7778904/}.
+
+\bibitem[Song et~al.(2021{\natexlab{a}})Song, Meng, and Ermon]{method:ddim}
+Jiaming Song, Chenlin Meng, and Stefano Ermon.
+\newblock Denoising diffusion implicit models.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2021{\natexlab{a}}.
+
+\bibitem[Song et~al.(2021{\natexlab{b}})Song, Sohl-Dickstein, Kingma, Kumar,
+  Ermon, and Poole]{song2021score}
+Yang Song, Jascha Sohl-Dickstein, Diederik~P. Kingma, Abhishek Kumar, Stefano
+  Ermon, and Ben Poole.
+\newblock Score-based generative modeling through stochastic differential
+  equations.
+\newblock In \emph{International Conference on Learning Representations},
+  2021{\natexlab{b}}.
+\newblock URL \url{https://arxiv.org/abs/2011.13456}.
+
+\bibitem[Stancevic et~al.(2025)Stancevic, Handke, and
+  Ambrogioni]{stancevic2025entropic}
+Dejan Stancevic, Florian Handke, and Luca Ambrogioni.
+\newblock Entropic time schedulers for generative diffusion models.
+\newblock In \emph{Advances in Neural Information Processing Systems}, 2025.
+\newblock URL
+  \url{https://proceedings.neurips.cc/paper_files/paper/2025/hash/3ed10616ecdd776be283c0a45cf9332d-Abstract-Conference.html}.
+
+\bibitem[Sugiura et~al.(2025)Sugiura, Kurita, Oda, and
+  Higashinaka]{audio:llama-mimi}
+Issa Sugiura, Shuhei Kurita, Yusuke Oda, and Ryuichiro Higashinaka.
+\newblock Llama-mimi: Speech language models with interleaved semantic and
+  acoustic tokens.
+\newblock \emph{arXiv preprint arXiv:2509.14882}, 2025.
+
+\bibitem[Tang et~al.(2022)Tang, Gu, Bao, Chen, and
+  Wen]{image:vqdiffusion-improved}
+Zhicong Tang, Shuyang Gu, Jianmin Bao, Dong Chen, and Fang Wen.
+\newblock Improved vector quantized diffusion models.
+\newblock \emph{arXiv preprint arXiv:2205.16007}, 2022.
+
+\bibitem[Tang et~al.(2023{\natexlab{a}})Tang, Yang, Zhu, Zeng, and
+  Bansal]{image:codi}
+Zineng Tang, Ziyi Yang, Chenguang Zhu, Michael Zeng, and Mohit Bansal.
+\newblock Any-to-any generation via composable diffusion.
+\newblock In \emph{Advances in Neural Information Processing Systems
+  (NeurIPS)}, 2023{\natexlab{a}}.
+
+\bibitem[Tang et~al.(2023{\natexlab{b}})Tang, Yang, Zhu, Zeng, and
+  Bansal]{tang2023codi}
+Zineng Tang, Ziyi Yang, Chenguang Zhu, Michael Zeng, and Mohit Bansal.
+\newblock Any-to-any generation via composable diffusion.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  2023{\natexlab{b}}.
+\newblock URL
+  \url{https://proceedings.neurips.cc/paper_files/paper/2023/hash/33edf072fe44f19079d66713a1831550-Abstract-Conference.html}.
+
+\bibitem[Theis et~al.(2015)Theis, Oord, and Bethge]{audio:diffusion-likelihood}
+Lucas Theis, A{\"a}ron van~den Oord, and Matthias Bethge.
+\newblock A note on the evaluation of generative models.
+\newblock \emph{arXiv preprint arXiv:1511.01844}, 2015.
+
+\bibitem[Tseng et~al.(2025)Tseng, Chen, Lee, Shiu, and Lee]{audio:taste}
+Liang-Hsuan Tseng, Yi-Chang Chen, Kuan-Yi Lee, Da-Shan Shiu, and Hung-yi Lee.
+\newblock Taste: Text-aligned speech tokenization and embedding for spoken
+  language modeling.
+\newblock \emph{arXiv preprint arXiv:2504.07053}, 2025.
+
+\bibitem[Varadi et~al.(2024)Varadi, Bertoni, Magana, et~al.]{protein:afdb}
+Mihaly Varadi, Damian Bertoni, Paulyna Magana, et~al.
+\newblock {AlphaFold} protein structure database in 2024: providing structure
+  coverage for over 214 million protein sequences.
+\newblock \emph{Nucleic Acids Research}, 52\penalty0 (D1):\penalty0 D368--D375,
+  2024.
+\newblock \doi{10.1093/nar/gkad1011}.
+
+\bibitem[Wang et~al.(2025{\natexlab{a}})Wang, Jiang, Ma, Zhang, Liu, Li, Liang,
+  Zheng, Wang, Feng, et~al.]{audio:spark-tts}
+Xinsheng Wang, Mingqi Jiang, Ziyang Ma, Ziyu Zhang, Songxiang Liu, Linqin Li,
+  Zheng Liang, Qixi Zheng, Rui Wang, Xiaoqin Feng, et~al.
+\newblock Spark-tts: An efficient llm-based text-to-speech model with
+  single-stream decoupled speech tokens.
+\newblock \emph{arXiv preprint arXiv:2503.01710}, 2025{\natexlab{a}}.
+
+\bibitem[Wang et~al.(2024{\natexlab{a}})Wang, Zheng, Ye, Xue, Huang, and
+  Gu]{protein:dplm2}
+Xinyou Wang, Zaixiang Zheng, Fei Ye, Dongyu Xue, Shujian Huang, and Quanquan
+  Gu.
+\newblock {DPLM-2}: A multimodal diffusion protein language model.
+\newblock \emph{arXiv preprint arXiv:2410.13782}, 2024{\natexlab{a}}.
+\newblock URL \url{https://arxiv.org/abs/2410.13782}.
+
+\bibitem[Wang et~al.(2024{\natexlab{b}})Wang, Zheng, Ye, Xue, Huang, and
+  Gu]{wang2024dplm}
+Xinyou Wang, Zaixiang Zheng, Fei Ye, Dongyu Xue, Shujian Huang, and Quanquan
+  Gu.
+\newblock Diffusion language models are versatile protein learners.
+\newblock In \emph{Proceedings of the 41st International Conference on Machine
+  Learning}, 2024{\natexlab{b}}.
+\newblock URL \url{https://proceedings.mlr.press/v235/wang24ct.html}.
+
+\bibitem[Wang et~al.(2025{\natexlab{b}})Wang, Zheng, Ye, Xue, Huang, and
+  Gu]{wang2025dplm2}
+Xinyou Wang, Zaixiang Zheng, Fei Ye, Dongyu Xue, Shujian Huang, and Quanquan
+  Gu.
+\newblock {DPLM-2}: A multimodal diffusion protein language model.
+\newblock In \emph{International Conference on Learning Representations},
+  2025{\natexlab{b}}.
+\newblock URL \url{https://openreview.net/forum?id=5z9GjHgerY}.
+
+\bibitem[Xie et~al.(2024)Xie, Mao, Bai, Zhang, Wang, Lin, Gu, Chen, Yang, and
+  Shou]{image:showo}
+Jinheng Xie, Weijia Mao, Zechen Bai, David~Junhao Zhang, Weihao Wang,
+  Kevin~Qinghong Lin, Yuchao Gu, Zhijie Chen, Zhenheng Yang, and Mike~Zheng
+  Shou.
+\newblock Show-o: One single transformer to unify multimodal understanding and
+  generation.
+\newblock \emph{arXiv preprint arXiv:2408.12528}, 2024.
+
+\bibitem[Yu et~al.(2024)Yu, Lezama, Gundavarapu, Versari, Sohn, Minnen, Cheng,
+  Gupta, Gu, Hauptmann, Gong, Yang, Essa, Ross, and Jiang]{image:lfq}
+Lijun Yu, Jose Lezama, Nitesh~B. Gundavarapu, Luca Versari, Kihyuk Sohn, David
+  Minnen, Yong Cheng, Agrim Gupta, Xiuye Gu, Alexander~G. Hauptmann, Boqing
+  Gong, Ming-Hsuan Yang, Irfan Essa, David~A. Ross, and Lu~Jiang.
+\newblock Language model beats diffusion -- tokenizer is key to visual
+  generation.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2024.
+
+\bibitem[Zen et~al.(2019)Zen, Dang, Clark, Zhang, Weiss, Jia, Chen, and
+  Wu]{audio:libritts}
+Heiga Zen, Viet Dang, Rob Clark, Yu~Zhang, Ron~J Weiss, Ye~Jia, Zhifeng Chen,
+  and Yonghui Wu.
+\newblock Libritts: A corpus derived from librispeech for text-to-speech.
+\newblock \emph{arXiv preprint arXiv:1904.02882}, 2019.
+
+\bibitem[Zhang \& Skolnick(2004)Zhang and Skolnick]{protein:tmscore}
+Yang Zhang and Jeffrey Skolnick.
+\newblock Scoring function for automated assessment of protein structure
+  template quality.
+\newblock \emph{Proteins: Structure, Function, and Bioinformatics}, 57\penalty0
+  (4):\penalty0 702--710, 2004.
+\newblock \doi{10.1002/prot.20264}.
+\newblock URL \url{https://pubmed.ncbi.nlm.nih.gov/15476259/}.
+
+\bibitem[Zhou et~al.(2022)Zhou, Zhang, Chen, Li, Tensmeyer, Yu, Gu, Xu, and
+  Sun]{image:lafite}
+Yufan Zhou, Ruiyi Zhang, Changyou Chen, Chunyuan Li, Chris Tensmeyer, Tong Yu,
+  Jiuxiang Gu, Jinhui Xu, and Tong Sun.
+\newblock Lafite: Towards language-free training for text-to-image generation.
+\newblock In \emph{IEEE/CVF Conference on Computer Vision and Pattern
+  Recognition (CVPR)}, 2022.
 
 \end{thebibliography}

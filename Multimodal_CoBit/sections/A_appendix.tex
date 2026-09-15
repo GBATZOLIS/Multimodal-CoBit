@@ -718,6 +718,29 @@ SpiritLM-Expressive & 72 & 54 & 56 & 58.5 & 55.5 & 54.5 \\
 \label{tab:audio:steps:joint}
 \end{table}
 
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4.5pt}
+\begin{tabular}{lrrrrrr}
+\toprule
+& \multicolumn{4}{c}{\textbf{Text-to-Speech}} & \multicolumn{2}{c}{\textbf{Speech-to-Text}} \\
+\cmidrule(lr){2-5} \cmidrule(lr){6-7}
+\textbf{Steps} & \textbf{WER}$\downarrow$ & \textbf{CER}$\downarrow$ & \textbf{UTMOS}$\uparrow$ & \textbf{SpkSim}$\uparrow$ & \makecell{\textbf{WER}$\downarrow$ \\ \textbf{Clean}} & \makecell{\textbf{WER}$\downarrow$ \\ \textbf{Other}} \\
+\midrule
+16 & 6.6 & 4.5 & 3.85 & 0.25 & 8.6 & 23 \\
+24 & 6.7 & 4.8 & 3.96 & 0.26 & 8.4 & 22.8 \\
+32 & 5.7 & 4 & 3.99 & 0.26 & 8.3 & 22.7 \\
+48 & 5.5 & \textbf{3.9} & 4.02 & \textbf{0.27} & 8.3 & 22.9 \\
+64 & 6 & 4.1 & \textbf{4.03} & \textbf{0.27} & 8.3 & 22.5 \\
+128 & 6.3 & 4.1 & \textbf{4.03} & \textbf{0.27} & \textbf{8.1} & 22.3 \\
+256 & \textbf{5.3} & 5.2 & \textbf{4.03} & \textbf{0.27}
+\bottomrule
+\end{tabular}
+\caption{.}
+\label{tab:audio:steps:cross-modal}
+\end{table}
+
 \textbf{Effect of Stochasticity.}
 
 \textbf{Effect of Guidance Scale.}

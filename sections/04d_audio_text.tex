@@ -12,12 +12,13 @@
 \multicolumn{7}{l}{\emph{CoBit-LibriTTS --- one set of weights (134M, 800 speech tokens)}}\\
 text $\rightarrow$ speech & 2{,}294 & 512 (1024) & 11.7 & 8.1 & 3.31 & ---- \\
 speech $\rightarrow$ text & 2{,}294 & 512 (1024) & 23.3 / 38 & 15.3 / 24.1 & --- & --- \\
-joint & 1{,}024 & 256 (256) & 20.2 & 13.2 & 3.02 & 395.6 \\
+% joint & 1{,}024 & 256 (256) & 20.2 & 13.2 & 3.02 & 395.6 \\
+joint & 1{,}024 & --- & --- & --- & --- & --- \\
 \midrule
 \multicolumn{7}{l}{\emph{CoBit-MLS --- one set of weights (633M, 500 speech tokens)}}\\
 text $\rightarrow$ speech & 2{,}294 & 512 (1024) & 5.3 & 4.1 & 4 & --- \\
 speech $\rightarrow$ text & 2{,}294 & 512 (1024) & 8.2 / 22 & 4.3 / 13.1 & --- & --- \\
-joint & 1{,}024 & 512 (512) & 3.7 & 2.3 & 3.78 & 141.2 \\
+joint & 1{,}024 & 512 (512) & 3.8 & 2.4 & 3.78 & 122.5 \\
 
 \bottomrule
 \end{tabular}
@@ -29,35 +30,37 @@ joint & 1{,}024 & 512 (512) & 3.7 & 2.3 & 3.78 & 141.2 \\
 \centering
 \small
 \setlength{\tabcolsep}{4.5pt}
-\begin{tabular}{lrrrrrr}
+\begin{tabular}{lrrrrrrr}
 \toprule
-\textbf{Model} & \textbf{Params} & \textbf{UTMOS}$\uparrow$ & \textbf{FSD}$\downarrow$ & \textbf{GenPPL-Speech}$\downarrow$ & \textbf{GPT-4o}$\uparrow$ & \textbf{SALMON}$\uparrow$ \\
+\textbf{Model} & \textbf{Params} & \textbf{UTMOS}$\uparrow$ & \textbf{FSD}$\downarrow$ & \textbf{SpkSim}$\uparrow$ & \makecell{\textbf{GenPPL-} \\ \textbf{Speech}$\downarrow$} & \textbf{GPT-4o}$\uparrow$ & \textbf{SALMON}$\uparrow$ \\
 \midrule
 \multicolumn{7}{l}{\emph{CoBit (ours; from scratch, no pretrained components)}} \\
-CoBit-LibriTTS & 134M & 2.78 & 2{,}331 / 30.4 & 150.9 & 1.11 & 80.25 \\
-CoBit-MLS & 633M & 3.9 & 2{,183} / 11.9 & 85.2 & 1.44 & 84.25 \\
+CoBit-LibriTTS & 134M & 2.82 & 2{,}373 / 40.5 & 0.21 & 152.1 & 1.11 & 78.5 \\
+CoBit-MLS & 633M & 3.89 & 2{,}386 / 13 & 0.34 & 83.6 & 1.44 & 84.3 \\
 \midrule
 \multicolumn{7}{l}{\emph{Trained on MLS-English (same corpus as CoBit-MLS, excluding LibriTTS)}} \\
-Flow-SLM-S \citep{audio:flow-slm} & 395M & 2.47 & 3{,}391 / 35.7 & 242.8 & 1.1 & 82.83 \\
-Flow-SLM-L & 1.25B & 3.48 & 3{,}476 / 35.4 & 131.7 & 1.57 & 88.25 \\
+Flow-SLM-S \citep{audio:flow-slm} & 395M & 2.47 & 3{,}391 / 35.7 & 0.21 & 242.8 & 1.1 & 82.83 \\
+Flow-SLM-L & 1.25B & 3.48 & 3{,}476 / 35.4 & 0.41 & 131.7 & 1.57 & 88.25 \\
 \midrule
 \multicolumn{7}{l}{\emph{Speech-only SLMs}} \\
-Flow-SLM-Ext. & 1.25B & 3.47 & 3{,}445.1 / 33 & 122.4 & 1.67 & \textbf{90} \\
-Llama-Mimi \citep{audio:llama-mimi} & 1.3B & 3.18 & 3{,}621 / 14.1 & 98.5 & 1.58 & 87.92 \\
+Flow-SLM-Ext. & 1.25B & 3.47 & 3{,}445.1 / 33 & 0.42 & 122.4 & 1.67 & \textbf{90} \\
+Llama-Mimi \citep{audio:llama-mimi} & 1.3B & 3.18 & 3{,}621 / 14.1 & 0.35 & 98.5 & 1.58 & 87.92 \\
 \midrule
 \multicolumn{7}{l}{\emph{Text+Speech SLMs}} \\
-TASLM-Embed \citep{audio:taste} & 1.3B & \textbf{4.16} & \textbf{1{,}410} / \textbf{9.9} & \textbf{38.6} & \textbf{3.42} & 78 \\
-SpiritLM-Base \citep{audio:spirit-lm} & 7B & 3.2 & 7{,}325 / 26.8 & 101.4 & 2 & 50.5 \\
-SpiritLM-Expressive & 7B & 3.17 & 6{,}293.6 / 16.9 & 153.2 & 1.62 & 58.41 \\
+TASLM-Embed \citep{audio:taste} & 1.3B & \textbf{4.16} & \textbf{1{,}410} / \textbf{9.9} & \textbf{0.49} & \textbf{38.6} & \textbf{3.42} & 78 \\
+SpiritLM-Base \citep{audio:spirit-lm} & 7B & 3.2 & 7{,}325 / 26.8 & 0.02 & 101.4 & 2 & 50.5 \\
+SpiritLM-Expressive & 7B & 3.17 & 6{,}293.6 / 16.9 & 0.08 & 153.2 & 1.62 & 58.41 \\
+\midrule
+\emph{StableCodec} & --- & 4.33 & 1{,}119 / 1.26 & 0.36 & --- & --- & --- \\
 \bottomrule
 \end{tabular}
-\caption{Continuation-based evaluation for text-audio experiments against published SLMs. All figures are evaluated using publicly available checkpoints, with the exception of generation-based SALMON scores, taken directly from \citep{audio:gen-salmon}. The two FSD records refer to FSD-wlm and FSD-e2v, respectively. More information about FSD and SALMON embeddings is provided on Appendix \ref{app:audio:protocol} We use NFE$=$256 for both CoBit models.}
+\caption{Continuation-based evaluation for text-audio experiments against published SLMs. All figures are evaluated using publicly available checkpoints, with the exception of generation-based SALMON scores, taken directly from \citep{audio:gen-salmon}. The two FSD records refer to FSD-wlm and FSD-e2v, respectively. More information about FSD and SALMON embeddings is provided on Appendix \ref{app:audio:protocol} We use NFE$=$256 for both CoBit models. The last row reports the tokenizer performance ceiling.}
 \label{tab:audio:continuation}
 \end{table}
  
 \textbf{Setup.} We train two models: CoBit-LibriTTS (134M, $12\times768$) on LibriTTS \citep{audio:libritts} (354K pairs, 140K steps) and CoBit-MLS (633M, $26\times1152$) on both LibriTTS and MLS-English \citep{audio:mls} (11.2M pairs, $1.2\times10^6$ steps, $61\%$ of its planned budget). Both datasets consist of single-speaker reading-style paired samples from the LibriVox audiobook corpus. We quantize audio with the FSQ-based StableCodec \citep{audio:stablecodec} tokenizer using the \texttt{1x46656} configuration that produces 25 codes per second (speech budgets of 800 and 500 tokens), prepended by a fixed-length (32 tokens) global speaker representation from BiCodec-global \citep{audio:spark-tts}. Speaker tokens are not used during waveform decoding; they are included purely as a conditioning signal for generation. Text is tokenized in the same way as in \ref{sec:exp:imagetext} (text budget of 168 and 100 tokens); the full text-speaker-speech vocabulary can be captured with 18-bit tokens. Along with unconditional, text-conditional and speech-conditional regimes, training also includes speech continuation, where generation is conditioned on the start (3 seconds) of the audio sample; equal effort (0.25) is allocated to each setting. Evaluation is conducted on LibriSpeech-PC test splits and the SALMON benchmark, neither of which have speaker or example overlaps with the training sets. Text pre-training \citep{audio:twist} and speaker conditioning on the audio decoder \citep{audio:spark-tts, audio:taste} are omitted to demonstrate the generality of the unified bitstream diffusion framework. Both modifications are straightforward in principle: warm-initializing CoBit from a pre-trained text checkpoint mainly required adapting the components that are tied to the sequence length and the vocabulary bit-width; speaker conditioning for the decoder is simply a matter of fine-tuning. We expect both changes to close the remaining performance gap and leave their implementation to a dedicated line of work on text-audio CoBit.
 
-\textbf{Results.} Joint generation and cross-conditional directions are reported in Table \ref{tab:audio:headline}, using the same weights for all tasks. CoBit-MLS can co-generate text and audio consistently, achieving a cross-modal WER of 3.7. Character-level disagreement is even lower at 2.3, and a lot of the additional word conflicts can be attributed to the transcription process: the LM-normalized Whisper-large transcriptions of generated audio can have better syntactic structure than the text produced by the diffusion model, which has considerably smaller language modeling capacity. An UTMOS score of 3.78 suggest natural-sounding audio, even when sampling the speaker identity from scratch as well. The content also remains highly plausible in terms of perplexity under an external LM, despite generation without a text or speech prompt. Both CoBit versions are considerably stronger in text-to-speech synthesis than in speech recognition. In speech continuation, shown in Table \ref{tab:audio:continuation}, both models sample acoustically and linguistically grounded audio, yet they struggle to preserve thematic content. \note{Joint generation results use stochasticity; verify this is not an issue.}
+\textbf{Results.} Joint generation and cross-conditional directions are reported in Table \ref{tab:audio:headline}, using the same weights for all tasks. CoBit-MLS can co-generate text and audio consistently, achieving a cross-modal WER of 3.7. Character-level disagreement is even lower at 2.3, and a lot of the additional word conflicts can be attributed to the transcription process: the LM-normalized Whisper-large transcriptions of generated audio can have better syntactic structure than the text produced by the diffusion model, which has considerably smaller language modeling capacity. An UTMOS score of 3.78 suggest natural-sounding audio, even when sampling the speaker identity from scratch as well. The content also remains highly plausible in terms of perplexity under an external LM, despite generation without a text or speech prompt. Both CoBit versions are considerably stronger in text-to-speech synthesis than in speech recognition. In speech continuation, shown in Table \ref{tab:audio:continuation}, both models sample acoustically and linguistically grounded audio, yet they struggle to preserve thematic content.
 
 \textbf{Comparison to prior work.} Table \ref{tab:audio:continuation} places speech continuation and generation-based SALMON \citep{audio:gen-salmon} performance among autoregressive speech language models; baseline comparisons for co-generation and cross-modal transfer are offered in Tables \ref{tab:audio:joint} and \ref{tab:audio:cross-modal}, respectively. Per-task SALMON scores are provided in Table \ref{tab:audio:salmon}. Further specification about the comparability of these metrics is provided in Appendix \ref{app:audio:comparability}. The capabilities of the bitstream diffusion framework are best shown in speech continuation, where CoBit-MLS outperforms all baselines except TASLM-Embed on UTMOS, FSD-wlm, FSD-e2v and GenPPL. Even CoBit-LibriTTS scores better than the smallest autoregressive model (Flow-SLM-S) across these metrics and matches its weak LLM-as-a-Judge performance, despite having less than half the parameters and only a fraction of the training data. LLM-as-a-Judge is in general CoBit's weakest metric; its fixed-rate speech tokenization and from-scratch initialization limit its ability to produce thematically relevant continuations. Even warm initialization, however, appears to be insufficient for semantic extrapolation; thematically accurate speech is only achieved by TASLM-Embed, which uses text-aligned speech representations that close the semantic gap between text and speech modelling. In SALMON-based evaluation, CoBit scores better on average than all text-speech SLMs but cannot match speech-only models. While CoBit remains competitive on voice-related tasks with the aid of its speaker features, it is worse than Flow-SLM and Llama-Mimi models on noise-related tasks; this can be attributed to the Mimi tokenizer \citep{audio:moshi} they use, which captures more fine-grained details of the audio signal. In text-to-speech, CoBit-MLS surpasses SpiritLM on CER (4.1 to 6.7) and approaches Moshi on WER (5.3 to 4.7), despite being 10 times smaller. However, despite the consistency and naturalness of generated audio, speaker characteristics are not reproduced to the same level as by the ASR-TTS hybrid GPA-v1.5 \citep{audio:gpa} when the decoder is not conditioned on the speaker. Speech recognition is were the absence of text initialization is the most apparent, as it contradicts the design of ASR-specific systems, which typically recognize speech at the character or phoneme level using self-supervised representations, and then employ a text LM to decode their output into well-structured sentences \citep{audio:whisper}. For SLMs, the textually pre-trained backbone implicitly plays a similar role, leading to more coherent transcriptions, as previously demonstrated \citep{audio:voxtlm}.
 

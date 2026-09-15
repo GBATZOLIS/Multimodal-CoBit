@@ -1,0 +1,40 @@
+\section{Experiments}
+\label{sec:exp}
+
+\subsection{Experimental setup}
+\label{sec:exp:setup}
+\note{Shared setup common to all modalities.}
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4.5pt}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Modality} & \textbf{Tokenizer} & \textbf{Quantization Scheme} & \textbf{Vocabulary Size} \\
+\midrule
+\multicolumn{4}{l}{\emph{Class-conditional ImageNet}} \\
+
+\midrule
+\multicolumn{4}{l}{\emph{Image and Text}} \\
+Image & OpenMAG-VIT2 \citep{image:magvit2} & LFQ & --- \\
+Text & \texttt{o200k} & Byte-level BPE & 200{,}018 \\
+\midrule
+\multicolumn{4}{l}{\emph{Audio and Text}} \\
+Audio & StableCodec \citep{audio:stablecodec} & FSQ & 46{,}656 \\
+Speaker & BiCodec \citep{audio:spark-tts} & FSQ & 4{,}096 \\
+Text & \texttt{o200k} & Byte-level BPE & 200{,}018 \\
+\midrule
+\multicolumn{4}{l}{\emph{Protein Sequence and Structure}} \\
+Amino-acid & --- & --- & 32 \\
+--- & DPLM-2 \citep{protein:dplm2} & LFQ & --- \\
+\bottomrule
+\end{tabular}
+\caption{Overview of tokenization methods used across the different experiments.}
+\label{tab:tokenizers}
+\end{table}
+
+\input{sections/04b_image_only}
+\input{sections/04c_image_text}
+\input{sections/04d_audio_text}
+\input{sections/04e_protein}

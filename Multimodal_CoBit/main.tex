@@ -9,7 +9,7 @@
 \usepackage{amsmath,amssymb}
 \usepackage{xcolor}
 \usepackage{makecell}
-
+\usepackage{arydshln}
 \usepackage{pifont}
 \newcommand{\cmark}{\ding{51}} % Tick
 \newcommand{\xmark}{\ding{55}} % Cross
@@ -22,6 +22,28 @@
 \else
   \newcommand{\note}[1]{}
 \fi
+
+% ===========================================
+% PEOPLE MARKERS 
+% ===========================================
+\usepackage{xcolor}
+\usepackage{fontawesome5}
+
+% Bruno revision/comment
+\definecolor{brunopurple}{HTML}{7B2CBF}
+\newcommand{\bruno}[1]{%
+  \textcolor{brunopurple}{%
+    \textbf{\faExclamationCircle\ Bruno:} #1%
+  }%
+}
+
+% Micha revision/comment
+\definecolor{michared}{HTML}{FF0000}
+\newcommand{\micha}[1]{%
+  \textcolor{michared}{%
+    \textbf{\faExclamationCircle\ Micha:} #1%
+  }%
+}
 
 \title{Universal Multimodal Co-Generation with Continuous Bitstream Diffusion}
 \author{Anonymous authors\\Paper under double-blind review}

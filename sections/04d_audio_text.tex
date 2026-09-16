@@ -12,17 +12,15 @@
 \multicolumn{7}{l}{\emph{CoBit-LibriTTS --- one set of weights (134M, 800 speech tokens)}}\\
 text $\rightarrow$ speech & 2{,}294 & 512 (1024) & 11.7 & 8.1 & 3.31 & ---- \\
 speech $\rightarrow$ text & 2{,}294 & 512 (1024) & 23.3 / 38 & 15.3 / 24.1 & --- & --- \\
-% joint & 1{,}024 & 256 (256) & 20.2 & 13.2 & 3.02 & 395.6 \\
-joint & 1{,}024 & --- & --- & --- & --- & --- \\
+joint & 1{,}024 & 256 (256) & 19.9 & 13.3 & 3.02 & 377.2 \\
 \midrule
 \multicolumn{7}{l}{\emph{CoBit-MLS --- one set of weights (633M, 500 speech tokens)}}\\
 text $\rightarrow$ speech & 2{,}294 & 512 (1024) & 5.3 & 4.1 & 4 & --- \\
 speech $\rightarrow$ text & 2{,}294 & 512 (1024) & 8.2 / 22 & 4.3 / 13.1 & --- & --- \\
-joint & 1{,}024 & 512 (512) & 3.8 & 2.4 & 3.78 & 122.5 \\
-
+joint & 1{,}024 & 512 (512) & 3.8 & 2.4 & 3.79 & 122.5 \\
 \bottomrule
 \end{tabular}
-\caption{Joint and cross-conditional generative directions from a single set of weights per model for text-audio experiments. Each conditional row is quoted at the best step count for that direction, evaluated on LibriSpeech-PC. Generated audio is transcribed with Whisper-large. Per-direction guidance and churn are listed in Appendix \ref{app:audio:protocol}. Text-to-speech evaluation is on test-clean; the two scores for speech-to-text refer to test-clean and test-other, respectively.}
+\caption{Joint and cross-conditional generative directions from a single set of weights per model for text-audio experiments. Each conditional row is quoted at the best step count for that direction, evaluated on LibriSpeech-PC. Generated audio is transcribed with Whisper-large. Per-direction guidance and churn are listed in Appendix \ref{app:audio:protocol}; co-generation uses $\gamma=0.175$. Text-to-speech evaluation is on test-clean; the two scores for speech-to-text refer to test-clean and test-other, respectively.}
 \label{tab:audio:headline}
 \end{table}
 
@@ -54,7 +52,7 @@ SpiritLM-Expressive & 7B & 3.17 & 6{,}293.6 / 16.9 & 0.08 & 153.2 & 1.62 & 58.41
 \emph{StableCodec} & --- & 4.33 & 1{,}119 / 1.26 & 0.36 & --- & --- & --- \\
 \bottomrule
 \end{tabular}
-\caption{Continuation-based evaluation for text-audio experiments against published SLMs. All figures are evaluated using publicly available checkpoints, with the exception of generation-based SALMON scores, taken directly from \citep{audio:gen-salmon}. The two FSD records refer to FSD-wlm and FSD-e2v, respectively. More information about FSD and SALMON embeddings is provided on Appendix \ref{app:audio:protocol} We use NFE$=$256 for both CoBit models. The last row reports the tokenizer performance ceiling.}
+\caption{Continuation-based evaluation for text-audio experiments against published SLMs. All figures are evaluated using publicly available checkpoints, with the exception of generation-based SALMON scores, taken directly from \citep{audio:gen-salmon}. The two FSD records refer to FSD-wlm and FSD-e2v, respectively. More information about FSD and SALMON embeddings is provided on Appendix \ref{app:audio:protocol} We use NFE$=$512 for both CoBit models. The last row reports the tokenizer performance ceiling.}
 \label{tab:audio:continuation}
 \end{table}
  

@@ -5,7 +5,7 @@
 
 % We trained a 393M parameter model from scratch on PDB/AFDB--swissProt pairs with sequence replay. Each residue is formed by an aligned 18-bit patch: five amino-acid bits and thirteen sign bits from the fozen DPLM-2 lookup-free quantiser \citep{protein:dplm2}.  The 5-bit sequence channel has capacity for 32 symbols, but the deconding is contrained to the 20 canonical amino acids. This compact representation retains the full vocabulary of $(2^{13}=8192)$ structrual codes. Thus, the model preserves structure expressivity of DPLM-2 whiile supporting residue-aligned joint sequence-structure generation. \bruno{Details about dataset splits etc to be in the appendix}
 
-Unlike text, image, and audio multi-modality, whose correspondence is primarily semantic, a protein sequence and it's three-dimensional structure are physically coupled descriptions. We ask whether the bitstream formulation can learn the coupled modalities of protein sequence and structure by training a 396M-parameter denoiser from scratch on 216,237 PDB/AFDB-SwissProt \citep{protein:pdb, protein:afdb} pairs with 20\% sequence replay. Each residue aligns five amino-acids bits with thirteen signs from the frozen DPLM-2 lookup-free quantiser \citep{wang2024dplm}. Decoding retains the 20 canonical amino acids and all $2^{13}$ structural codes. The common binary interface lets one denoiser lean sequence-structure dependencies while the frozen codec recovers backbone coordinates. Data, splits, and tokenisation are detailed in Appencides \bruno{ref appendx}. 
+Unlike text, image, and audio multi-modality, whose correspondence is primarily semantic, a protein sequence and it's three-dimensional structure are physically coupled descriptions. We ask whether the bitstream formulation can learn the coupled modalities of protein sequence and structure by training CoBit from scratch on 216,237 PDB/AFDB-SwissProt \citep{protein:pdb, protein:afdb} pairs with 20\% sequence replay. Each residue aligns five amino-acids bits with thirteen signs from the frozen DPLM-2 lookup-free quantiser (LFQ) \citep{wang2024dplm} \micha{quantiser $\rightarrow$ tokenizer?} \bruno{that's the method's name -- LFQ}. Decoding retains the 20 canonical amino acids and all $2^{13}$ structural codes. The common binary interface lets one denoiser lean sequence-structure dependencies while the frozen codec recovers backbone coordinates. Data, splits, and tokenisation are detailed in Appencides \bruno{ref appendx}. 
 
 \par\addvspace{6pt}\noindent
     \begin{minipage}{\linewidth}
@@ -92,7 +92,7 @@ ID & Model & Scope & $n$ & $D_{\rm RMSD}$ & $D_{\rm TM}$ \\
 \begin{minipage}[t]{.43\linewidth}
 \vspace{0pt}
 \makeatletter\def\@captype{figure}\makeatother
-\caption{Visual representation of the rates from Table~\ref{tab:protein:baselines}. CoBit captures protein organisation better than its precise backbone geometry.}
+\caption{Visual representation of the rates from Table~\ref{tab:protein:baselines}. CoBit captures how a proteins folds overall, but is less accurate on the fine details of its shape.}
 \label{fig:protein:modelmap}
 \centering
 \includegraphics[width=\linewidth]{figures/protein/protein_model_designability_map.pdf}

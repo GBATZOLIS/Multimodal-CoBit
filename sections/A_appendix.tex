@@ -654,8 +654,8 @@ Tables \ref{tab:audio:joint} and \ref{tab:audio:cross-modal} contain extensive e
 \textbf{Model} & \textbf{Params} & \textbf{WER}$\downarrow$ & \textbf{CER}$\downarrow$ & \textbf{UTMOS}$\uparrow$ & \textbf{GenPPL-Text}$\downarrow$ & \textbf{GenPPL-Speech}$\downarrow$ \\
 \midrule
 \multicolumn{7}{l}{\emph{CoBit (ours; from scratch, no pretrained components)}} \\
-CoBit-LibriTTS & 134M & 20.2 & 13.2 & 3.02 & 668.1 & 395.6 \\
-CoBit-MLS & 633M & 3.8 & \textbf{2.4} & 3.78 & 247.1 & \textbf{122.5} \\
+CoBit-LibriTTS & 134M & 19.9 & 13.3 & 3.02 & 509.6 & 377.2 \\
+CoBit-MLS & 633M & 3.8 & \textbf{2.4} & 3.79 & 247.2 & \textbf{122.5} \\
 \midrule
 \multicolumn{7}{l}{\emph{Autoregressive System (SmolLM+Speaker $\rightarrow$ SparkTTS)}} \\
 Cascade & 640M & \textbf{3.2} & 3.1 & \textbf{4.23} & \textbf{122} & 1{,}648 \\
@@ -717,7 +717,7 @@ SpiritLM-Base & 47.5 & 52 & 50.5 & 50.5 & 52.5 & 50 \\
 SpiritLM-Expressive & 72 & 54 & 56 & 58.5 & 55.5 & 54.5 \\
 \bottomrule
 \end{tabular}
-\caption{Speech continuation performance across the consistency tasks of the SALMON benchmark for generation-based evaluation. Each model generates a continuation for each prompt, and accuracy scores are computed for each task by comparing the cosine similarity of the generated continuation with the positive and negative examples. Different embedding models are used for each task, specified in Appendix \ref{app:audio:baselines}. NFE$256$ is used for both CoBit-LibriTTS and CoBit-MLS.}
+\caption{Speech continuation performance across the consistency tasks of the SALMON benchmark for generation-based evaluation. Each model generates a continuation for each prompt, and accuracy scores are computed for each task by comparing the cosine similarity of the generated continuation with the positive and negative examples. Different embedding models are used for each task, specified in Appendix \ref{app:audio:protocol}. NFE$=$512 is used for both CoBit-LibriTTS and CoBit-MLS, with the operating points fine-tuned for speech continuation.}
 \label{tab:audio:salmon}
 \end{table}
 
@@ -770,16 +770,97 @@ SpiritLM-Expressive & 72 & 54 & 56 & 58.5 & 55.5 & 54.5 \\
 48 & 5.5 & \textbf{3.9} & 4.02 & \textbf{0.27} & 8.3 & 22.9 \\
 64 & 6 & 4.1 & \textbf{4.03} & \textbf{0.27} & 8.3 & 22.5 \\
 128 & 6.3 & 4.1 & \textbf{4.03} & \textbf{0.27} & \textbf{8.1} & 22.3 \\
-256 & \textbf{5.3} & 5.2 & \textbf{4.03} & \textbf{0.27} & & \\
+256 & \textbf{5.3} & 5.2 & \textbf{4.03} & \textbf{0.27} & 8.2 & 22.4 \\
+512 & \textbf{5.3} & 4.1 & 4.01 & 0.26 & 8.2 & \textbf{22.2} \\
 \bottomrule
 \end{tabular}
-\caption{.}
+\caption{CoBit-MLS cross-modal performance performance at different step counts, computed by generating $1,024$ samples. All rows inject stochasticity at $\gamma=0.175$. Classifier-free guidance with gs=5 is used throughout the table.}
 \label{tab:audio:steps:cross-modal}
+\end{table}
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4.5pt}
+\begin{tabular}{lrrrrrr}
+\toprule
+\textbf{Steps} & \textbf{UTMOS}$\uparrow$ & \textbf{FSD-wlm}$\downarrow$ & \textbf{FSD-e2v}$\downarrow$ & \textbf{SpkSim}$\uparrow$ & \textbf{GenPPL-Speech}$\downarrow$ & \textbf{SALMON}$\uparrow$ \\
+\midrule
+16 & 3.12 & 2{,}236.3 & 8.9 & 0.3 & 232 & 84.41\\
+24 & 3.53 & 2{,}176.6 & 7.1 & 0.33 & 200.9 & 84.41 \\
+32 & 3.7 & 2{,}117.6 & \textbf{6.8} & 0.34 & 178.3 & 84.25 \\
+48 & 3.83 & 2{,}127.4 & 7.5 & 0.34 & 150.6 & 85.08 \\
+64 & 3.88 & 2{,}127.4 & 8.1 & \textbf{0.35} & 130.2 & 84.75 \\
+128 & 3.9 & 2{,}108.2 & 9.2 & 0.34 & 111.6 & \textbf{85.58} \\
+256 & \textbf{3.91} & \textbf{2{,}108.4} & 10.6 & 0.34 & 94.7 & 84.41 \\
+512 & \textbf{3.91} & 2{,}179.3 & 11.8 & 0.34 & \textbf{85.8} & 83.92 \\
+\bottomrule
+\end{tabular}
+\caption{CoBit-MLS speech continuation performance performance at different step counts, computed by generating $1,024$ samples. All rows inject stochasticity at $\gamma=0.175$. Classifier-free guidance with gs=5 is used throughout the table..}
+\label{tab:audio:steps:continuation}
+\end{table}
+ 
+\textbf{Effect of Guidance Scale.}
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4.5pt}
+\begin{tabular}{lrrrrrr}
+\toprule
+& \multicolumn{4}{c}{\textbf{Text-to-Speech}} & \multicolumn{2}{c}{\textbf{Speech-to-Text}} \\
+\cmidrule(lr){2-5} \cmidrule(lr){6-7}
+\textbf{gs} & \textbf{WER}$\downarrow$ & \textbf{CER}$\downarrow$ & \textbf{UTMOS}$\uparrow$ & \textbf{SpkSim}$\uparrow$ & \makecell{\textbf{WER}$\downarrow$ \\ \textbf{Clean}} & \makecell{\textbf{WER}$\downarrow$ \\ \textbf{Other}} \\
+\midrule
+1 & 8.6 & 6 & 3.77 & 0.25 & 9.3 & 23.8\\ 
+2 & 5.8 & 4.9 & 3.99 & 0.26 & 8.2 & \textbf{22.1} \\
+3 & 6.5 & 5.2 & 4.01 & 0.26 & \textbf{8.1} & 22.2 \\
+4 & \textbf{5.4} & \textbf{4.5} & \textbf{4.03} & \textbf{0.27} & \textbf{8.1} & 22.2\\
+5 & \textbf{5.4} & 5.2 & \textbf{4.03} & \textbf{0.27} & 8.2 & 22.4 \\
+\bottomrule
+\end{tabular}
+\caption{CoBit-MLS cross-modal performance performance at different guidance scales. All rows use 256 integration steps (256 function evaluations at gs=1; 512 for gs $>$ 1) inject stochasticity at $\gamma=0.175$.}
+\label{tab:audio:guidance:cross-modal}
+\end{table}
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4.5pt}
+\begin{tabular}{lrrrrrr}
+\toprule
+\textbf{gs} & \textbf{UTMOS}$\uparrow$ & \textbf{FSD-wlm}$\downarrow$ & \textbf{FSD-e2v}$\downarrow$ & \textbf{SpkSim}$\uparrow$ & \textbf{GenPPL-Speech}$\downarrow$ & \textbf{SALMON}$\uparrow$ \\
+\midrule
+1 & 3.88 & \textbf{1{,}953.7} & \textbf{5.1} & 0.33 & 172.1 & 83.41\\
+2 & \textbf{3.94} & 2{,}054.1 & 7.8 & 0.34 & 116 & \textbf{85}\\ 
+3 & 3.92 & 2{,}073.1 & 9.1 & 0.34 & 116 & \textbf{85} \\
+4 & 3.92 & 2{,}140.3 & 10 & 0.34 & 96.1 & 84.83 \\ 
+5 & 3.92 & 2{,}108.4 & 10.6 & 0.34 & \textbf{94.7} & 84.41\\
+\bottomrule
+\end{tabular}
+\caption{CoBit-MLS speech continuation performance performance at different guidance scales. All rows use 256 integration steps (256 function evaluations at gs=1; 512 for gs $>$ 1) inject stochasticity at $\gamma=0.175$.}
+\label{tab:audio:guidance:continuation}
 \end{table}
 
 \textbf{Effect of Stochasticity.}
 
-\textbf{Effect of Guidance Scale.}
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4.5pt}
+\begin{tabular}{lrrrrrrr}
+\toprule
+\textbf{Direction} & \textbf{WER}$\downarrow$ & \textbf{CER}$\downarrow$ & \textbf{UTMOS}$\uparrow$ & \textbf{SpkSim}$\uparrow$ & \textbf{FSD}$\downarrow$ &  \textbf{GenPPL}$\downarrow$ & \textbf{SALMON}$\uparrow$ \\
+\midrule
+text $\rightarrow$ speech & 5.9 & 4.1 & 3.97 & 0.26 & --- & --- & --- \\
+speech $\rightarrow$ text & 8.6 / 23.4 & 4.7 / 14 & --- & --- & --- & --- & --- \\
+speech continuation & --- & --- & 3.85 & 0.33 & 2{,}130.4 / 8.2 & 136.9 & 85.41 \\
+joint & 11.3 & 7.3 & 3.54 & --- & --- & 413.9 / 204.2 & --- \\
+\bottomrule
+\end{tabular}
+\caption{CoBit-MLS scores with a deterministic sampler across all four tasks. Integrations steps are fixed to 256 and the conditional task use classifier-free guidance with strength 5.}
+\label{tab:audio:deterministic}
+\end{table}
 
 \subsection{Baseline Systems} \label{app:audio:baselines}
 

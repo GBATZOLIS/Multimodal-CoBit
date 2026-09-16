@@ -6,9 +6,53 @@ the ingredients that usually carry them---a text-pretrained backbone, a frozen t
 curated or re-captioned data---are hardest to separate from the modelling choice itself. We
 therefore ask what the bitstream formulation transfers on its own, with none of those ingredients
 present: two models trained from scratch on alt-text pairs, evaluated zero-shot in all four
-generative directions from one set of weights.
+generative directions from one set of weights. Every metric available on that corpus is a proxy,
+though---FID and CMMD compare distributions, CLIP compares embeddings, CIDEr compares
+$n$-grams---and none of them can say whether a co-generated pair actually agrees. We therefore
+precede it with a small corpus on which every direction has a unique correct answer.
 
-\textbf{Setup.} We train CoBit-CC3M (462M parameters, $24\times1024$) on Conceptual Captions 3M
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/mnist_sum/fig_mnist_sum_overview.pdf}
+\caption{MNIST-Sum. (a) One example: four native $28{\times}28$ binarised digits on a
+$56{\times}56$ canvas, never resized. (b) Image and text written into a single 3{,}388-bit stream
+of 121 positions $\times$ 28 bits, with no tokenizer on either side---one text position holds four
+7-bit word codes, one image position holds 28 raw pixels, exactly one row of one digit. (c--e) The
+three generative directions, with samples from the model and their exact-match rates at
+$n{=}4{,}096$.}
+\label{fig:mnist:sum}
+\end{figure}
+
+\textbf{MNIST-Sum: exact answers, and no tokenizer on either side.} The corpus pairs an image of
+four binarised MNIST digits \citep{image:mnist} in a $2{\times}2$ grid ($56{\times}56$, native
+$28{\times}28$ glyphs, nothing resized) with the raster-order equation and its sum, so that each
+of image$\rightarrow$text, text$\rightarrow$image and joint co-generation has a unique correct
+answer (Figure~\ref{fig:mnist:sum}). Neither modality is tokenized: binary pixels ride as raw
+bits, 28 to a position, and the text uses a hand-specified 7-bit vocabulary of 40 codes, four to a
+position, giving one flat stream of 121 positions and 3{,}388 bits. There is no reconstruction
+floor on the image side and no codec on either, so generated and real images are exactly
+comparable and the framework is exercised with no modality-specific component at all. We train a
+63.3M-parameter $12{\times}512$ model for 500k steps on $10^6$ examples with the CC3M recipe
+unchanged, holding out 10\% of the $10^4$ digit tuples from training, and evaluate every direction
+at $n{=}4{,}096$ with 256 steps.
+
+\textbf{Every direction is scored against ground truth.} Image$\rightarrow$text is scored by
+string equality, with no instrument in the loop: 97.90\% of equations are exactly right against a
+6.52\% modal-sum baseline, decomposing into 98.14\% perception and 99.66\% arithmetic, with 0.05\%
+malformed output. On digit tuples never seen in training the model scores 97.92\%,
+indistinguishable from its in-distribution score (difference $-0.02$, 95\% CI $[-0.65,+0.60]$), so
+the mapping is learned rather than memorised. Text$\rightarrow$image, read by a quadrant
+classifier whose ceiling on real composites is 99.78\%, places all four digits correctly in
+99.98\% of samples. The direction that matters most is joint co-generation, where nothing is given
+and both halves come from one trajectory: \textbf{96.85\%} of co-generated pairs carry an equation
+exactly correct for the image produced beside it. That decomposes into 99.98\% well-formed
+equations, 99.78\% in which the named addends match the generated image, and 97.02\% in which the
+arithmetic is valid---the two modalities agree with each other almost perfectly, and what residual
+error remains is symbolic rather than cross-modal. It is the claim the joint row of
+Table~\ref{tab:image:headline} defends with pair coherence 25.67, stated here as a rate against a
+correct answer.
+
+\textbf{Alt-text setup.} Returning to captions, we train CoBit-CC3M (462M parameters, $24\times1024$) on Conceptual Captions 3M
 \citep{image:cc3m} ($\approx$2.9M pairs, $10^6$ steps) and CoBit-CC12M (633M, $26\times1152$) on
 Conceptual 12M \citep{image:cc12m} ($\approx$11.7M pairs, 87\% of its planned budget). Images are
 tokenized by a frozen Open-MAGVIT2 lookup-free quantiser \citep{image:magvit2,image:lfq} into

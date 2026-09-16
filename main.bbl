@@ -1,4 +1,4 @@
-\begin{thebibliography}{85}
+\begin{thebibliography}{87}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -333,6 +333,12 @@ Moreno La~Quatra, Alkis Koudounas, Lorenzo Vaiani, Elena Baralis, Luca
   Signal Processing Workshops (ICASSPW)}, pp.\  505--509, 2024.
 \newblock \doi{10.1109/ICASSPW62465.2024.10625960}.
 
+\bibitem[LeCun et~al.(1998)LeCun, Bottou, Bengio, and Haffner]{image:mnist}
+Yann LeCun, L{\'e}on Bottou, Yoshua Bengio, and Patrick Haffner.
+\newblock Gradient-based learning applied to document recognition.
+\newblock \emph{Proceedings of the IEEE}, 86\penalty0 (11):\penalty0
+  2278--2324, 1998.
+
 \bibitem[Li et~al.(2022)Li, Thickstun, Gulrajani, Liang, and
   Hashimoto]{li2022diffusionlm}
 Xiang~Lisa Li, John Thickstun, Ishaan Gulrajani, Percy Liang, and Tatsunori~B.
@@ -590,6 +596,14 @@ Zineng Tang, Ziyi Yang, Chenguang Zhu, Michael Zeng, and Mohit Bansal.
 Lucas Theis, A{\"a}ron van~den Oord, and Matthias Bethge.
 \newblock A note on the evaluation of generative models.
 \newblock \emph{arXiv preprint arXiv:1511.01844}, 2015.
+
+\bibitem[Trentini et~al.(2026)Trentini, Stancevic, Bronstein, Tong, and
+  Ambrogioni]{trentini2026entropybridgeconditionalmarginaldiscretization}
+Bruno Trentini, Dejan Stancevic, Michael~M. Bronstein, Alexander Tong, and Luca
+  Ambrogioni.
+\newblock Entropy across the bridge: Conditional-marginal discretization for
+  flow and schr\"odinger samplers, 2026.
+\newblock URL \url{https://arxiv.org/abs/2605.16126}.
 
 \bibitem[Tseng et~al.(2025)Tseng, Chen, Lee, Shiu, and Lee]{audio:taste}
 Liang-Hsuan Tseng, Yi-Chang Chen, Kuan-Yi Lee, Da-Shan Shiu, and Hung-yi Lee.

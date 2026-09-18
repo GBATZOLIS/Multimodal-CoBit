@@ -27,8 +27,8 @@ samples shown are fixed examples that illustrate, rather than estimate, these ra
 \citep{image:mnist} with their ordered equation and sum. It is included not because MNIST is
 difficult but because every conditional and joint direction has a checkable answer, which
 natural-image metrics cannot offer. Raw binary pixels and a deterministic 40-symbol, 7-bit text
-code share one flat sequence with no learned tokenizer on either side; the denoiser receives 1-D
-position and segment identity but no pixel grid or 2-D attention structure. A single
+code share one flat sequence with no learned tokenizer on either side; the denoiser receives the flat
+bitstream and its 1-D position but no pixel grid or 2-D attention structure. A single
 63.3M-parameter model trained for 500K steps reads and adds a supplied image with 97.90\% exact
 accuracy, renders all four requested digits from a supplied equation in 99.98\% of samples, and
 co-generates mutually consistent pairs from noise 96.85\% of the time

@@ -1,5 +1,4 @@
 \begin{abstract}
-\ifdefined\toyimageonly
 We extend continuous bitstream diffusion (CoBit) from language modeling to multimodal
 generation through a common binary interface. Frozen tokenizers or direct binary encodings map
 observations into a joint bitstream, which CoBit learns to generate by reversing Gaussian
@@ -10,8 +9,16 @@ missing modalities conditioned on observed ones, which remain fixed during denoi
 entropy-derived schedule adapts training noise levels and sampling steps to the data's estimated
 information-loss profile. We first validate the approach on MNIST-Sum, a controlled image--text
 task pairing raw binary images with equations encoded as text, achieving near-perfect conditional
-accuracy and high joint consistency without learned tokenizers. We then test the same recipe at
-larger scale on speech--text and protein sequence--structure modeling. Trained without text
+accuracy and high joint consistency without learned tokenizers. \ifdefined\toyimageonly
+We then test the same recipe at
+larger scale on speech--text and protein sequence--structure modeling.
+\else
+We then test the same recipe at
+larger scale on natural image--text, speech--text, and protein sequence--structure modeling.
+Models trained on CC3M and CC12M achieve zero-shot MS-COCO text-to-image FID-30K scores of
+18.48 and 16.59 with 20 and 32 denoiser evaluations, respectively, while also supporting
+captioning and joint generation.
+\fi Trained without text
 pretraining, a single 633M-parameter speech--text model performs speech synthesis, recognition,
 continuation, and unconditional co-generation. Jointly generated speech and text achieve 3.5\%
 word error rate between the generated text and automatic transcriptions of the generated speech,
@@ -21,7 +28,4 @@ folding, inverse folding, and joint sequence--structure generation. Generated ba
 refolding, with 68.8\% scoring at least 0.9, demonstrating computational backbone designability.
 These results establish the applicability of a common binary interface and bitstream diffusion to
 multimodal generation.
-\else
-\note{Luca will lead the pitch and framing of the paper; to be written last, once results are final.}
-\fi
 \end{abstract}

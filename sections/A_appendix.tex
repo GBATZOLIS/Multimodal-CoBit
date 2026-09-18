@@ -408,9 +408,9 @@ digit, so every 28-bit image position is one complete digit row; text belongs to
 7-bit codes, four per position. The sequence has 121 positions of 28 bits (3 text, 112 image and 6 markers; 3,388 bits in total).
 The $12{\times}512$ denoiser (63.3M parameters) trains for 500K steps with the shared diffusion
 objective, entropy controller, self-conditioning and regime probabilities, and receives only the
-flattened sequence, its 1-D position and segment identity. The representation-scale settings
+flattened sequence and its 1-D position. The representation-scale settings
 follow the raw-bit sequence rather than CC3M (14 local Fourier features, denominator $P{=}28$);
-these are shared positional and budget choices, not modality-specific towers, heads or losses.
+these are shared positional and budget choices, not modality-specific embeddings, towers, heads or losses.
 Evaluation uses EMA weights, 256 steps and $n{=}4{,}096$ samples per direction and split;
 intervals are 95\% Wilson.
 

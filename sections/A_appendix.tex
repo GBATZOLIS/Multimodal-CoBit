@@ -1,3 +1,7 @@
+\ifdefined\toyimageonly
+\input{sections/A_appendix_mnist_toy}
+\else
+
 \section{Image and text experiments}
 \label{app:image}
 
@@ -15,8 +19,15 @@ sweeps are at $n{=}5{,}000$.
 (both resized on the shorter side to 256 and centre-cropped). CLIP score is
 $100\cdot\overline{\cos}(\text{image},\text{text})$ with OpenAI ViT-B/32 \citep{image:clip};
 ViT-L/14 is also given in Table~\ref{tab:app:image:headline-full}, because published CLIP scores
-use that backbone and the two scales differ substantially. CMMD \citep{image:cmmd} and SWD are
-computed in CLIP ViT-B/32 space against a 30{,}000-image real bank; precision and recall follow
+use that backbone and the two scales differ substantially. CMMD \citep{image:cmmd} is the squared maximum mean discrepancy between the
+L2-normalised CLIP ViT-B/32 embeddings of generated and real images under a Gaussian RBF kernel,
+$\mathrm{CMMD}=1000\,\widehat{\mathrm{MMD}}^2_u(X_{\mathrm{gen}},X_{\mathrm{real}})$ with the
+unbiased U-statistic estimator; the bandwidth $\sigma$ is the median pairwise distance of the real
+bank, fixed once and reused for every configuration, and the real--real term is precomputed, so all
+rows share one kernel. This departs from the reference implementation in two ways (ViT-L/14@336
+embeddings and a fixed $\sigma{=}10$ there), so our CMMD values are comparable with each other but
+not with CMMD figures published elsewhere. CMMD and SWD are
+computed in this space against a 30{,}000-image real bank; precision and recall follow
 \citet{image:precision-recall} in the same space ($k{=}3$). Captioning uses the complete Karpathy
 test split (5{,}000 images) with \texttt{pycocoevalcap} including SPICE \citep{image:spice};
 CLIPScore and RefCLIPScore follow \citet{image:clipscore}. GenEval \citep{image:geneval} uses the
@@ -42,8 +53,9 @@ CC3M scores 28.10 at $n{=}5{,}000$ against 22.79 at $n{=}30{,}000$ (256 steps), 
 quoted at $n{=}30{,}000$ wherever a full-protocol run exists, and FID is never compared across
 different $n$. FID at this $n$ is also bounded away from zero. A disjoint 30{,}000-image real draw
 from COCO \texttt{train2014} (seed 42, zero image-id overlap; neither model trains on COCO) scores
-\textbf{2.35} against the same reference, 99\% of it in the covariance term---finite-sample
-estimation, not a train/val shift, which would show in the mean. The same draw after a tokenizer
+\textbf{2.35} against the same reference, 99\% of it in the covariance term. This is the practical
+disjoint-real floor for our protocol; it combines finite-sample estimation with any train/val
+split shift, which this comparison alone cannot separate. The same draw after a tokenizer
 round-trip gives 2.94 ($f16$) and 2.55 ($f8$), so the codec adds 0.59 and 0.20, and those are the
 numbers a generative FID is read against here. The paired reconstruction FID of
 Table~\ref{tab:app:image:modeldiff} (1.59 / 0.73) compares images with their own round-trip and so
@@ -64,7 +76,7 @@ Training corpus & CC3M ($\approx$2.9M pairs) & CC12M ($\approx$11.7M pairs) \\
 Parameters; layers $\times$ width & 462M; $24\times1024$ & 633M; $26\times1152$ \\
 Image tokenizer (Open-MAGVIT2, 18-bit LFQ) & $f16$: $16{\times}16=256$ & $f8$: $32{\times}32=1{,}024$ \\
 Text budget $L_t$; positions; bits $S$ & 48; 310; 5{,}890 & 96; 1{,}126; 21{,}394 \\
-Training steps; relative compute & 1{,}000{,}000; $1\times$ & 1{,}744{,}000 (87\%); $\approx8.7\times$ \\
+Training steps; relative compute & 1{,}000{,}000; $1\times$ & 1{,}744{,}000; $\approx8.7\times$ \\
 \midrule
 \emph{Tokenizer rFID, paired / PSNR (COCO-30K)} & 1.592 / 22.24 dB & \textbf{0.726} / \textbf{26.92 dB} \\
 \emph{Codec contribution to an unpaired FID} & 0.588 & \textbf{0.199} \\
@@ -86,8 +98,8 @@ comparable to a generative FID.}
 through the frozen $f16$ and $f8$ Open-MAGVIT2 codecs, and text$\rightarrow$image samples from
 CoBit-CC3M and CoBit-CC12M for that image's own caption, at 256 steps. The two round-trip columns
 are hard to tell from the real image, consistent with a measured codec contribution of 0.59 / 0.20
-FID over a 2.35 sampling floor; the visible distance is between the round-trips and the
-generations. Four of the seven fixed protocol captions, one uncurated sample each,
+FID over a 2.35 disjoint-real floor; the visible distance is between the round-trips and the
+generations. The first four of seven fixed-protocol captions, one uncurated sample each,
 illustrating the measured floors of \S\ref{app:image:protocol} rather than standing in for them.}
 \label{fig:image:gap}
 \end{figure}
@@ -145,7 +157,7 @@ our 21.66--21.79 and 18.30, consistent with the FID gap and its LAION-scale pre-
 \cmidrule(lr){2-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
 Steps & FID$\downarrow$ & CMMD$\downarrow$ & CLIP$\uparrow$ & FID$\downarrow$ & pair-CLIP$\uparrow$ & CIDEr$\uparrow$ & i2t CLIP$\uparrow$ \\
 \midrule
-4   & 28.55 & 22.71 & 27.45 & --- & --- & --- & --- \\
+4   & 28.54 & 22.71 & 27.45 & --- & --- & --- & --- \\
 6   & 24.79 & 19.13 & 27.86 & --- & --- & --- & --- \\
 8   & 24.28 & 18.81 & 27.99 & --- & --- & --- & --- \\
 \textbf{10}  & \textbf{24.00} & \textbf{18.76} & 28.04 & \textbf{56.06} & 23.16 & 0.0131 & 23.91 \\
@@ -231,17 +243,78 @@ GenEval overall $\uparrow$ & \textbf{0.249} & 0.222 & $-0.027$ \\
 \bottomrule
 \end{tabular}
 \caption{Scaling verdict at each model's own optimum. CC12M wins every image-side
-\emph{distributional} metric --- it loses CLIP --- and the margin survives floor correction: the shared 2.35 sampling floor cancels and removing each
+\emph{distributional} metric and loses CLIP; the CLIP row compares different guidance values
+(2.5 versus 2.0), see Table~\ref{tab:app:image:matched-clip} for the matched comparison. The margin survives floor correction: the shared 2.35 sampling floor cancels and removing each
 tokenizer's codec contribution leaves CC12M 1.50 ahead, so the codec explains about a fifth of the
 raw gap (Fr\'echet distances are not additive, so this is a reporting heuristic for the order of
 the confound; no reconstruction-CMMD floor exists, so that margin keeps an unquantified codec
 advantage). The gap widens towards the optimum: at a matched guidance 2.0 and $n{=}5{,}000$ it is 3.27 FID at
-32 steps against 1.39 at 256. On the text side CC3M wins everything by margins far outside the $\sim$0.01 CIDEr noise.
-Undertraining predicts a uniform deficit and noisier CC12M alt-text predicts the split observed;
-the measured pattern is the second. That is an inference across metrics, not a measurement of
-caption quality --- the decisive CMMD-versus-checkpoint curve has not been run.}
+32 steps against 1.39 at 256. On the text side CC3M wins everything by margins far outside the $\sim$0.01 CIDEr noise; the
+candidate causes are discussed below.}
 \label{tab:app:image:scaling-verdict}
 \end{table}
+
+\begin{table}[tb]
+\centering
+\small
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{llrrr}
+\toprule
+\textbf{Direction, setting} & \textbf{Guidance $w$} & \textbf{CC3M} & \textbf{CC12M} & $\Delta$ \\
+\midrule
+text$\rightarrow$image, 256 steps & 1.0 & 25.32 & 24.80 & $-0.52$ \\
+ & 2.0 & 27.19 & 26.45 & $-0.74$ \\
+ & 3.0 & 28.00 & 27.10 & $-0.90$ \\
+ & 4.0 & 28.44 & 27.42 & $-1.02$ \\
+text$\rightarrow$image, near-optimal steps (10 / 20) & 2.0 & 27.28 & 26.54 & $-0.74$ \\
+ & 2.5 & 27.73 & 26.92 & $-0.81$ \\
+ & 3.0 & 28.04 & 27.14 & $-0.90$ \\
+\midrule
+image$\rightarrow$text, 256 steps, $\gamma{=}0.175$ & 3.0 & 24.83 & 22.98 & $-1.85$ \\
+ & 4.0 & 24.97 & 23.08 & $-1.89$ \\
+captioning run (Karpathy test), 256 steps, $\gamma{=}0.175$ & 2.0 & 24.49 & 22.47 & $-2.02$ \\
+\bottomrule
+\end{tabular}
+\caption{CLIP (ViT-B/32, $100\cdot\cos$) at matched guidance, $n{=}5{,}000$. CLIP rises
+monotonically with $w$ for both models in every direction, so the headline values of
+Table~\ref{tab:image:headline}, read at each model's CMMD optimum ($w{=}2.5$ for CC3M, $2.0$ for
+CC12M), mix a guidance effect of roughly 0.4 into the 1.22-point gap. At equal guidance the gap is
+0.5--1.0 for text$\rightarrow$image and 1.85--2.0 for the text-emitting directions, and it widens
+with $w$. ViT-L/14 gives the same ordering (21.31 versus 20.63 at the headline points). Only
+$w{=}3.0$ and $4.0$ were run for image$\rightarrow$text and only $w{=}2.0$ for captioning of both
+models, so ``every tested guidance'' means these values.}
+\label{tab:app:image:matched-clip}
+\end{table}
+
+\textbf{Why CC12M loses alignment while winning image quality.} Every metric that compares an image
+with a text (CLIP in both directions, CIDEr, SPICE, RefCLIPScore, GenEval) moves against CC12M,
+while every metric that compares an image distribution with an image distribution (FID, CMMD, SWD,
+precision) moves for it (Tables~\ref{tab:app:image:scaling-verdict}
+and~\ref{tab:app:image:matched-clip}). Two explanations are consistent with this pattern and the
+present runs do not separate them. \emph{Data.} CC12M alt-text is longer, noisier and less literal
+than CC3M's; the corpus supplies $4\times$ the images for the image prior but a looser image--text
+coupling. \emph{Token budget.} The $f8$ codec quadruples the image segment (1{,}024 tokens against
+256) while the text budget only doubles (96 against 48), so text is 8\% of a CC12M sequence against
+16\% of a CC3M sequence. Under one modality-agnostic loss this halves the text share of the training
+signal in joint examples, and in text$\rightarrow$image it halves the fraction of the context that
+carries the condition; both push in the observed direction. The clean separations are a CC3M model at $f8$ (same captions, four times the
+image tokens) and a CC12M model trained on CC3M-style re-captions (same tokens, cleaner text);
+neither has been run.
+
+\textbf{CLIP ceilings.} Every CLIP value above is relative: the score a real, correctly paired
+image--caption has under the same preprocessing bounds what a model can reach, and it differs
+between COCO (short literal captions) and the alt-text corpora the models were trained on. We
+have not yet measured these ceilings and therefore do not quote absolute ratios.
+\note{To measure before submission. (i) COCO: \texttt{scripts/multimodal/coco\_clip\_ceiling.py}
+embeds the reference captions of the 30{,}000 bank images (no generation, no images to load; the
+bank already holds the real-image embeddings under the protocol preprocessing) and reports the
+mean-over-references and best-of-references real-pair CLIP for ViT-B/32 and, with the L/14 bank,
+ViT-L/14, plus the same on the image$\rightarrow$text 5K subset. (ii) CC3M / CC12M validation:
+the \texttt{clip\_diag} rows (\texttt{clip\_t\_gt}, \texttt{clip\_align\_gt}) in
+\texttt{runs/multimodal/<exp>/evaluation\_*/results.csv}, aggregated by
+\texttt{aggregate\_clip\_diag.py}. Then report each model's text$\rightarrow$image and
+image$\rightarrow$text CLIP as a fraction of the COCO ceiling and of its own corpus ceiling.}
+
 
 \subsection{GenEval breakdown}
 \label{app:image:geneval}
@@ -304,13 +377,11 @@ Table~\ref{tab:app:image:scaling-verdict}, where the comparison is the point.}
 \begin{figure}[tb]
 \centering
 \includegraphics[width=\linewidth]{figures/image_text/cc3m_i2t_s256_gs2.0.png}
-\caption{What CIDEr 0.136 looks like. Uncurated CoBit-CC3M image$\rightarrow$text samples at the
-operating point of Table~\ref{tab:app:image:captioning}. The outputs are fluent CC3M-register
-alt-text---the last panel reads ``\emph{modern furniture for a dining table add a table feel to
-any space}''---where COCO's references are terse declaratives of the form ``\emph{A dining table
-with wooden spoons laid out on it.}'' The content is usually right and the register is not, which is the failure the $n$-gram metrics score
-and the CIDEr-versus-RefCLIPScore split in Table~\ref{tab:app:image:captioning} measures over
-5{,}000 images. Six uncurated examples, shown to make that failure concrete.}
+\caption{Six uncurated CoBit-CC3M image$\rightarrow$text samples at the operating point of
+Table~\ref{tab:app:image:captioning}. They illustrate both semantic errors and a register mismatch:
+outputs often resemble CC3M web alt-text or sales copy, whereas COCO references are terse
+declaratives. CIDEr and RefCLIPScore measure different aspects of this mismatch over all 5{,}000
+images; the six examples show failure types, not their prevalence.}
 \label{fig:image:i2t}
 \end{figure}
 
@@ -329,21 +400,75 @@ result through RefCLIPScore.
 \subsection{MNIST-Sum}
 \label{app:image:mnist}
 
-We train a 63.3M-parameter $12\times512$ model for 500k steps on $10^6$ examples with the CC3M
-recipe unchanged, holding out 10\% of the $10^4$ digit tuples, and evaluate every direction at
-$n{=}4{,}096$ with 256 steps. Image$\rightarrow$text is scored by string equality with no
-instrument in the loop: 97.90\% of equations are exactly right, decomposing into 98.14\%
-perception and 99.66\% arithmetic with 0.05\% malformed output, against a 6.52\% modal-sum
-baseline. On digit tuples never seen in training the model scores 97.92\%, indistinguishable from
-its in-distribution score (difference $-0.02$, 95\% CI $[-0.65,+0.60]$), so the mapping is learned
-rather than memorised. Text$\rightarrow$image, read by a quadrant classifier whose ceiling on real
-composites is 99.78\%, places all four digits correctly in 99.98\% of samples. Joint co-generation
-reaches 96.85\%, decomposing into 99.98\% well-formed equations, 99.78\% in which the named
-addends match the generated image, and 97.02\% in which the arithmetic is valid---so the residual
-error is symbolic rather than cross-modal.
+\textbf{Protocol.} Each example contains four native $28{\times}28$ MNIST digits in raster order
+and the corresponding equation, including its sum. We sample $10^6$ examples and hold out 10\% of
+the $10^4$ digit tuples. Pixels are binarised and flattened digit-major, then row-major within each
+digit, so every 28-bit image position is one complete digit row; text belongs to a closed
+40-symbol language (number words 0--36, ``$+$'', ``$=$'' and padding) represented by deterministic
+7-bit codes, four per position. The sequence has 121 positions of 28 bits (3 text, 112 image and 6 markers; 3,388 bits in total).
+The $12{\times}512$ denoiser (63.3M parameters) trains for 500K steps with the shared diffusion
+objective, entropy controller, self-conditioning and regime probabilities, and receives only the
+flattened sequence, its 1-D position and segment identity. The representation-scale settings
+follow the raw-bit sequence rather than CC3M (14 local Fourier features, denominator $P{=}28$);
+these are shared positional and budget choices, not modality-specific towers, heads or losses.
+Evaluation uses EMA weights, 256 steps and $n{=}4{,}096$ samples per direction and split;
+intervals are 95\% Wilson.
+
+\textbf{Image$\rightarrow$text} is scored by exact string equality with no learned instrument:
+97.90\% on seen tuples (CI $[97.41, 98.30]$) and 97.92\% on held-out tuples (CI
+$[97.44, 98.32]$), so the generalisation gap is not statistically distinguishable from zero. The
+seen result decomposes into 98.14\% correct perception, 99.66\% correct arithmetic given correct
+perception and 0.05\% malformed output.
+
+\textbf{Text$\rightarrow$image} places all four requested digits correctly in 99.98\% of seen
+samples (CI $[99.86, 100.00]$) and 99.85\% of held-out samples. This direction is read by a fixed
+quadrant classifier, which identifies all four digits in 96.09\% of real seen-pool composites and
+99.78\% of its same-pool control; generated digits can be easier to classify than real ones, so
+these are instrument calibrations rather than normalisation factors. Without guidance the rate is
+99.61\%, and adding stochastic churn gives 99.71\% ($n{=}1{,}024$).
+
+\textbf{Joint co-generation} from noise is 96.85\% mutually consistent (CI $[96.27, 97.34]$). Of
+the 4,096 pairs, 99.98\% have a well-formed equation, 99.78\% name the digits the classifier reads
+in the generated image and 97.02\% are arithmetically valid, so the residual failures are almost
+entirely arithmetic rather than cross-modal.
 
 \subsection{Comparability and measurement hygiene}
 \label{app:image:repro}
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Model} & \textbf{Params} & \textbf{Pre-train pairs} & \textbf{FID-30K}$\downarrow$ & \textbf{GenEval}$\uparrow$ \\
+\midrule
+\multicolumn{5}{l}{\emph{CoBit (ours; denoiser trained from scratch, frozen image codec)}}\\
+CoBit-CC3M & 462M & 2.9M & 18.48 & 0.249 \\
+CoBit-CC12M & 633M & 11.7M & 16.59 & 0.222 \\
+\midrule
+\multicolumn{5}{l}{\emph{Same pre-training corpus (CC3M), zero-shot COCO}}\\
+LAFITE \citep{image:lafite} & 75M ($+$CLIP) & 3.3M & 26.94 & --- \\
+\midrule
+\multicolumn{5}{l}{\emph{Unified image$+$text models}}\\
+CoDI \citep{image:codi} & --- & 400M & 22.26 & 0.31 \\
+SEED-X \citep{image:seedx} & 17B & --- & 14.99 & 0.49 \\
+LWM \citep{image:lwm} & 7B & --- & 12.68 & 0.47 \\
+UniDiffuser \citep{image:unidiffuser} & 952M & LAION-5B (subsets) & 9.71$^{\dagger}$ & --- \\
+Show-o \citep{image:showo} & 1.3B & 35M & 9.24 & 0.68 \\
+\midrule
+\multicolumn{5}{l}{\emph{Text-to-image specialists}}\\
+DALL$\cdot$E \citep{image:dalle} & 12B & 250M & 27.50 & --- \\
+LDM \citep{image:ldm} & 1.4B & 400M & 12.63 & 0.37 \\
+SD v1.5 \citep{image:ldm} & 0.9B & 2000M & 9.62 & 0.43 \\
+PixArt-$\alpha$ \citep{image:pixart} & 0.6B & 25M & 7.32 & 0.48 \\
+\bottomrule
+\end{tabular}
+\caption{Zero-shot MS-COCO FID-30K and GenEval as reported by each source. The rows provide scale
+context rather than a ranking: data, parameter counting and evaluation implementations differ.
+$^{\dagger}$UniDiffuser does not identify which sample count belongs to FID.}
+\label{tab:image:litcomparison}
+\end{table}
 
 \textbf{Literature figures.} Every number in Table~\ref{tab:image:litcomparison} was read from the
 cited paper's own table or from the compilation tables of \citet{image:showo},
@@ -379,16 +504,16 @@ invalidated an earlier set of CC12M scores; it is unaffected, on two controlled 
 versus compiled at 10 steps (0.240 versus 0.235) and 10 versus 256 steps on the eager path (0.240
 versus 0.249)---because CC3M's 256-token sequence does not trigger it.
 
+\fi
+
 \section{Audio and text experiments}
 \label{app:audio}
 
 \subsection{Protocol and Checkpoints} \label{app:audio:protocol}
 
-\textbf{LibriVox-based corpora.}
+\textbf{LibriVox-based corpora.} LibriTTS, MLS-English, LibriSpeech-PC and art of SALMON (background and room partitions) are extracted from the LibriVox project, and thus consist of single-speaker, reading-style audiobook recordings. The content CoBit sees during training is exclusively story passages, which severely constraints its stylistic and thematic exposure. Availability of in-the-wild text-audio pairs is very limited at this scale for single-speaker samples, so audiobook data is the natural alternatively. For most speech models, semantic and stylistic generality is inherited from the text pre-trained backbone. Note that the training and test sets have no example or speaker overlap. 
 
-\textbf{Linguistic evaluation.}
-
-% \textbf{LibriSpeech-PC.} To assess the linguistic properties of generated speech signals, we transcribe them using an external Whisper-large \citep{audio:whisper} ASR model. For co-generation, error rates are computed between the two generated sequences. The fluency of a text sequence is measured by its perplexity under an external language model (in this case Llama-3.2 1B), computed separately for each modality in co-generation and for speech transcriptions in speech continuation. To further determine the conceptual relevance of produced continuations, \texttt{GPT-4o} is employed in an LLM-as-a-Judge setting, assigning each continuation a score from 1 to 5. The system message is taken directly from \cite{audio:taste} and presented in Table \ref{tab:audio:llm-judge}. For TTS, voice replication is captured in terms of speaker similarity (SpkSim), computed as the cosine similarity between the outputs of an ECAPA-TDNN \citep{audio:ecapa-tdnn} speaker verification model.
+\textbf{Linguistic evaluation.} To assess the linguistic properties of generated speech signals, we transcribe them using an external Whisper-large \citep{audio:whisper} ASR model. For co-generation, error rates are computed between the two generated sequences. The fluency of a text sequence is measured by its perplexity under an external language model (in this case Llama-3.2 1B), computed separately for each modality in co-generation and for speech transcriptions in speech continuation. To further determine the conceptual relevance of produced continuations, \texttt{GPT-4o} is employed in an LLM-as-a-Judge setting, assigning each continuation a score from 1 to 5. The system message is taken directly from \cite{audio:taste} and presented in Table \ref{tab:audio:llm-judge}.
 
 \begin{table}[t]
 \centering
@@ -416,10 +541,8 @@ Second: MUST follow the output format as: I would rate the score as \_ \\
 \label{tab:audio:llm-judge}
 \end{table}
 
-\textbf{Acoustic Evaluation.}
+\textbf{Acoustic Evaluation.} For TTS, voice replication is captured in terms of speaker similarity (SpkSim), computed as the cosine similarity between the outputs of an ECAPA-TDNN \citep{audio:ecapa-tdnn} speaker verification model. For speech continuation, we are also interested in how closely the generated audio follows the distribution of ground-truth continuations. We thus measure Fr\'echet Speech Distance (FSD), an adaptation of the FID metric to audio. Population statistics are extracted from self-supervised representations of the true and generated continuations, and their Fr\'echet distance is calculated. Following previous work \citep{audio:flow-slm}, two variants are considered: FSD-wlm, which is based on embeddings from the 6th layer of WavLM-large \citep{audio:wavlm} to measure frame-level match, and FSD-e2v, which is based on expressiveness representations from Emotion2Vec \citep{audio:emotion2vec}. FSD metrics do not evaluate the quality of the generated audio; they capture its population-level resemblance to the original continuations. FSD metrics are investigated in more detail in Appendix \ref{app:audio:sampler}.
 
-% \textbf{Distributional Metrics.} For speech continuation, we are also interested in how closely the generated audio follows the distribution of ground-truth continuations. We thus measure Fr\'echet Speech Distance (FSD), an adaptation of the FID metric to audio. Population statistics are extracted from self-supervised representations of the true and generated continuations, and their Fr\'echet distance is calculated. Following previous work \citep{audio:flow-slm}, two variants are considered: FSD-wlm, which is based on embeddings from the 6th layer of WavLM-large \citep{audio:wavlm} to measure frame-level match, and FSD-e2v, which is based on expressiveness representations from Emotion2Vec \citep{audio:emotion2vec}. FSD metrics do not evaluate the quality of the generated audio; they capture its population-level resemblance to the original continuations.
- 
 \textbf{Generation-based SALMON benchmark.} The SALMON benchmark is used for acoustic evaluation. In its original form, SALMON creates replicas of short speech recordings where the start remains identical, but some paralinguistic property (sentiment, speaker identity/gender, background, room) is modified midway. SLMs receive an accuracy score related to how often the positive example is assigned higher likelihood than the negative one. Given the incompatibility of likelihood-based evaluation for diffusion models \citep{audio:diffusion-likelihood}, we turn to an alternative generation-based  SALMON formulation \citep{audio:gen-salmon}. The examined SLM produces a continuation of the shared start of the two examples, and a judge model calculates embeddings for the positive, negative and generated continuations. The SLM then receives an accuracy score based on how often the generated continuation is closer to the positive example than the negative one, in terms of cosine similarity in the embedding space. TITANET \citep{audio:titanet} is used as the judge for sentiment, speaker and gender tasks; HuBERT-large-audioset and Wav2Vec2-large-audioset \citep{audio:ARCH} are used for background and room tasks, respectively. 
 
 \textbf{Operating points.} The sampler configurations (integration steps, stochasticity and guidance scale) for each conditional task have been selected based on modality alignment (WER) on 500 samples from the LibriTTS dev-clean set; the final settings are summarized in Table \ref{tab:audio:operating-points} and full validation scores are reported in Tables \ref{tab:audio:val:tts}, \ref{tab:audio:val:stt} and \ref{tab:audio:val:cont}.
@@ -552,9 +675,9 @@ $\gamma$ & \textbf{WER}$\downarrow$ & \textbf{CER}$\downarrow$ & \textbf{UTMOS}$
 \label{tab:audio:val:cont}
 \end{table}
 
-\subsection{Complete Results}
+\subsection{Complete Results} \label{app:audio:results}
 
-Tables \ref{tab:audio:joint} and \ref{tab:audio:cross-modal} contain extensive evaluation metrics and baseline comparisons for co-generation and cross-modal directions, respectively; Table \ref{tab:audio:salmon} details per-task SALMON accuracy. LLM-as-a-Judge score distributions for CoBit-LibriTTS and CoBit-MLS are visualized in Figure \ref{fig:audio:llm-judge}
+Tables \ref{tab:audio:joint}, \ref{tab:audio:cross-modal} and \ref{tab:audio:continuation} contain extensive evaluation metrics and baseline comparisons for co-generation, cross-modal directions and continuation, respectively; Table \ref{tab:audio:salmon} details per-task SALMON accuracy. 
 
 \begin{table}[t]
 \centering
@@ -566,7 +689,7 @@ Tables \ref{tab:audio:joint} and \ref{tab:audio:cross-modal} contain extensive e
 \midrule
 \multicolumn{7}{l}{\emph{CoBit (ours; from scratch, no pretrained components)}} \\
 CoBit-LibriTTS & 134M & 19.9 & 13.3 & 3.02 & 509.6 & 377.2 \\
-CoBit-MLS & 633M & 3.8 & \textbf{2.4} & 3.79 & 247.2 & \textbf{122.5} \\
+CoBit-MLS & 633M & 3.5 & \textbf{1.8} & 3.77 & 252.4 & \textbf{133.3} \\
 \midrule
 \multicolumn{7}{l}{\emph{Autoregressive System (SmolLM+Speaker $\rightarrow$ SparkTTS)}} \\
 Cascade & 640M & \textbf{3.2} & 3.1 & \textbf{4.23} & \textbf{122} & 1{,}648 \\
@@ -606,40 +729,65 @@ Moshi \citep{audio:moshi} & 7B & 4.7 & --- & --- & --- & 5.7 &  --- \\
 \centering
 \small
 \setlength{\tabcolsep}{4.5pt}
-\begin{tabular}{lrrrrrr}
+\begin{tabular}{lrrrrrrr}
 \toprule
-\textbf{Model} & \textbf{Sentiment} & \textbf{Speaker} & \textbf{Gender} & \textbf{Bg.- Domain} & \textbf{Bg.- Random} & \textbf{Room} \\
+\textbf{Model} & \textbf{Params} & \textbf{UTMOS}$\uparrow$ & \textbf{FSD-wlm}$\downarrow$ & \textbf{FSD-e2v}$\downarrow$ & \textbf{SpkSim}$\uparrow$ & \makecell{\textbf{GenPPL-} \\ \textbf{Speech}$\downarrow$} & \textbf{GPT-4o}$\uparrow$ \\
 \midrule
-\multicolumn{7}{l}{\emph{CoBit (ours; from scratch, no pretrained components}} \\
-CoBit-LibriTTS & 86 & 88.5 & 88.5 & 66 & 71 & 71 \\
-CoBit-MLS & 90.5 & 93 & 93.5 & 73.5 & 80 & 75.5 \\
+\multicolumn{7}{l}{\emph{CoBit (ours; from scratch, no pretrained components)}} \\
+CoBit-LibriTTS & 134M & 2.82 & 2{,}373 & 40.5 & 0.21 & 152.1 & 1.11 \\
+CoBit-MLS & 633M & 3.89 & 2{,}386 & 13 & 0.34 & 83.6 & 1.44 \\
 \midrule
 \multicolumn{7}{l}{\emph{Trained on MLS-English (same corpus as CoBit-MLS, excluding LibriTTS)}} \\
-Flow-SLM-S & 85 & 87 & 92.5 & 77 & 86 & 69.5 \\
-Flow-SLM-L & 92.5 & 99.5 & 99 & 77 & 84.5 & 77 \\
+Flow-SLM-S \citep{audio:flow-slm} & 395M & 2.47 & 3{,}391 & 35.7 & 0.21 & 242.8 & 1.1 \\
+Flow-SLM-L & 1.25B & 3.48 & 3{,}476 & 35.4 & 0.41 & 131.7 & 1.57 \\
 \midrule
 \multicolumn{7}{l}{\emph{Speech-only SLMs}} \\
-Flow-SLM-Ext. & 93 & 98 & \textbf{100} & 77 & 86.5 & \textbf{85.5}\\
-Llama-Mimi & 93 & 90 & 95 & \textbf{81} & \textbf{90} & 78.5 \\
+Flow-SLM-Ext. & 1.25B & 3.47 & 3{,}445.1 & 33 & 0.42 & 122.4 & 1.67 \\
+Llama-Mimi \citep{audio:llama-mimi} & 1.3B & 3.18 & 3{,}621 & 14.1 & 0.35 & 98.5 & 1.58 \\
 \midrule
 \multicolumn{7}{l}{\emph{Text+Speech SLMs}} \\
-TASLM-Embed & \textbf{95} & \textbf{100} & \textbf{100} & 61.5 & 54.5 & 57.5\\
-SpiritLM-Base & 47.5 & 52 & 50.5 & 50.5 & 52.5 & 50 \\
-SpiritLM-Expressive & 72 & 54 & 56 & 58.5 & 55.5 & 54.5 \\
+TASLM-Embed \citep{audio:taste} & 1.3B & \textbf{4.16} & \textbf{1{,}410} & \textbf{9.9} & \textbf{0.49} & \textbf{38.6} & \textbf{3.42} \\
+SpiritLM-Base \citep{audio:spirit-lm} & 7B & 3.2 & 7{,}325 & 26.8 & 0.02 & 101.4 & 2 \\
+SpiritLM-Expressive & 7B & 3.17 & 6{,}293.6 & 16.9 & 0.08 & 153.2 & 1.62 \\
+\midrule
+\emph{StableCodec} & --- & 4.33 & 1{,}119 & 1.26 & 0.36 & --- & --- \\
+\bottomrule
+\end{tabular}
+\caption{Continuation-based and SALMON evaluation for text-audio experiments against published SLMs. All figures are evaluated using publicly available checkpoints. GPT-4o refers to LLM-as-a-Judge score with the prompt shown in Table \ref{tab:audio:llm-judge}. We use NFE$=$512 for both CoBit models. The last row reports the tokenizer performance ceiling.}
+\label{tab:audio:continuation}
+\end{table}
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4.5pt}
+\begin{tabular}{lrrrrrrr}
+\toprule
+\textbf{Model} & \textbf{Sentiment} & \textbf{Speaker} & \textbf{Gender} & \textbf{Bg.- Domain} & \textbf{Bg.- Random} & \textbf{Room} & \textbf{Avg.} \\
+\midrule
+\multicolumn{7}{l}{\emph{CoBit (ours; from scratch, no pretrained components)}} \\
+CoBit-LibriTTS & 86 & 88.5 & 88.5 & 66 & 71 & 71 & 78.5 \\
+CoBit-MLS & 90.5 & 93 & 93.5 & 73.5 & 80 & 75.5 & 84.3 \\
+\midrule
+\multicolumn{7}{l}{\emph{Trained on MLS-English (same corpus as CoBit-MLS, excluding LibriTTS)}} \\
+Flow-SLM-S & 85 & 87 & 92.5 & 77 & 86 & 69.5 & 82.83 \\
+Flow-SLM-L & 92.5 & 99.5 & 99 & 77 & 84.5 & 77 & 88.25 \\
+\midrule
+\multicolumn{7}{l}{\emph{Speech-only SLMs}} \\
+Flow-SLM-Ext. & 93 & 98 & \textbf{100} & 77 & 86.5 & \textbf{85.5} & \textbf{90} \\
+Llama-Mimi & 93 & 90 & 95 & \textbf{81} & \textbf{90} & 78.5 & 87.92 \\
+\midrule
+\multicolumn{7}{l}{\emph{Text+Speech SLMs}} \\
+TASLM-Embed & \textbf{95} & \textbf{100} & \textbf{100} & 61.5 & 54.5 & 57.5 & 78 \\
+SpiritLM-Base & 47.5 & 52 & 50.5 & 50.5 & 52.5 & 50 & 50.5 \\
+SpiritLM-Expressive & 72 & 54 & 56 & 58.5 & 55.5 & 54.5 & 58.41 \\
 \bottomrule
 \end{tabular}
 \caption{Speech continuation performance across the consistency tasks of the SALMON benchmark for generation-based evaluation. Each model generates a continuation for each prompt, and accuracy scores are computed for each task by comparing the cosine similarity of the generated continuation with the positive and negative examples. Different embedding models are used for each task, specified in Appendix \ref{app:audio:protocol}. NFE$=$512 is used for both CoBit-LibriTTS and CoBit-MLS, with the operating points fine-tuned for speech continuation.}
 \label{tab:audio:salmon}
 \end{table}
 
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=\linewidth]{figures/audio/llm-judge-distribution.png}
-    \caption{LLM-as-a-Judge score distribution for CoBit-LibriTTS and CoBit-MLS. CoBit-LibriTTS almost always receives the lowest possible score. A large portion of CoBit-MLS samples perform moderately better, but neither of the model can consistently achieve scores of 3 or higher.}
-    \label{fig:audio:llm-judge}
-\end{figure}
-
-\subsection{Sampler Characterisation} 
+\subsection{Sampler Characterisation} \label{app:audio:sampler}
 
 \textbf{Few-step regimes survive only when generating a single modality.}
 
@@ -651,6 +799,8 @@ SpiritLM-Expressive & 72 & 54 & 56 & 58.5 & 55.5 & 54.5 \\
 \toprule
 \textbf{Steps} & \textbf{WER}$\downarrow$ & \textbf{CER}$\downarrow$ & \textbf{UTMOS}$\uparrow$ & \textbf{GenPPL-Text}$\downarrow$ & \textbf{GenPPL-Speech}$\downarrow$ \\
 \midrule
+4 & 367 & 250.5 & 1.28 & 20{,}101.9 & 1{,}132.5 \\
+8 & 267.8 & 181.4 & 1.31 & 16{,}791.8 & 708.2 \\
 16 & 173.4 & 120.5 & 1.51 & 9{,}002.5 & 303.4 \\
 24 & 100 & 70.4 & 1.94 & 5{,}377.7 & 440.5 \\
 32 & 68 & 47.4 & 2.3 & 3{,}665.2 & 391.4\\
@@ -675,6 +825,8 @@ SpiritLM-Expressive & 72 & 54 & 56 & 58.5 & 55.5 & 54.5 \\
 \cmidrule(lr){2-5} \cmidrule(lr){6-7}
 \textbf{Steps} & \textbf{WER}$\downarrow$ & \textbf{CER}$\downarrow$ & \textbf{UTMOS}$\uparrow$ & \textbf{SpkSim}$\uparrow$ & \makecell{\textbf{WER}$\downarrow$ \\ \textbf{Clean}} & \makecell{\textbf{WER}$\downarrow$ \\ \textbf{Other}} \\
 \midrule
+4 & 184.2 & 133.3 & 1.51 & 0.05 & 15.4 & 34.9\\
+8 & 32 & 21.1 & 3.03 & 0.19 & 9 & 23.9 \\
 16 & 6.6 & 4.5 & 3.85 & 0.25 & 8.6 & 23 \\
 24 & 6.7 & 4.8 & 3.96 & 0.26 & 8.4 & 22.8 \\
 32 & 5.7 & 4 & 3.99 & 0.26 & 8.3 & 22.7 \\
@@ -697,6 +849,8 @@ SpiritLM-Expressive & 72 & 54 & 56 & 58.5 & 55.5 & 54.5 \\
 \toprule
 \textbf{Steps} & \textbf{UTMOS}$\uparrow$ & \textbf{FSD-wlm}$\downarrow$ & \textbf{FSD-e2v}$\downarrow$ & \textbf{SpkSim}$\uparrow$ & \textbf{GenPPL-Speech}$\downarrow$ & \textbf{SALMON}$\uparrow$ \\
 \midrule
+4 & 1.44 & 6{,}001 & 156.2 & 0.05 & 375.1 & 74.58 \\
+8 & 1.82 & 3{,}409.6 & 42.1 & 0.14 & 262.6 & 80.08 \\
 16 & 3.12 & 2{,}236.3 & 8.9 & 0.3 & 232 & 84.41\\
 24 & 3.53 & 2{,}176.6 & 7.1 & 0.33 & 200.9 & 84.41 \\
 32 & 3.7 & 2{,}117.6 & \textbf{6.8} & 0.34 & 178.3 & 84.25 \\
@@ -788,6 +942,16 @@ joint & 11.3 & 7.3 & 3.54 & --- & --- & 413.9 / 204.2 & --- \\
 \textbf{Speaker consistency and diversity analysis for co-generation.}
 
 \subsection{Speech Recognition Performance Breakdown} \label{app:audio:asr}
+
+\subsection{LLM-as-a-Judge for Thematic Preservation} \label{app:audio:llm}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{figures/audio/llm-judge-distribution.png}
+    \caption{LLM-as-a-Judge score distribution for CoBit-LibriTTS and CoBit-MLS. CoBit-LibriTTS almost always receives the lowest possible score. A large portion of CoBit-MLS samples perform moderately better, but neither of the model can consistently achieve scores of 3 or higher.}
+    \label{fig:audio:llm-judge}
+\end{figure}
+
 
 \subsection{Baseline Systems} \label{app:audio:baselines}
 

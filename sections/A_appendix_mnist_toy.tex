@@ -1,0 +1,59 @@
+\section{Image and text: MNIST-Sum details}
+\label{app:image}
+
+\subsection{Protocol}
+\label{app:image:mnist}
+
+\textbf{Corpus and representation.} Each example contains four native $28{\times}28$ MNIST digits
+in raster order and the corresponding equation, including its sum. We sample $10^6$ examples and
+hold out 10\% of the $10^4$ possible digit tuples. Pixels are binarised and flattened digit-major,
+then row-major within each digit, so every 28-bit image position is one complete digit row. Text
+belongs to a closed 40-symbol language (number words 0--36, ``$+$'', ``$=$'' and padding)
+represented by deterministic 7-bit codes, four per 28-bit position. The sequence has 121
+positions of 28 bits (3 text, 112 image and 6 markers; 3,388 bits in total). Neither modality uses a learned tokenizer.
+
+\textbf{Training and evaluation.} The $12{\times}512$ denoiser (63.3M parameters) trains for 500K
+steps with the shared diffusion objective, entropy controller, self-conditioning and task
+mixture, and receives only the flattened sequence, its 1-D position and segment identity.
+Evaluation uses EMA weights, 256 steps and $n{=}4{,}096$ independently sampled examples per
+direction and split. Confidence intervals are 95\% Wilson intervals.
+
+\subsection{Results, calibration and error decomposition}
+
+\begin{table}[h]
+\centering
+\small
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{lrrr}
+\toprule
+& Seen tuples & Held-out tuples & CI (seen) \\
+\midrule
+Image$\rightarrow$text, exact string match & 97.90 & 97.92 & $[97.41, 98.30]$ \\
+Text$\rightarrow$image, all four digits & 99.98 & 99.85 & $[99.86, 100.00]$ \\
+Joint from noise, mutually consistent & 96.85 & --- & $[96.27, 97.34]$ \\
+\bottomrule
+\end{tabular}
+\caption{MNIST-Sum task accuracy (\%), $n{=}4{,}096$ per direction and split. ``Held-out'' uses digit tuples
+absent from training. Joint generation is counted correct only when the generated equation is
+arithmetically valid and names the four digits in the generated image.}
+\label{tab:app:mnist:complete}
+\end{table}
+
+\textbf{Image$\rightarrow$text} is scored by exact string equality, without a learned instrument.
+The held-out interval $[97.44, 98.32]$ overlaps the seen interval almost entirely, so the
+generalisation gap is not statistically distinguishable from zero. The seen result decomposes
+into 98.14\% correct perception of all four digits, 99.66\% correct arithmetic given correct
+perception and 0.05\% malformed output.
+
+\textbf{Text$\rightarrow$image} and the image half of joint generation are read by one fixed
+quadrant classifier. On real composites it identifies all four digits in 96.09\% of the seen
+test pool and 99.78\% of its same-pool control; generated digits can be easier to classify than
+real ones, so these are reported as instrument calibrations rather than used to normalise the
+generation score. Without guidance the rate is 99.61\%, and adding stochastic churn gives 99.71\%
+($n{=}1{,}024$), so neither guidance nor deterministic sampling explains the score.
+
+\textbf{Joint co-generation} samples image and text from noise in one trajectory. Of the 4,096
+pairs, 99.98\% have a well-formed equation, 99.78\% name the four digits that the classifier
+reads in the generated image and 97.02\% are arithmetically valid; the 96.85\% that satisfy all
+three is the reported rate. The residual failures are therefore almost entirely arithmetic
+rather than cross-modal identity.

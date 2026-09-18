@@ -14,7 +14,7 @@ positions of 28 bits (3 text, 112 image and 6 markers; 3,388 bits in total). Nei
 
 \textbf{Training and evaluation.} The $12{\times}512$ denoiser (63.3M parameters) trains for 500K
 steps with the shared diffusion objective, entropy controller, self-conditioning and task
-mixture, and receives only the flattened sequence, its 1-D position and segment identity.
+mixture, and receives only the flattened sequence and its 1-D position.
 Evaluation uses EMA weights, 256 steps and $n{=}4{,}096$ independently sampled examples per
 direction and split. Confidence intervals are 95\% Wilson intervals.
 

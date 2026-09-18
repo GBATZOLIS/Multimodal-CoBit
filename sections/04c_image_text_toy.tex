@@ -29,8 +29,8 @@ samples shown are fixed examples that illustrate, rather than estimate, these ra
 \textbf{One bitstream, no learned tokenizer.} Images enter as raw binary pixels and text as a
 deterministic 40-symbol, 7-bit code; a pair becomes one flat sequence of 3,388 bits (3,136 pixel
 bits, 84 text bits and 168 marker bits), which the denoiser reads in 28-bit positions. It receives
-this flat sequence, its 1-D position and segment identity, but no pixel grid, 2-D attention structure, image encoder, text encoder or
-modality-specific head. A single 63.3M-parameter model trained for 500K steps performs all three
+this flat sequence and its 1-D position, but no pixel grid, 2-D attention structure, image encoder,
+text encoder, modality-specific embedding or modality-specific head. A single 63.3M-parameter model trained for 500K steps performs all three
 directions; only the observed part of the stream changes.
 
 \textbf{Result.} At $n{=}4{,}096$ per direction, image$\rightarrow$text is 97.90\% exact,

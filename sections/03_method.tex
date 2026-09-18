@@ -12,8 +12,10 @@ interface (\S\ref{sec:method:multimodal}); and (ii) a training recipe under whic
 weights supports unconditional co-generation of all modalities present, conditional generation
 in every direction between them, and any mixture of the two, with the direction chosen at
 inference time by deciding which positions are held fixed (\S\ref{sec:method:directions}).
-There are no modality-specific encoders, decoders, heads, embedding tables or losses, and no
-modality-specific training stages. We recap the base model first, to the extent needed to make
+Every modality enters through one shared input projection, is processed by one transformer
+backbone, is predicted by one bitwise prediction head and is trained under one denoising
+objective; there are no modality-specific encoders, decoders, heads, embedding tables or losses,
+and no modality-specific training stages. We recap the base model first, to the extent needed to make
 these two additions precise.
 
 \subsection{Continuous bitstream diffusion}
@@ -115,12 +117,13 @@ segment markers), and $m$ is chosen as the bit width of that union---in practice
 the vocabularies or, equivalently, by prepending one or more namespace bits that select the
 modality. The $m$ bits of a position therefore determine both the modality and the content of a
 token, every position is a ``token of any modality'', and the patch size of the backbone is $m$
-for all of them. Consequently there are no modality-specific embedding tables, encoders, heads
-or losses, and the shared Bernoulli output head costs $O(m)=O(\log V)$ per position regardless
-of how many vocabularies are merged. The one modality-aware parameter we add is a learned
-segment embedding: a zero-initialised vector per segment type (control, text, image, audio,
-\dots) added to the per-bit trunk input, which tells the network which segment a bit belongs to
-without introducing any per-modality computation.
+for all of them. Consequently every position, whatever its modality, passes through the same
+input projection, the same transformer backbone and the same bitwise prediction head, and is
+trained under the same denoising objective; the shared Bernoulli output head costs
+$O(m)=O(\log V)$ per position regardless of how many vocabularies are merged. The network learns
+which modality a position holds from the bits themselves---the namespace or offset bits are part
+of the $m$-bit word it reads---together with the fixed sequence template and 1-D position
+described next. No modality- or segment-specific parameters are added.
 
 \textbf{A fixed sequence template.} A training example is laid out as a fixed-length template
 of segments, one per modality, each of a fixed token budget (truncated or padded), separated by

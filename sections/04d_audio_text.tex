@@ -41,6 +41,7 @@
 \centering
 \footnotesize
 \setlength{\tabcolsep}{4pt}
+\resizebox{\linewidth}{!}{%
 \begin{tabular}{lrrrrrrrr}
 \toprule
 \textbf{Direction} & $n$ & Steps (NFE) & \textbf{WER}$\downarrow$ & \textbf{CER}$\downarrow$ & \textbf{UTMOS}$\uparrow$ & \textbf{SpkSim}$\uparrow$ & \textbf{FSD}$\downarrow$ &\textbf{GenPPL}$\downarrow$ \\
@@ -57,7 +58,8 @@ speech $\rightarrow$ text & 2{,}294 / 2{,}813 & 512 (1024) & 8.2 / 22 & 4.3 / 13
 speech continuation & 1{,}036 & 512 (1024) & --- & --- & 3.89 & 0.34 & 2,386 / 13 & 83.6 \\
 joint & 1{,}024 & 512 (512) & 3.5 & 1.8 & 3.77 & --- & --- & 252.4 / 133.3 \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \caption{All text-audio generative directions from a single set of weights per model. Each conditional row is quoted at the best step count for that direction, evaluated on LibriSpeech-PC. Generated audio is transcribed with Whisper-large. Per-direction guidance and churn are listed in Appendix \ref{app:audio:protocol}; co-generation uses $\gamma=0.175$. Text-to-speech and speech continuation evaluation is on test-clean; the two scores for speech-to-text refer to test-clean and test-other, respectively. For FSD, the two separate metrics refer to FSD-wlm and FSD-e2v, respectively. For co-generation, generative perplexity is reported for both the text (left) and the audio (right) streams.}
 \label{tab:audio:headline}
 \end{table}

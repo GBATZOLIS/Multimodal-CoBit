@@ -729,6 +729,7 @@ Moshi \citep{audio:moshi} & 7B & 4.7 & --- & --- & --- & 5.7 &  --- \\
 \centering
 \small
 \setlength{\tabcolsep}{4.5pt}
+\resizebox{\linewidth}{!}{%
 \begin{tabular}{lrrrrrrr}
 \toprule
 \textbf{Model} & \textbf{Params} & \textbf{UTMOS}$\uparrow$ & \textbf{FSD-wlm}$\downarrow$ & \textbf{FSD-e2v}$\downarrow$ & \textbf{SpkSim}$\uparrow$ & \makecell{\textbf{GenPPL-} \\ \textbf{Speech}$\downarrow$} & \textbf{GPT-4o}$\uparrow$ \\
@@ -752,7 +753,8 @@ SpiritLM-Expressive & 7B & 3.17 & 6{,}293.6 & 16.9 & 0.08 & 153.2 & 1.62 \\
 \midrule
 \emph{StableCodec (reconstruction)} & --- & 4.33 & 1{,}119.6 & 1.26 & 0.36 & --- & --- \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \caption{Continuation-based and SALMON evaluation for text-audio experiments against published SLMs. All figures are evaluated using publicly available checkpoints. GPT-4o refers to LLM-as-a-Judge score with the prompt shown in Table \ref{tab:audio:llm-judge}. We use NFE$=$512 for both CoBit models. The last row reports the tokenizer performance ceiling.}
 \label{tab:audio:continuation}
 \end{table}
@@ -761,6 +763,7 @@ SpiritLM-Expressive & 7B & 3.17 & 6{,}293.6 & 16.9 & 0.08 & 153.2 & 1.62 \\
 \centering
 \small
 \setlength{\tabcolsep}{4.5pt}
+\resizebox{\linewidth}{!}{%
 \begin{tabular}{lrrrrrrr}
 \toprule
 \textbf{Model} & \textbf{Sentiment} & \textbf{Speaker} & \textbf{Gender} & \textbf{Bg.- Domain} & \textbf{Bg.- Random} & \textbf{Room} & \textbf{Avg.} \\
@@ -784,7 +787,8 @@ SpiritLM-Expressive & 72 & 54 & 56 & 58.5 & 55.5 & 54.5 & 58.41 \\
 \midrule
 \emph{StableCodec (reconstruction)} & 99.5 & 99 & 100 & 75.5 & 82 & 95 & 91.83 \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \caption{Speech continuation performance across the consistency tasks of the SALMON benchmark for generation-based evaluation. Each model generates a continuation for each prompt, and accuracy scores are computed for each task by comparing the cosine similarity of the generated continuation with the positive and negative examples. Different embedding models are used for each task, specified in Appendix \ref{app:audio:protocol}. NFE$=$512 is used for both CoBit-LibriTTS and CoBit-MLS, with the operating points fine-tuned for speech continuation.}
 \label{tab:audio:salmon}
 \end{table}
@@ -880,6 +884,7 @@ SpiritLM-Expressive & 72 & 54 & 56 & 58.5 & 55.5 & 54.5 & 58.41 \\
 \centering
 \small
 \setlength{\tabcolsep}{4.5pt}
+\resizebox{\linewidth}{!}{%
 \begin{tabular}{lrrrrrrr}
 \toprule
 \textbf{Direction} & \textbf{WER}$\downarrow$ & \textbf{CER}$\downarrow$ & \textbf{UTMOS}$\uparrow$ & \textbf{SpkSim}$\uparrow$ & \textbf{FSD}$\downarrow$ &  \textbf{GenPPL}$\downarrow$ & \textbf{SALMON}$\uparrow$ \\
@@ -897,7 +902,8 @@ speech continuation & --- & --- & 3.91 & 0.34 & 2{,}108.4 / 10.6 & 94.7 & 84.41 
 joint & 4.8 & 2.6 & 3.75 & --- & --- & 250.4 / 147.2 & --- \\
 
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \caption{CoBit-MLS scores with a deterministic sampler across all four tasks. Integrations steps are fixed to 256 and the conditional task use classifier-free guidance with strength 5.}
 \label{tab:audio:deterministic}
 \end{table}
@@ -948,6 +954,7 @@ joint & 4.8 & 2.6 & 3.75 & --- & --- & 250.4 / 147.2 & --- \\
 \centering
 \small
 \setlength{\tabcolsep}{4.5pt}
+\resizebox{\linewidth}{!}{%
 \begin{tabular}{lrrrrrr}
 \toprule
 & \multicolumn{3}{c}{\textbf{FSD-wlm}} & \multicolumn{3}{c}{\textbf{FSD-e2v}} \\
@@ -962,7 +969,8 @@ joint & 4.8 & 2.6 & 3.75 & --- & --- & 250.4 / 147.2 & --- \\
 \midrule
 \emph{StableCodec (reconstruction)} & 238.5 & 953.1 & 1{,}119.6 & 0.07 & 1.19 & 1.26 \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \caption{Breakdown of FSD-wlm and FSD-e2v metrics across the mean term $\|\mu-\mu'\|^2$ and the covariance term $\text{trace}\{\Sigma+\Sigma'-2(\Sigma\Sigma')^\frac{1}{2}\}$ for guidance sweeps. All rows use 256 integration steps (256 function evaluations at gs=1; 512 for gs $>$ 1) inject stochasticity at $\gamma=0.175$.}
 \label{tab:audio:guidance:fsd}
 \end{table}

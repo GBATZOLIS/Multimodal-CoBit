@@ -3,7 +3,18 @@
 
 \subsection{Experimental setup}
 \label{sec:exp:setup}
-\note{Shared setup common to all modalities.}
+
+We train a separate denoiser from scratch for each modality pair and use the same checkpoint for all
+directions reported for that pair. The experiments share the formulation of \S\ref{sec:method}:
+Gaussian corruption of the bitstream, the probability-space objective of \eqref{eq:loss}, an
+online entropy-derived schedule, self-conditioning in \texttt{carry} mode and a first-order sampler
+on the resulting grid. They differ in their frozen tokenizers and decoders, sequence layouts,
+backbone sizes, training regimes and inference settings. We report both integration steps and
+network function evaluations (NFE). A conditional sample with classifier-free guidance uses two
+denoiser evaluations per step, whereas unguided joint generation uses one. Evaluation is
+domain-specific: exact string matching and a calibrated digit classifier for MNIST-Sum; Whisper,
+UTMOS and speaker similarity for speech; and ProteinMPNN redesign followed by ESMFold refolding for
+proteins.
 
 % \begin{table}[t]
 % \centering

@@ -1,20 +1,41 @@
 \section{Introduction}
 \label{sec:intro}
 
-% Continuous generative diffusion models \cite{todo} have become an essential component of modern image, video, and audio generation pipelines \cite{todo}. The central idea of diffusion modeling is to learn the reverse of a corruption process (i.e., the forward process) that gradually transforms data into a pure noise distribution. While diffusion models have achieved their greatest success on continuous data such as images, recent years have seen growing interest in extending these methods to discrete data modalities, including language \citep{todo} and molecular sequences \cite{todo}. 
+Multimodal generative models must reconcile data with very different structures. Images and audio
+are commonly modelled through continuous diffusion, whereas language and protein sequences are
+usually generated autoregressively or with discrete corruption processes
+\citep{ho2020denoising,song2021score,austin2021structured,sahoo2024simple,wang2024dplm}. Existing
+systems bridge these choices through modality-specific encoders, latent spaces, objectives or
+prediction interfaces \citep{bao2023unidiffuser,tang2023codi,campbell2024multiflow,wang2025dplm2}.
+These designs are effective, but each new modality pairing introduces another interface to design
+and calibrate.
 
-% In this context, most approaches have focused on discrete forward processes, such as masking \citep{todo} or hard token flipping \cite{todo}, which progressively replace discrete tokens with other tokens until the original signal is lost. An alternative, first explored in \citep{todo}, is to embed the discrete tokens directly into a continuous space and then apply a conventional continuous diffusion process. This approach has seen renewed interest over the past year, with several recent works suggesting that continuous diffusion can match or even surpass the performance of its discrete counterparts \cite{todo}. Despite these developments, continuous diffusion approaches are still used primarily for continuous data, whereas discrete diffusion methods, or autoregressive models, remain the dominant choice for discrete sequences. This separation is particularly problematic in multimodal settings, where continuous data, such as molecular geometries, must be co-generated with discrete data, such as molecular identities. Doing so typically requires either integrating substantially different training pipelines within a single model or coupling separate models, both of which can hinder the learning and sharing of genuinely multimodal representations and information. Furthermore, this methodological segregation means that each modality must be tuned and calibrated within its own pipeline, requiring costly, case-by-case optimization and engineering rather than a unified modeling framework or common engineering standard.
+We ask whether a single generative interface can instead operate directly on discrete codes from
+different modalities. Our starting point is CoBit \citep{method:cobit}, which writes discrete tokens
+as binary codes and applies continuous Gaussian diffusion to their bits. We map each modality to
+integer codes with a frozen tokenizer, place the codes in a shared binary vocabulary, and arrange
+them in a fixed sequence template. Inside the denoiser, every position uses the same input
+projection, transformer backbone, bitwise prediction head and loss. A partial-denoising objective
+then trains one checkpoint to perform joint generation and every conditional direction included in
+training: clean positions specify the conditioning signal, and corrupted positions specify what to
+generate. The architecture contains no modality- or segment-specific parameters. We retain CoBit's
+probability-space objective, self-conditioning, and data-derived noise scheduling, concentrating
+the new method on representation, layout and task selection.
 
-% In this paper, we introduce a modality-agnostic continuous bitstream diffusion (CoBit) pipeline capable of handling disparate multimodal co-generation tasks without the need for ad hoc calibration suring training, beyond the choice of a digital vocabulary. The multimodal CoBit pipeline converts data from all modalities into sequences of bits, which are then corrupted with continuous Gaussian noise. As in previous work on language \citep{todo}, the diffusion process is calibrated using data-dependent entropy profiles, allowing the model to automatically adapt its noise schedule to the underlying data source during both training and inference \citep{todo}. As we show, the combination of a shared bitstream representation and entropy-based calibration makes it highly adaptable, enabling strong performance across a broad range of multimodal co-generation tasks with little or no domain-specific tuning for the training pipeline.
+We evaluate this formulation on three complementary modality pairs. On MNIST-Sum, a single
+63.3M-parameter denoiser reaches 97.90\% image-to-text accuracy, 99.98\% text-to-image accuracy and
+96.85\% joint consistency. \ifdefined\toyimageonly\else On zero-shot MS-COCO evaluation, a
+462M-parameter image--text model trained on CC3M obtains FID-30K 18.48 with 20 denoiser evaluations
+while supporting captioning and joint generation with the same weights. \fi A 633M-parameter
+speech--text model trained without text pretraining supports synthesis, recognition, continuation
+and joint generation; in the joint setting, generated speech and text agree to 3.5\% WER and the
+speech obtains UTMOS 3.77. A protein model supports folding, inverse folding and joint generation;
+80 generated backbones of 100--500 residues reach mean scTM 0.899 after redesign and refolding,
+with 68.8\% at or above 0.9. Together, these experiments show that one binary denoising interface
+can span raw pixels, learned acoustic codes, text tokens, amino acids and structural codes. They
+also identify the remaining constraints imposed by frozen tokenizers, limited text pretraining and
+iterative sampling.
 
-\micha{See my suggested intro below}
-
-Continuous-state generative diffusion models \citep{ho2020denoising,song2021score} have achieved strong results in image \citep{rombach2022high}, video \citep{ho2022video}, and audio generation \citep{kong2021diffwave}. These models generate samples by learning to reverse a corruption process that progressively transforms data into noise. Their success has motivated extending diffusion to discrete domains, including language \citep{sahoo2024simple} and protein sequences \citep{wang2024dplm}.
-
-For discrete data, widely studied approaches use discrete corruption processes, including masking \citep{sahoo2024simple} and categorical token replacement \citep{austin2021structured}. An alternative is to represent discrete tokens in a continuous space and apply Gaussian diffusion, as explored by Diffusion-LM \citep{li2022diffusionlm} and continuous diffusion for categorical data \citep{dieleman2022continuous}. Analog Bits provides a particularly simple representation: encode discrete values as binary strings and treat their bits as continuous variables during diffusion \citep{chen2023analog}. Recent continuous diffusion and flow-based language models report sample quality competitive with, and in some settings better than, discrete diffusion baselines \citep{chen2026langflow,hu2026elf}. These results motivate investigating continuous diffusion as a shared modeling framework for heterogeneous modalities.
-
-Multimodal generation requires capturing dependencies between observations with different statistical and structural properties, such as images and captions, speech and transcripts, or protein sequences and structures. Existing diffusion and flow-based systems already support joint and conditional generation in image--text settings \citep{bao2023unidiffuser,tang2023codi} and protein sequence--structure settings \citep{campbell2024multiflow,wang2025dplm2}. Building on this progress, we investigate how far a common representation, denoising objective, and data-dependent calibration rule can transfer across these domains, with modality-specific choices concentrated in tokenization and data layout.
-
-Different modality combinations can lose information at different noise levels, motivating data-dependent calibration. Following text-only CoBit, we estimate a conditional-entropy-rate profile from denoising errors during training and use it to guide training noise allocation \citep{raya2026infonoise} and the placement of inference steps \citep{stancevic2025entropic}. Related work has extended this entropy-rate view of inference scheduling to flow-matching and Schr\"odinger-bridge models \citep{trentini2026entropy}. The resulting schedule provides a common calibration rule across domains. Tokenizer configurations, sequence layouts, and inference-time settings such as guidance, stochasticity, and step count remain task-dependent.
-
-We evaluate this framework on image--text, speech--text, and protein sequence--structure tasks. \ifdefined\toyimageonly\else On zero-shot MS-COCO evaluation, the 462M-parameter image--text model achieves a text-to-image FID-30K of 18.48 with 20 denoiser evaluations, while also supporting captioning and joint generation from the same weights. \fi The 633M-parameter speech--text model achieves a 3.5\% word error rate between co-generated text and Whisper transcriptions of the generated speech. Protein experiments assess folding, inverse folding, and generated-backbone designability. Together, these experiments examine the transfer of a shared bitstream diffusion recipe across domains and identify the task-dependent performance and sampling trade-offs that remain.
+Our contributions are a modality-agnostic bitstream interface, a partial-denoising formulation
+that selects joint or conditional generation without task-specific modules, and an evaluation of
+that formulation across image--text, speech--text and protein sequence--structure generation.

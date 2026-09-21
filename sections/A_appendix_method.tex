@@ -1,0 +1,58 @@
+\section{Additional method details}
+\label{app:method}
+
+This appendix records implementation details inherited from text-only CoBit
+\citep{method:cobit}. The main paper focuses on the multimodal representation and partial-denoising
+objective introduced in this work.
+
+\subsection{Continuous bitstream diffusion}
+
+CoBit uses a variance-exploding Gaussian diffusion with
+$\sigma\in[0.002,80]$, data centre $1/2$ and $\sigma_{\mathrm{data}}=1/2$. The analytic posterior
+logit of an isolated bit under a uniform prior,
+$(\vx_\sigma-\tfrac12)/\sigma^2$, is clipped to $\pm30$ and added to a learned contextual
+residual. The network therefore concentrates on dependencies between bits rather than relearning
+the local binary denoising problem.
+
+The entropy-derived schedule estimates the conditional entropy rate from the unweighted
+per-example error, $\hat h(\sigma)\propto e(\sigma)/\sigma^2$. Estimates are stored in a FIFO buffer
+of $8\times10^5$ examples and 128 log-spaced bins. The training proposal and sampling grid use
+$q(\sigma)\propto g(\sigma;c,n)\hat h(\sigma)^{1/2}$, where
+$g(\sigma;c,n)=\sigma^n/(\sigma^n+c^n)$ with $c=0.1$ and $n=3$. Training begins with the EDM
+log-normal proposal ($P_{\mathrm{mean}}=-1.2$, $P_{\mathrm{std}}=1.2$), interpolates to $q$ over
+steps $4$--$5\times10^4$, and refreshes the estimate every $2\times10^3$ steps.
+
+For self-conditioning, the denoiser receives a second input $\hat\vx_0$. With probability
+$p_{\mathrm{sc}}=0.5$, a detached no-gradient pass supplies this estimate during training;
+otherwise it is zero. At inference, \texttt{carry} mode passes the previous prediction to the next
+step without another evaluation. The unused \texttt{refined} alternative recomputes the estimate
+at the new state and doubles the cost per step.
+
+Sampling integrates the probability-flow ODE with a first-order DDIM/Euler step on the
+entropy-derived grid, optionally with EDM-style churn \citep{method:ddim,image:edm}. Final
+probabilities are thresholded at $1/2$ and regrouped into codes. The Sequence Diffusion Transformer
+patches the $m$ bits at each position into one trunk token, uses RoPE, SwiGLU and adaLN-zero noise
+conditioning, and combines the trunk output with the raw noisy bits in a light skip-connection
+head.
+
+\subsection{Representation and partial denoising}
+
+Each frozen tokenizer maps its modality to integer codes and decodes predicted codes after
+sampling. Per-modality vocabularies occupy disjoint ranges of one integer code space together with
+padding and structural markers. The bit width $m$ covers their union, so namespace information is
+part of the same binary word as token content. Markers remain clean throughout training and
+sampling. Fixed token budgets are truncated or padded, and two-dimensional grids are flattened in
+the order specified by the experiment.
+
+Training draws a conditioning regime for each example. The mask $M$ marks clean conditioning bits
+and the loss is evaluated only on $1-M$. When self-conditioning is active, clean conditioning bits
+are also copied into $\hat\vx_0$. For classifier-free guidance, conditioning segments are replaced
+by the null value $1/2$ with probability $p_{\mathrm{uncond}}=0.1$ while markers remain protected.
+Examples whose conditioning was dropped are excluded from the entropy-rate buffer so that the
+estimated schedule reflects the conditional tasks.
+
+At inference, the task fixes $M$. Conditioned positions are clamped before every denoiser call and
+their ODE velocity is set to zero. Guidance combines conditional and unconditional predictions in
+probability space as $D_g=D_u+w(D_c-D_u)$. The two branches are evaluated as one batch and carry
+separate self-conditioning estimates. Joint generation uses one evaluation per step; guided
+conditional generation uses two.

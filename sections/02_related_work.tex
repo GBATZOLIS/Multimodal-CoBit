@@ -1,12 +1,30 @@
 \section{Related Work}
 \label{sec:related}
-(...)\\
-\textbf{Continuous bitstream diffusion and entropy-based scheduling.} Diffusion models for discrete data commonly use categorical corruption or apply Gaussian Diffusion to embeded discrete variables in continuous space \citep{austin2021structured, sahoo2024simple, li2022diffusionlm, dieleman2022continuous}. Analog Bits \citep{chen2023analog} represents discrete values directly as binary string with continuously diffused bits, approach which has been extended to language modeling by CoBit \citep{method:cobit}. Multimodal diffusion and flow models have meanwhile explored joint and conditional generation across image--text and protein sequence--structure modalities \citep{bao2023unidiffuser,tang2023codi,campbell2024multiflow,wang2024dplm}.
 
-% For noise allocation and sampling, Stancevic et al.~\citep{stancevic2025} introduced entropic time scheduling for diffusion models, allocating sampling steps according to the rate at which information is lost along the diffusion process. Raya et al.~\citep{raya2026} subsequently used related entropy-rate quantities to allocate noise levels during training. More recently, Trentini et al.~\citep{trentini2026} generalized this information-theoretic perspective beyond diffusion, deriving entropy-rate schedulers for flow-matching and Schrödinger-bridge generative models.
+\textbf{Continuous diffusion for discrete data.} Discrete diffusion typically corrupts tokens by
+masking or categorical transitions \citep{austin2021structured,sahoo2024simple}. Diffusion-LM and
+continuous categorical diffusion instead perturb learned token embeddings
+\citep{li2022diffusionlm,dieleman2022continuous}. Analog Bits represents each token by a binary code
+and diffuses its bits as real values \citep{chen2023analog}; CoBit develops this representation into
+a language model with a probability-space objective, an analytic per-bit posterior term and a
+data-derived noise schedule \citep{method:cobit}. We retain this generative core and study a shared
+layout and training objective for multimodal generation.
 
+\textbf{Multimodal generation.} UniDiffuser uses one diffusion transformer with modality-specific
+times, while CoDi composes modality-specific latent diffusion models
+\citep{bao2023unidiffuser,tang2023codi}. Unified image--text transformers make other compromises:
+Show-o uses different objectives and attention patterns for text and images, SEED-X predicts visual
+features for an image decoder, and LWM autoregressively predicts visual and text tokens
+\citep{image:showo,image:seedx,image:lwm}. Speech systems range from textless autoregressive models
+to text-pretrained interleaved streams and flow-matched acoustic representations
+\citep{audio:audiolm,audio:twist,audio:spirit-lm,audio:moshi,audio:taste,audio:flow-slm}. Protein
+models combine discrete sequence generation with geometric flows, aligned structure tokens or
+masked multi-track prediction \citep{campbell2024multiflow,wang2025dplm2,protein:esm3}. Our claim
+is specifically about the denoiser: although frozen modality-specific tokenizers and decoders
+remain, every code inside the model uses one projection, backbone, bitwise head and objective.
 
-
-% Our work asks how far a single bitstream representation, corruption process, denoising objective, and training recipe can transfer across image--text, speech--text, and protein sequence--structure.
-
-\textbf{Information-theoretic diffusion scheduling.} Entropic time scheduling for diffusion models was first introduced by \citep{stancevic2025entropic}, allocating sampling steps according to the rate at which information is lost along the diffusion process. \citep{raya2026infonoise} subsequently used related entropy-rate quantities to allocate noise levels during training. More recently, \citep{trentini2026entropybridgeconditionalmarginaldiscretization} generalized this information-theoretic perspective beyond diffusion, deriving entropy-rate schedulers for flow and bridge generative models.
+\textbf{Information-based scheduling.} Entropic scheduling allocates steps according to the rate
+at which diffusion destroys information, and related estimators select training noise levels
+\citep{stancevic2025entropic,raya2026infonoise,trentini2026entropybridgeconditionalmarginaldiscretization}.
+CoBit estimates this profile online. We reuse the estimator for each joint bitstream rather than
+designing a separate schedule for each modality.

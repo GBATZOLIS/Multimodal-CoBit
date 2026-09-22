@@ -10,32 +10,14 @@ prediction interfaces \citep{bao2023unidiffuser,tang2023codi,campbell2024multifl
 These designs are effective, but each new modality pairing introduces another interface to design
 and calibrate.
 
-We ask whether a single generative interface can instead operate directly on discrete codes from
-different modalities. Our starting point is CoBit \citep{method:cobit}, which writes discrete tokens
+In this work, we ask whether a single generative interface can instead operate directly on discrete codes from
+different modalities without domain-specific engineering choices. Bit sequences are the fundamental language of digital computers and therefore offer the most natural choice for a modality-agnostic encoding scheme. Autoregressive models are often inefficient in these settings, as an AR model needs to generate each bit sequentially. On the other hand, diffusion models are capable of highly parallel generation. Consequently, our starting point is continuous bistream diffusion \citep{method:cobit}, which writes discrete tokens
 as binary codes and applies continuous Gaussian diffusion to their bits. We map each modality to
 integer codes with a frozen tokenizer, place the codes in a shared binary vocabulary, and arrange
 them in a fixed sequence template. Inside the denoiser, every position uses the same input
 projection, transformer backbone, bitwise prediction head and loss. A partial-denoising objective
 then trains one checkpoint to perform joint generation and every conditional direction included in
 training: clean positions specify the conditioning signal, and corrupted positions specify what to
-generate. The architecture contains no modality- or segment-specific parameters. We retain CoBit's
-probability-space objective, self-conditioning, and data-derived noise scheduling, concentrating
-the new method on representation, layout and task selection.
+generate. Since we are interested in validating a more universal (i.e. modality agnostic) form of co-generation, the architecture contains no modality- or segment-specific parameters. 
 
-We evaluate this formulation on three complementary modality pairs. On MNIST-Sum, a single
-63.3M-parameter denoiser reaches 97.90\% image-to-text accuracy, 99.98\% text-to-image accuracy and
-96.85\% joint consistency. \ifdefined\toyimageonly\else On zero-shot MS-COCO evaluation, a
-462M-parameter image--text model trained on CC3M obtains FID-30K 18.48 with 20 denoiser evaluations
-while supporting captioning and joint generation with the same weights. \fi A 633M-parameter
-speech--text model trained without text pretraining supports synthesis, recognition, continuation
-and joint generation; in the joint setting, generated speech and text agree to 3.5\% WER and the
-speech obtains UTMOS 3.77. A protein model supports folding, inverse folding and joint generation;
-80 generated backbones of 100--500 residues reach mean scTM 0.899 after redesign and refolding,
-with 68.8\% at or above 0.9. Together, these experiments show that one binary denoising interface
-can span raw pixels, learned acoustic codes, text tokens, amino acids and structural codes. They
-also identify the remaining constraints imposed by frozen tokenizers, limited text pretraining and
-iterative sampling.
-
-Our contributions are a modality-agnostic bitstream interface, a partial-denoising formulation
-that selects joint or conditional generation without task-specific modules, and an evaluation of
-that formulation across image--text, speech--text and protein sequence--structure generation.
+Our main contribution is to demonstrate that continuous bitstream diffusion enables capable multimodal co-generation across diverse domains without modality-specific engineering or architectural design. By representing different modalities through a common binary interface, we show that a single denoising architecture and objective can learn their joint distributions and support both unconditional co-generation and conditional generation in either direction, without task-specific modules or fine-tuning. We validate this approach across image–text, speech–text, and protein sequence–structure modeling, demonstrating that a unified bitstream formulation can capture complex cross-modal dependencies across fundamentally different data types without tailoring the generative model to each domain.

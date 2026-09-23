@@ -6,8 +6,8 @@ masking or categorical transitions \citep{austin2021structured,sahoo2024simple}.
 continuous categorical diffusion instead perturb learned token embeddings
 \citep{li2022diffusionlm,dieleman2022continuous}. Analog Bits represents each token by a binary code
 and diffuses its bits as real values \citep{chen2023analog}; CoBit develops this representation into
-a language model with a probability-space objective, an analytic per-bit posterior term and a
-data-derived noise schedule \citep{method:cobit}. We retain this generative core and study a shared
+a language model with a binary score-matching objective, an analytic per-bit posterior term and
+a data-derived noise schedule \citep{method:cobit}. We retain this generative core and study a shared
 layout and training objective for multimodal generation.
 
 \textbf{Multimodal generation.} UniDiffuser uses one diffusion transformer with modality-specific

@@ -1,15 +1,6 @@
 \subsection{Image and text: a controlled proof of concept}
 \label{sec:exp:imagetext}
 
-MNIST-Sum is a controlled test of the multimodal interface, not a natural-image benchmark. Each
-example pairs four binarised MNIST digits \citep{image:mnist} with their ordered equation and sum.
-The model must read and add a supplied image, draw the four digits named by a supplied equation, or
-generate an image and equation that agree. Neither modality uses a learned tokenizer, so there is
-no reconstruction floor. Image$\rightarrow$text is scored by exact string match; image-emitting
-directions are evaluated with a fixed, separately calibrated digit classifier. The task therefore
-provides an unusually direct test of whether raw visual bits and symbolic text bits can share one
-generative space under a modality-agnostic 1-D denoiser.
-
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{figures/mnist_sum/fig_mnist_sum_compact.pdf}
@@ -25,6 +16,16 @@ equation matches the generated image. Rates use $n{=}4{,}096$ samples per direct
 examples illustrate, but do not estimate, those rates.}
 \label{fig:mnist:sum}
 \end{figure}
+
+MNIST-Sum is a controlled test of the multimodal interface, not a natural-image benchmark. Each
+example pairs four binarised MNIST digits \citep{image:mnist} with their ordered equation and sum.
+The model must read and add a supplied image, draw the four digits named by a supplied equation, or
+generate an image and equation that agree. Neither modality uses a learned tokenizer, so there is
+no reconstruction floor. Image$\rightarrow$text is scored by exact string match; image-emitting
+directions are evaluated with a fixed, separately calibrated digit classifier. The task therefore
+provides an unusually direct test of whether raw visual bits and symbolic text bits can share one
+generative space under a modality-agnostic 1-D denoiser.
+
 
 \textbf{One bitstream, no learned tokenizer.} Images enter as raw binary pixels and text uses a
 deterministic 40-symbol, 7-bit code. Each pair becomes a sequence of 3,388 bits: 3,136 pixel bits,

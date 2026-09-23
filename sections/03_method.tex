@@ -2,7 +2,7 @@
 \label{sec:method}
 
 We use the continuous bitstream diffusion model of \citet{method:cobit} as the generative core.
-Its Gaussian corruption, probability-space objective, entropy-derived schedule, self-conditioning,
+Its Gaussian corruption, binary score-matching objective, entropy-derived schedule, self-conditioning,
 sampler and transformer backbone are inherited. Our contribution is the interface that makes this
 core multimodal: a shared binary representation, a fixed sequence layout and a partial-denoising
 objective that selects the task without changing the architecture. Figure and implementation
@@ -16,8 +16,9 @@ $m=\lceil\log_2 V\rceil$-bit code. A sequence of $N$ tokens becomes
 $\vx_0\in\{0,1\}^{S}$, where $S=Nm$, and is corrupted as
 $\vx_\sigma=\vx_0+\sigma\bm{\epsilon}$ with
 $\bm{\epsilon}\sim\mathcal N(\vzero,\mathbf I)$. The denoiser
-$D_\theta(\vx_\sigma,\sigma)\in(0,1)^S$ predicts the probability that each clean bit is one and is
-trained with the EDM-weighted probability-space loss \citep{image:edm}
+$D_\theta(\vx_\sigma,\sigma)\in(0,1)^S$ predicts the probability that each clean bit is one. For Gaussian corruption of binary data this
+posterior mean determines the score, so the denoiser is trained by binary score matching,
+implemented as the EDM-weighted denoising loss \citep{image:edm}
 \begin{equation}
 \Ls(\theta)=\E\!\left[w(\sigma)\,\frac{1}{S}
 \left\|D_\theta(\vx_\sigma,\sigma)-\vx_0\right\|^2\right],

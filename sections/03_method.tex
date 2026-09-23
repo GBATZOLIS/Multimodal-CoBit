@@ -1,81 +1,84 @@
 \section{Method}
 \label{sec:method}
 
-We use the continuous bitstream diffusion model of \citet{method:cobit} as the generative core.
-Its Gaussian corruption, binary score-matching objective, entropy-derived schedule, self-conditioning,
-sampler and transformer backbone are inherited. Our contribution is the interface that makes this
-core multimodal: a shared binary representation, a fixed sequence layout and a partial-denoising
-objective that selects the task without changing the architecture. Figure and implementation
-details of the inherited components are deferred to Appendix~\ref{app:method}.
+We extend CoBit \citep{method:cobit} to learn a joint distribution over modalities represented
+as bits. The extension has two parts: a layout that brings their representations into one
+bitstream, and a training mixture in which the observed bits determine what the model must
+generate. One denoiser can then generate paired observations together or complete one from the
+other. We retain CoBit's diffusion process, denoiser parameterisation and scheduling rule;
+our contribution is their use in a shared multimodal formulation, evaluated across domains.
 
-\subsection{CoBit generative core}
-\label{sec:method:cobit}
-
-CoBit writes each token from a vocabulary of size $V$ as an
-$m=\lceil\log_2 V\rceil$-bit code. A sequence of $N$ tokens becomes
-$\vx_0\in\{0,1\}^{S}$, where $S=Nm$, and is corrupted as
-$\vx_\sigma=\vx_0+\sigma\bm{\epsilon}$ with
-$\bm{\epsilon}\sim\mathcal N(\vzero,\mathbf I)$. The denoiser
-$D_\theta(\vx_\sigma,\sigma)\in(0,1)^S$ predicts the probability that each clean bit is one. For Gaussian corruption of binary data this
-posterior mean determines the score, so the denoiser is trained by binary score matching,
-implemented as the EDM-weighted denoising loss \citep{image:edm}
-\begin{equation}
-\Ls(\theta)=\E\!\left[w(\sigma)\,\frac{1}{S}
-\left\|D_\theta(\vx_\sigma,\sigma)-\vx_0\right\|^2\right],
-\qquad
-w(\sigma)=\frac{\sigma^2+\sigma_{\mathrm{data}}^2}{\sigma^2\sigma_{\mathrm{data}}^2},
-\label{eq:loss}
-\end{equation}
-with $\sigma_{\mathrm{data}}=1/2$. An analytic single-bit posterior is added to a learned contextual residual, self-conditioning feeds
-the previous clean estimate back to the model, and an online entropy-rate estimate allocates both
-training noise levels and sampling steps. Sampling uses a first-order probability-flow solver. We
-use one input projection, one transformer trunk and one bitwise output head; the $m$ bits at a
-position are patched into one trunk token so attention runs over $N$ positions rather than $Nm$
-bits. These components follow CoBit; Appendix~\ref{app:method} gives the settings needed for
-reproduction.
-
-\subsection{One representation for several modalities}
+\subsection{Representing modalities in one bitstream}
 \label{sec:method:multimodal}
 
-Frozen tokenizers map each modality to integer codes, which are placed in disjoint ranges of one
-shared code space together with padding and structural markers. The common bit width covers the
-union of these ranges, so every position has the same representation and passes through the same
-projection, backbone and bitwise head. Tokenizers and decoders remain modality-specific components
-outside the denoiser; inside it there are no modality-specific embeddings, heads, losses or
-training stages.
+Each example is encoded as $\vx_0\in\{0,1\}^{S}$. Discrete symbols are written as binary
+codes, while continuous observations first pass through a frozen tokenizer. A fixed layout
+specifies where each modality appears, with truncation and padding to accommodate variable
+lengths. Tokenizers and decoders are modality-specific; the denoiser operates only on their bits.
 
-Each example follows a fixed sequence template with one segment per modality. Segment markers stay
-clean, while content positions are truncated or padded to fixed budgets. Two-dimensional grids are
-flattened in a fixed order\ifdefined\toyimageonly{} (row by row for the raw digit images of
-\S\ref{sec:exp:imagetext})\else: row by row for raw digit images, and along a locality-preserving
-(Hilbert) curve for quantised natural-image codes\fi. Aligned modalities may share a position. In the protein model, each residue
-is one 18-bit position containing a 5-bit amino-acid code and the 13 sign bits of its DPLM-2
-structure token. The transformer sees only this flat bitstream and its 1-D positions.
+The layout can preserve different kinds of correspondence. For speech and text, we concatenate
+segments of text, speaker and speech codes. Their vocabularies occupy disjoint integer ranges
+and fit into a common 18-bit word. MNIST-Sum instead combines raw binary pixels with deterministic
+7-bit text codes, requiring no learned tokenizer. Protein sequence and structure have a natural
+residue-level alignment: we concatenate the five amino-acid bits and thirteen structure-code
+bits at each residue. These are alternative ways of constructing the same binary input.
 
-This representation separates what is shared from what is task-specific. Modality pairs may use
-different frozen tokenizers, layouts, token budgets, model sizes, training regimes and inference
-settings, but these choices introduce no modality-specific computation within a checkpoint's
-denoiser.
+Following CoBit, we group the stream into fixed-width patches and project each patch into one
+transformer position. A patch can hold a token, several symbols or aligned codes from two
+modalities. All positions share one input projection, transformer trunk and bitwise prediction
+head, with one-dimensional positional information. The layout supplies modality identity through
+position and code assignment, without a learned modality-specific embedding. Patch widths,
+encodings and budgets are specified with the experiments.
 
-\subsection{Partial denoising selects the task}
+\subsection{Continuous denoising with CoBit}
+\label{sec:method:cobit}
+
+CoBit treats binary values as continuous during diffusion, applying Gaussian corruption
+$\vx_\sigma=\vx_0+\sigma\bm{\epsilon}$, where
+$\bm{\epsilon}\sim\mathcal N(\vzero,\mathbf I)$.
+The denoiser $D_\theta(\vx_\sigma,\sigma)\in(0,1)^S$ estimates the probability that each
+clean bit is one. Its logits combine an analytic isolated-bit posterior with a learned residual
+that captures dependencies across the stream. Here those dependencies include both the structure
+within each modality and the correspondence between modalities. Self-conditioning supplies a
+previous clean estimate as an additional input; we suppress this argument in the notation.
+
+We also reuse CoBit's online entropy-derived schedule to allocate training noise levels and
+sampling steps according to the measured denoising error. All bits being generated share a
+noise level, and the schedule is estimated for each checkpoint's training mixture.
+Appendix~\ref{app:method} gives the parameterisation and scheduling details.
+
+\subsection{Joint and conditional generation by partial denoising}
 \label{sec:method:directions}
 
-Let $M\in\{0,1\}^{S}$ mark the bits supplied as conditioning. We keep those positions clean,
-corrupt the remaining positions, and evaluate \eqref{eq:loss} only on the generated subset:
+For each training example, we sample a task and construct a mask $M\in\{0,1\}^{S}$, with
+$M_i=1$ for observed bits and $M_i=0$ for bits to generate. Observed bits remain clean:
 \begin{equation}
-\vx_\sigma=M\odot\vx_0+(1-M)\odot(\vx_0+\sigma\bm{\epsilon}),
-\qquad
-\Ls_M\propto\left\|(1-M)\odot(D_\theta-\vx_0)\right\|^2.
+\vx_\sigma=\vx_0+(1-M)\odot\sigma\bm{\epsilon}.
 \label{eq:partial-denoising}
 \end{equation}
-The training regime samples masks for every supported direction. With no content clamped, the model
-jointly generates all modalities. Clamping one segment gives cross-modal generation, and clamping a
-prefix gives continuation. Thus, the task is specified by $M$, not by a task token, head or
-encoder.
+We apply CoBit's binary score-matching objective only to the generated bits,
+\begin{equation}
+\Ls(\theta)\propto
+\E\!\left[w(\sigma)
+\left\|(1-M)\odot\bigl(D_\theta(\vx_\sigma,\sigma)-\vx_0\bigr)\right\|^2\right],
+\qquad
+w(\sigma)=\frac{\sigma^2+\sigma_{\mathrm{data}}^2}
+{\sigma^2\sigma_{\mathrm{data}}^2},
+\label{eq:loss}
+\end{equation}
+where $\sigma_{\mathrm{data}}=1/2$ and the expectation includes examples, tasks, noise levels
+and Gaussian noise. The weighting follows EDM \citep{image:edm}; no separate loss is introduced for either modality.
 
-At inference, conditioned positions are clamped throughout the trajectory. Classifier-free
-guidance combines a branch that sees the clean conditioning with one that sees the null value
-$1/2$ at the same positions \citep{method:cfg}. Guided conditional sampling therefore uses two
-network evaluations per integration step, whereas unguided joint generation uses one. Step count,
-guidance and churn may vary by direction without retraining. One checkpoint consequently acts as a
-joint generator and as every conditional generator included in its training regime.
+Leaving all content bits unobserved trains joint generation. Observing one modality trains
+generation of the other, while observing a prefix trains continuation. The mask acts on bits,
+so it can select an entire segment or one channel within a protein patch. Fixed structural
+markers, where used, remain observed even for joint generation. Each checkpoint is trained on
+the task mixture specified for its experiment.
+
+At inference, we initialise the unobserved bits with Gaussian noise and hold the observed bits
+fixed throughout denoising. A first-order probability-flow solver updates all generated bits in
+parallel, optionally with stochastic churn. Conditional sampling can use classifier-free guidance
+\citep{method:cfg}, combining predictions with the observed content present and replaced by a
+null value of $1/2$. Guided steps use two denoiser evaluations; unguided steps use one.
+Final predictions are converted back to codes and decoded with the corresponding modality
+decoder. We train a separate checkpoint for each modality pair.

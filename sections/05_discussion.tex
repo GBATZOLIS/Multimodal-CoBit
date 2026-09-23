@@ -1,41 +1,38 @@
-\section{Discussion}
+\section{Limitations}
+\label{sec:limitations}
+
+The experiments explore a limited part of the approach's potential. We train the denoisers from
+scratch, without the text pretraining used by several competing speech--text systems. This may
+particularly affect speech recognition and the semantic coherence of continuations, where paired
+speech data must supply linguistic knowledge as well as cross-modal alignment. Text-pretrained
+initialisation is therefore a promising direction, although controlled comparisons are needed to
+establish its contribution. Protein-sequence pretraining may offer analogous benefits for
+sequence--structure modelling.
+
+Our models are also generally smaller than the strongest systems for the corresponding tasks,
+and the training datasets provide limited coverage of the distributions we aim to model. For
+example, the speech experiments rely on read speech, offering relatively narrow linguistic and
+acoustic diversity. These choices restrict what the present results can establish about
+performance at scale. Larger backbones and broader, higher-quality datasets are plausible routes
+to improvement, but their effects need to be measured within this formulation.
+
+Continuous modalities introduce a further dependence on pretrained tokenizers and decoders.
+Information discarded during tokenisation is unavailable to the denoiser, while reconstruction
+errors can persist even when codes are modelled accurately. The observed performance therefore
+reflects both the bitstream model and its representation. Codec reconstruction results help
+distinguish these effects, but do not by themselves explain the remaining generation errors.
+
+\section{Discussion and conclusion}
 \label{sec:discussion}
-
-\textbf{What the experiments establish.} For each modality pair, one checkpoint generates both
-modalities and supports every trained direction, selected only by the positions held clean. The
-denoiser contains no modality-specific projection, backbone or output head. MNIST-Sum directly
-validates this interface, reaching 97.56\% image-to-text accuracy, 99.95\% text-to-image accuracy
-and 99.46\% joint consistency. The same formulation scales to jointly generated speech and text
-with 3.5\% cross-modal WER and to protein backbones with mean scTM 0.899 after redesign and
-refolding. Comparisons with specialised systems remain mixed across directions.
-
-\textbf{Where performance is limited.} Frozen tokenizers constrain what the denoiser can express.
-For text-to-speech, StableCodec reconstructions obtain UTMOS 4.3 and SpkSim 0.52, compared with
-4.00 and 0.27 for CoBit-MLS. Under the continuation protocol, CoBit-MLS recovers SpkSim 0.34 against
-the codec's 0.36. Protein generation shows a similar separation between global and local quality:
-68.8\% of backbones reach scTM $\geq0.9$, while 38.8\% reach scRMSD $\leq2$\,\AA. MNIST-Sum avoids
-a learned-tokenizer ceiling, although its image outputs still require a calibrated classifier for
-evaluation.
-
-The speech checkpoints are trained from scratch, without a text prior, and their largest deficits
-occur in recognition and thematic continuation. Sampling is also expensive: conditional audio
-directions approach their best values by roughly 32 steps, while joint generation and continuation
-continue to improve on semantic metrics; guided sampling uses two evaluations per step. Finally,
-each experiment uses fixed token budgets and a separate checkpoint. The present claim is therefore
-about a shared representation and denoising formulation, not shared weights across modality pairs.
-
-\textbf{Next steps.} Text-pretrained initialisation and a speaker-conditioned waveform decoder are
-natural tests for speech. For proteins, the contrast with explicit geometric generators motivates
-finer structural representations and direct geometric supervision
-\citep{campbell2024multiflow}. The broader next test is one denoiser trained across several
-modality pairs.
-
-\section{Conclusion}
 \label{sec:conclusion}
 
-Continuous bitstream diffusion can support multimodal generation through a shared binary
-representation and partial denoising. Within each modality-pair checkpoint, one projection,
-transformer backbone and bitwise head perform joint generation and every trained conditional
-direction. The controlled image--text experiment validates the interface directly, while the
-speech--text and protein experiments demonstrate its reach and current limitations. These results
-motivate the stricter setting of one denoiser trained across modality pairs.
+This work demonstrates that a flattened one-dimensional bitstream can serve as a common
+representation for multimodal generation. With changes largely confined to tokenisation and
+layout, the same continuous denoising formulation produces capable models across image--text,
+speech--text and protein sequence--structure tasks. Within each checkpoint, joint and conditional
+generation share the same weights.
+
+The breadth of these results, obtained with modest backbones trained from scratch, supports the
+feasibility of the approach. It motivates investigating how far stronger pretraining, larger
+models, improved data coverage and better continuous-modality tokenizers can advance performance
+while preserving the shared bitstream formulation.

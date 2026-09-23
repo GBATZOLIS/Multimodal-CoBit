@@ -38,8 +38,8 @@ performs all three directions; only the set of observed positions changes.
 text$\rightarrow$image places all four requested digits correctly in 99.95\% of samples, and
 joint co-generation from noise is 99.46\% mutually consistent (Figure~\ref{fig:mnist:sum}).
 Held-out digit tuples reach 97.85\% image$\rightarrow$text, statistically indistinguishable from
-seen tuples. At this level the residual joint error no longer concentrates in one failure mode:
-cross-modal disagreement and arithmetic slips each account for under 0.3\%. Figure~\ref{fig:mnist:sum} illustrates the outputs, while
+seen tuples. The residual joint error splits roughly evenly between cross-modal disagreement and arithmetic
+slips, each under 0.3\%. Figure~\ref{fig:mnist:sum} illustrates the outputs, while
 Appendix~\ref{app:image:mnist} reports classifier calibration, confidence intervals and the error
 decomposition. This experiment establishes the interface in a controlled setting. It says nothing
 about natural images, and it involves none of the learned tokenizers and open-ended outputs of the

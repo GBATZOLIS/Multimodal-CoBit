@@ -13,7 +13,7 @@ checkable, then apply the same interface to natural images and captions.
 \caption{MNIST-Sum, an exactly auditable image--text control. (a) Four binarised MNIST digits and
 their equation are written as one flat sequence of 3,388 bits: 3,136 raw pixel bits, 84 text
 bits (twelve deterministic 7-bit symbol codes) and 168 marker bits, so neither side has a learned
-tokenizer; the zoom-ins show actual bits of this pair. One 63.3M-parameter denoiser serves both conditional
+tokenizer; the zoom-ins show actual bits of this pair. One 63.0M-parameter denoiser serves both conditional
 directions by observing one half of the stream and denoising the other. Image$\rightarrow$text is
 scored by exact string match; text$\rightarrow$image requires a fixed quadrant classifier to
 recover all four requested digit identities. (b) With nothing observed, the same weights
@@ -29,10 +29,10 @@ difficult but because every conditional and joint direction has a checkable answ
 natural-image metrics cannot offer. Raw binary pixels and a deterministic 40-symbol, 7-bit text
 code share one flat sequence with no learned tokenizer on either side; the denoiser receives the flat
 bitstream and its 1-D position but no pixel grid or 2-D attention structure. A single
-63.3M-parameter model trained for 500K steps reads and adds a supplied image with 97.90\% exact
-accuracy, renders all four requested digits from a supplied equation in 99.98\% of samples, and
-co-generates mutually consistent pairs from noise 96.85\% of the time
-(Figure~\ref{fig:mnist:sum}). Held-out digit tuples give 97.92\% image$\rightarrow$text,
+63.0M-parameter model trained for 500K steps reads and adds a supplied image with 97.56\% exact
+accuracy, renders all four requested digits from a supplied equation in 99.95\% of samples, and
+co-generates mutually consistent pairs from noise 99.46\% of the time
+(Figure~\ref{fig:mnist:sum}). Held-out digit tuples give 97.85\% image$\rightarrow$text,
 statistically indistinguishable from seen tuples. Raw visual bits and symbolic text bits therefore
 form a learnable joint generative space under one modality-agnostic 1-D denoiser;
 Appendix~\ref{app:image:mnist} reports classifier calibration, confidence intervals and the error

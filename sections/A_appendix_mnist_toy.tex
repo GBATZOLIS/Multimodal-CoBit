@@ -12,9 +12,11 @@ belongs to a closed 40-symbol language (number words 0--36, ``$+$'', ``$=$'' and
 represented by deterministic 7-bit codes, four per 28-bit position. The sequence has 121
 positions of 28 bits (3 text, 112 image and 6 markers; 3,388 bits in total). Neither modality uses a learned tokenizer.
 
-\textbf{Training and evaluation.} The $12{\times}512$ denoiser (63.3M parameters) trains for 500K
+\textbf{Training and evaluation.} The $12{\times}512$ denoiser (63.0M parameters) trains for 500K
 steps with the shared diffusion objective, entropy controller, self-conditioning and task
-mixture, and receives only the flattened sequence and its 1-D position.
+mixture, and receives only the flattened sequence and its 1-D position. The positional settings
+are those of the speech--text models, with four local Fourier features and an intra-patch period
+of $P-1$; there is no segment embedding.
 Evaluation uses EMA weights, 256 steps and $n{=}4{,}096$ independently sampled examples per
 direction and split. Confidence intervals are 95\% Wilson intervals.
 
@@ -28,9 +30,9 @@ direction and split. Confidence intervals are 95\% Wilson intervals.
 \toprule
 & Seen tuples & Held-out tuples & CI (seen) \\
 \midrule
-Image$\rightarrow$text, exact string match & 97.90 & 97.92 & $[97.41, 98.30]$ \\
-Text$\rightarrow$image, all four digits & 99.98 & 99.85 & $[99.86, 100.00]$ \\
-Joint from noise, mutually consistent & 96.85 & --- & $[96.27, 97.34]$ \\
+Image$\rightarrow$text, exact string match & 97.56 & 97.85 & $[97.04, 97.99]$ \\
+Text$\rightarrow$image, all four digits & 99.95 & 99.93 & $[99.82, 99.99]$ \\
+Joint from noise, mutually consistent & 99.46 & --- & $[99.19, 99.65]$ \\
 \bottomrule
 \end{tabular}
 \caption{MNIST-Sum task accuracy (\%), $n{=}4{,}096$ per direction and split. ``Held-out'' uses digit tuples
@@ -40,20 +42,25 @@ arithmetically valid and names the four digits in the generated image.}
 \end{table}
 
 \textbf{Image$\rightarrow$text} is scored by exact string equality, without a learned instrument.
-The held-out interval $[97.44, 98.32]$ overlaps the seen interval almost entirely, so the
+The held-out interval $[97.36, 98.25]$ overlaps the seen interval almost entirely, so the
 generalisation gap is not statistically distinguishable from zero. The seen result decomposes
-into 98.14\% correct perception of all four digits, 99.66\% correct arithmetic given correct
-perception and 0.05\% malformed output.
+into 97.66\% correct perception of all four digits, 99.90\% correct arithmetic given correct
+perception and no malformed output. Per slot, perception is 99.41\%, 99.12\%, 99.58\% and
+99.49\% for the top-left, top-right, bottom-left and bottom-right digits. An image-blind model
+that always answers the most common sum scores 6.52\% on seen tuples and 7.80\% on held-out
+tuples.
 
 \textbf{Text$\rightarrow$image} and the image half of joint generation are read by one fixed
-quadrant classifier. On real composites it identifies all four digits in 96.09\% of the seen
-test pool and 99.78\% of its same-pool control; generated digits can be easier to classify than
-real ones, so these are reported as instrument calibrations rather than used to normalise the
-generation score. Without guidance the rate is 99.61\%, and adding stochastic churn gives 99.71\%
-($n{=}1{,}024$), so neither guidance nor deterministic sampling explains the score.
+quadrant classifier, which is correct on 99.99\% of generated quadrants. Its ceiling depends on
+which pool of real digits it is shown: it identifies all four digits in 96.09\% of composites
+built from the MNIST test pool, from which the validation and held-out splits are drawn, and in
+99.78\% of composites built from the train pool it was itself fitted on. Generated digits
+imitate the train pool, so 99.78\% is the relevant ceiling; read against the 96.09\% figure the
+model would appear to exceed the instrument, which is meaningless. These are reported as
+calibrations rather than used to normalise the generation score.
 
 \textbf{Joint co-generation} samples image and text from noise in one trajectory. Of the 4,096
-pairs, 99.98\% have a well-formed equation, 99.78\% name the four digits that the classifier
-reads in the generated image and 97.02\% are arithmetically valid; the 96.85\% that satisfy all
-three is the reported rate. The residual failures are therefore almost entirely arithmetic
-rather than cross-modal identity.
+pairs, 100.00\% have a well-formed equation, 99.71\% name the four digits that the classifier
+reads in the generated image and 99.76\% are arithmetically valid; the 99.46\% that satisfy all
+three is the reported rate. Cross-modal disagreement (0.29\%) and arithmetic error (0.24\%) are
+now of comparable size, so the residual failures cannot be attributed mainly to either.

@@ -406,31 +406,33 @@ the $10^4$ digit tuples. Pixels are binarised and flattened digit-major, then ro
 digit, so every 28-bit image position is one complete digit row; text belongs to a closed
 40-symbol language (number words 0--36, ``$+$'', ``$=$'' and padding) represented by deterministic
 7-bit codes, four per position. The sequence has 121 positions of 28 bits (3 text, 112 image and 6 markers; 3,388 bits in total).
-The $12{\times}512$ denoiser (63.3M parameters) trains for 500K steps with the shared diffusion
+The $12{\times}512$ denoiser (63.0M parameters) trains for 500K steps with the shared diffusion
 objective, entropy controller, self-conditioning and regime probabilities, and receives only the
-flattened sequence and its 1-D position. The representation-scale settings
-follow the raw-bit sequence rather than CC3M (14 local Fourier features, denominator $P{=}28$);
+flattened sequence and its 1-D position. The positional settings are those of the speech--text
+models (four local Fourier features, intra-patch period $P-1$) and there is no segment embedding;
 these are shared positional and budget choices, not modality-specific embeddings, towers, heads or losses.
 Evaluation uses EMA weights, 256 steps and $n{=}4{,}096$ samples per direction and split;
 intervals are 95\% Wilson.
 
 \textbf{Image$\rightarrow$text} is scored by exact string equality with no learned instrument:
-97.90\% on seen tuples (CI $[97.41, 98.30]$) and 97.92\% on held-out tuples (CI
-$[97.44, 98.32]$), so the generalisation gap is not statistically distinguishable from zero. The
-seen result decomposes into 98.14\% correct perception, 99.66\% correct arithmetic given correct
-perception and 0.05\% malformed output.
+97.56\% on seen tuples (CI $[97.04, 97.99]$) and 97.85\% on held-out tuples (CI
+$[97.36, 98.25]$), so the generalisation gap is not statistically distinguishable from zero. The
+seen result decomposes into 97.66\% correct perception, 99.90\% correct arithmetic given correct
+perception and no malformed output.
 
-\textbf{Text$\rightarrow$image} places all four requested digits correctly in 99.98\% of seen
-samples (CI $[99.86, 100.00]$) and 99.85\% of held-out samples. This direction is read by a fixed
-quadrant classifier, which identifies all four digits in 96.09\% of real seen-pool composites and
-99.78\% of its same-pool control; generated digits can be easier to classify than real ones, so
-these are instrument calibrations rather than normalisation factors. Without guidance the rate is
-99.61\%, and adding stochastic churn gives 99.71\% ($n{=}1{,}024$).
+\textbf{Text$\rightarrow$image} places all four requested digits correctly in 99.95\% of seen
+samples (CI $[99.82, 99.99]$) and 99.93\% of held-out samples. This direction is read by a fixed
+quadrant classifier, correct on 99.99\% of generated quadrants. Its ceiling depends on the pool of
+real digits it is shown: all four digits in 96.09\% of composites built from the MNIST test pool,
+from which the evaluation splits are drawn, and 99.78\% of composites built from the train pool it
+was fitted on. Generated digits imitate the train pool, so 99.78\% is the relevant ceiling; these
+are instrument calibrations rather than normalisation factors.
 
-\textbf{Joint co-generation} from noise is 96.85\% mutually consistent (CI $[96.27, 97.34]$). Of
-the 4,096 pairs, 99.98\% have a well-formed equation, 99.78\% name the digits the classifier reads
-in the generated image and 97.02\% are arithmetically valid, so the residual failures are almost
-entirely arithmetic rather than cross-modal.
+\textbf{Joint co-generation} from noise is 99.46\% mutually consistent (CI $[99.19, 99.65]$). Of
+the 4,096 pairs, 100.00\% have a well-formed equation, 99.71\% name the digits the classifier reads
+in the generated image and 99.76\% are arithmetically valid. Cross-modal disagreement (0.29\%) and
+arithmetic error (0.24\%) are now of comparable size, so the residual failures cannot be attributed
+mainly to either.
 
 \subsection{Comparability and measurement hygiene}
 \label{app:image:repro}

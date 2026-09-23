@@ -1,4 +1,13 @@
 \subsection{Training, representation and evaluation protocol}
 \label{app:protein:protocol}
 
-The manifest contains 216{,}237 paired examples from the PDB\citep{protein:pdb} and AFDB--SwissProt\citep{protein:afdb}. PDB structure are determined experimentally and AFDB structure are predictions. Training uses lengths 40--512, paired-source weights of 2:1 (the pair count excludes replay exposures) and 20\% UniRef50 sequence-only replay \citep{protein:uniref}. Recognised CMAP/CASP sources held out, but cross-corpus homology and benchmark overlap with the pretrained codec have not been fully audited. The 128-target CATH~4.3 subset is a known validation dataset. The forward set is the 183-target DPM-2.1 CAMEO~2022 manifest, retaining modelles residues with complete backbone atoms  \citep{protein:cath,protein:cameo}.
+
+\subsection{Metrics}
+\label{app:protein:metrics}
+
+
+\subsection{Metrics}
+\label{app:protein:pareto}
+
+\subsection{Comparison}
+\label{app:protein:comparison}

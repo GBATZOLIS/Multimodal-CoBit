@@ -25,7 +25,7 @@ steps $4$--$5\times10^4$, and refreshes the estimate every $2\times10^3$ steps.
 For self-conditioning, the denoiser receives a second input $\hat\vx_0$. With probability
 $p_{\mathrm{sc}}=0.5$, a detached no-gradient pass supplies this estimate during training;
 otherwise it is zero. At inference, \texttt{carry} mode passes the previous prediction to the next
-step without another evaluation. The unused \texttt{refined} alternative recomputes the estimate
+step without another evaluation; the \texttt{refined} mode, used for the protein evaluations, recomputes the estimate
 at the new state and doubles the cost per step.
 
 Sampling integrates the probability-flow ODE with a first-order DDIM/Euler step on the

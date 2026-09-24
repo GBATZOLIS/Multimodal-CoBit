@@ -15,9 +15,10 @@
 \newcommand{\cmark}{\ding{51}} % Tick
 \newcommand{\xmark}{\ding{55}} % Cross
 
-% Editing prompts. Set \draftmodefalse to hide them for a clean copy.
+% Editing prompts and people's comments. \draftmodefalse hides both (submission build);
+% \draftmodetrue shows them.
 \newif\ifdraftmode
-\draftmodetrue
+\draftmodefalse
 \ifdraftmode
   \newcommand{\note}[1]{{\color{gray}\textit{[#1]}}}
 \else
@@ -30,6 +31,7 @@
 \usepackage{xcolor}
 \usepackage{fontawesome5}
 
+\ifdraftmode
 % Bruno revision/comment
 \definecolor{brunopurple}{HTML}{7B2CBF}
 \newcommand{\bruno}[1]{%
@@ -50,6 +52,11 @@
     \textbf{\faExclamationCircle\ Luca:} #1%
   }%
 }
+\else
+  \newcommand{\bruno}[1]{}
+  \newcommand{\micha}[1]{}
+  \newcommand{\luca}[1]{}
+\fi
 
 \title{Multimodal Co-Generation with Continuous Bitstream Diffusion}
 \author{Anonymous authors\\Paper under double-blind review}

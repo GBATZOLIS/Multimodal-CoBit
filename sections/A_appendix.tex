@@ -356,6 +356,7 @@ earlier pass of the same checkpoint that had silently fallen back to a Karras gr
 \centering
 \footnotesize
 \setlength{\tabcolsep}{4pt}
+\resizebox{\linewidth}{!}{%
 \begin{tabular}{lrrrrrrr}
 \toprule
 \textbf{Configuration} & BLEU-4 & METEOR & ROUGE-L & \textbf{CIDEr} & SPICE & CLIPScore & RefCLIPScore \\
@@ -365,7 +366,8 @@ entropic, churn $\gamma{=}0.175$, gs 2.0 & \textbf{0.0291} & \textbf{0.0975} & \
 entropic, churn $\gamma{=}0.175$, gs 4.0 & 0.0147 & 0.0695 & 0.1804 & 0.0520 & 0.0247 & \textbf{0.623} & \textbf{0.6678} \\
 Karras, churn $\gamma{=}0.175$, gs 2.0 & 0.0131 & 0.0672 & 0.1792 & 0.0485 & 0.0232 & --- & 0.6578 \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \caption{CoBit-CC3M zero-shot captioning on the complete Karpathy test split ($n{=}5{,}000$, 256
 steps, no empty captions). Guidance 2.0 maximises the $n$-gram metrics and guidance 4.0 the
 CLIP-space metrics; the two families disagree, so both are reported. The entropy-derived grid
@@ -1105,6 +1107,7 @@ The SLM baselines considered in this work are autoregressive; diffusion models i
 
 For speech continuation and co-generation, we evaluate all baselines under the same protocol as CoBit using publicly available checkpoints. For cross-modal transfer, we only evaluate GPA-v1.5. While public SpiritLM and Moshi models do exist, their TTS and ASR performance relies on task-specific fine-tuning and engineering modifications (\ref{app:audio:baselines}) that cannot be reproduced exactly from public checkpoints; we therefore report results from their respective papers. All generation-based SALMON scores are taken directly from \cite{audio:gen-salmon}. However, the exact protocol documented in the original work is replicated, using the same checkpoints for the judge models.
  
+\FloatBarrier
 \section{Protein sequence and structure experiments}
 \label{app:protein}
-\include{sections/protein_appendix}
+\input{sections/protein_appendix}

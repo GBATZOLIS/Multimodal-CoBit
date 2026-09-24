@@ -20,11 +20,7 @@ respectively, while also supporting captioning and joint generation.
 \fi Trained without text pretraining, a single speech--text model performs speech
 synthesis, recognition, continuation, and unconditional co-generation. Jointly generated speech
 and text achieve 3.5\% word error rate between the generated text and automatic transcriptions of
-the generated speech, alongside generative perplexity of 133.3. In protein modeling, CoBit
-supports forward folding, inverse folding, and joint sequence--structure generation with the same
-denoiser. 75\% of generated backbones achieve a self-consistency TM-score of at least $0.9$ after
-one ProteinMPNN redesign and ESMFold refolding.
-Together, these results show that a protocol developed for language modeling learns joint
+the generated speech, alongside generative perplexity of 133.3. In protein modeling, CoBit supports forward folding, inverse folding, and joint sequence--structure generation. 75\% of generated backbones achieve a self-consistency TM-score of at least $0.9$ when trained on a subset of SwissProt/AlphaFold Database. Together, these results show that a protocol developed for language modeling learns joint
 distributions with substantially different forms of cross-modal dependence, without a new
 objective or sampling procedure for any domain.
 \end{abstract}

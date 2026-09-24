@@ -12,9 +12,7 @@ our contribution is their use in a shared multimodal formulation, evaluated acro
 \label{sec:method:multimodal}
 
 Each example is encoded as $\vx_0\in\{0,1\}^{S}$. Discrete symbols are written as binary
-codes, while continuous observations first pass through a frozen tokenizer. A fixed layout \micha{What does it mean? Fixed order? Fixed order + padding per modality? If defined later say it here}
-specifies where each modality appears, with truncation and padding to accommodate variable
-lengths. Tokenizers and decoders are modality-specific; the denoiser operates only on their bits.
+codes, while continuous observations first pass through a frozen tokenizer. A fixed layout, that is a sequence template chosen per modality pair, sets the order, position and token budget of each modality's segment or aligned channel and the marker and padding positions; longer inputs are truncated, shorter ones padded, and no learned module decides where a code is placed. Tokenizers and decoders are modality-specific; the denoiser operates only on their bits.
 
 The layout can preserve different kinds of correspondence. For speech and text, we concatenate
 segments of text, speaker and speech codes. Their vocabularies occupy disjoint integer ranges

@@ -1,11 +1,7 @@
 \begin{abstract}
 
-Multimodal generation requires learning both the structure of individual modalities and the dependencies that make their outputs mutually consistent. Since any modality can ultimately be represented as a stream of bits, bitstream generation provides a natural framework for multimodal and modality-agnostic generative modeling. 
-\micha{I would state the contribution more directly and emphasize the generality of the approach. For example: ``We extend continuous bitstream diffusion (CoBit) beyond language modeling into a unified framework for single-modality and multimodal generation through a common binary interface.'' This makes the contribution more assertive while acknowledging the prior work on CoBit.}
-We therefore investigate whether a common binary
-interface can support this learning across domains, extending continuous bitstream diffusion
-(CoBit) from language modeling to multimodal generation. In our model, binary encodings map observations into a joint bitstream, which CoBit learns to generate by reversing Gaussian corruption of continuous bit representations. For each modality combination, we train one denoiser from scratch, with a shared input projection, transformer backbone, bitwise
-prediction head, and denoising objective. One set of weights serves every trained conditional
+Multimodal generation requires learning both the structure of individual modalities and the dependencies that make their outputs mutually consistent. Since any modality can ultimately be represented as a stream of bits, bitstream generation offers a natural common interface for multimodal generative modeling. We extend continuous bitstream diffusion (CoBit) from language modeling to a common formulation for multimodal joint and conditional generation, keeping modality-specific tokenizers and decoders outside the denoiser. In our model, binary encodings map observations into a joint bitstream, which CoBit learns to generate by reversing Gaussian corruption of continuous bit representations. For each modality combination, we train one denoiser from scratch, with a shared input projection, transformer backbone, bitwise
+prediction head, and binary score-matching objective. One set of weights serves every trained conditional
 direction, with the observed modalities held fixed during denoising, and unconditional
 co-generation of all modalities from noise. A common entropy-derived calibration rule adapts
 training noise levels and sampling steps to the data's estimated information-loss profile. We

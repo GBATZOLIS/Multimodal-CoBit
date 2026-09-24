@@ -28,8 +28,7 @@ distinguish these effects, but do not by themselves explain the remaining genera
 
 This work demonstrates that a flattened one-dimensional bitstream can serve as a common
 representation for multimodal generation. With changes largely confined to tokenisation and
-layout, the same continuous denoising formulation produces capable models across image--text,
-speech--text and protein sequence--structure tasks. Within each checkpoint, joint and conditional
+layout, the same continuous denoising formulation produces capable models on a controlled pair with no learned tokenizer, an asymmetric codec-backed pair and a physically coupled sequence--structure pair. Within each checkpoint, joint and conditional
 generation share the same weights.
 
 The breadth of these results, obtained with modest backbones trained from scratch, supports the

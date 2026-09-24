@@ -1,28 +1,18 @@
 \section{Related Work}
 \label{sec:related}
 
-\textbf{Continuous diffusion for discrete data.} Discrete diffusion typically corrupts tokens by
-masking or categorical transitions \citep{austin2021structured,sahoo2024simple}. Diffusion-LM and
-continuous categorical diffusion instead perturb learned token embeddings
-\citep{li2022diffusionlm,dieleman2022continuous}. Analog Bits represents each token by a binary code
-and diffuses its bits as real values \citep{chen2023analog}; CoBit develops this representation into
-a language model with a binary score-matching objective, an analytic per-bit posterior term and
-a data-derived noise schedule \citep{method:cobit}. We retain this generative core and study a shared
-layout and training objective for multimodal generation. \micha{What about Embedded Language Flows (ELF)?} \luca{this section should cover quite more methods, including ELF, categorical flow maps, langflow and so on.} 
+\textbf{Continuous generation of discrete data.} Beyond discrete corruption \citep{austin2021structured,sahoo2024simple}, continuous methods differ in the state they generate. Diffusion-LM \citep{li2022diffusionlm}, continuous categorical diffusion \citep{dieleman2022continuous}, LangFlow \citep{chen2026langflow} and ELF \citep{hu2026elf} generate learned token embeddings and map them back to tokens with a learned readout; Categorical Flow Maps learn a flow map towards the probability simplex and distil it for few-step categorical generation \citep{roos2026categorical}. Analog Bits writes each token as a fixed binary code and diffuses its bits as real values \citep{chen2023analog}; CoBit develops this into a language model with a binary score-matching objective, an analytic per-bit posterior term and a data-derived noise schedule \citep{method:cobit}. Each of these methods models one domain at a time; we retain the binary core and study a shared layout and training objective for multimodal co-generation.
 
-\micha{Perhaps worth adding a compact comparison table of what makes CoBit unique? e.g., compared to UniDiffuser we can have a table with X/V for share a binary representation, projection, prediction head, and denoising objective. Find categories that generalizes across a few models and clearly show how we different. Can help showcase novely.}
 \textbf{Multimodal generation.} UniDiffuser uses one diffusion transformer with modality-specific
 times, while CoDi composes modality-specific latent diffusion models
-\citep{bao2023unidiffuser,tang2023codi}. Unified image--text transformers make other compromises:
+\citep{bao2023unidiffuser,tang2023codi}. MUNI learns a shared stochastic latent with modality-specific encoders and decoders for subset-conditioned and unconditional joint generation \citep{yeo2026muni}. Unified image--text transformers make other compromises:
 Show-o uses different objectives and attention patterns for text and images, SEED-X predicts visual
 features for an image decoder, and LWM autoregressively predicts visual and text tokens
 \citep{image:showo,image:seedx,image:lwm}. Speech systems range from textless autoregressive models
 to text-pretrained interleaved streams and flow-matched acoustic representations
 \citep{audio:audiolm,audio:twist,audio:spirit-lm,audio:moshi,audio:taste,audio:flow-slm}. Protein
 models combine discrete sequence generation with geometric flows, aligned structure tokens or
-masked multi-track prediction \citep{campbell2024multiflow,wang2025dplm2,protein:esm3}. Our claim
-is specifically about the denoiser: although frozen modality-specific tokenizers and decoders
-remain, every code inside the model uses one projection, backbone, bitwise head and objective.
+masked multi-track prediction \citep{campbell2024multiflow,wang2025dplm2,protein:esm3}. Our claim is narrower than these and concerns the denoiser interface: within each separately trained modality-pair checkpoint, every code uses one input projection, backbone, bitwise head and binary score-matching objective, while frozen modality-specific tokenizers and decoders remain.
 
 \textbf{Information-based scheduling.} Entropic scheduling allocates steps according to the rate
 at which diffusion destroys information, and related estimators select training noise levels

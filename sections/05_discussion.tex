@@ -27,9 +27,20 @@ distinguish these effects, but do not by themselves explain the remaining genera
 \label{sec:conclusion}
 
 This work demonstrates that a flattened one-dimensional bitstream can serve as a common
-representation for multimodal generation. With changes largely confined to tokenisation and
-layout, the same continuous denoising formulation produces capable models on a controlled pair with no learned tokenizer, an asymmetric codec-backed pair and a physically coupled sequence--structure pair. Within each checkpoint, joint and conditional
-generation share the same weights.
+representation for multimodal generation across three distinct forms of cross-modal
+dependence. On MNIST-Sum, raw pixel bits and symbolic text bits form one learnable
+joint distribution with no learned tokenizer: 97.56\% exact image$\rightarrow$text, 99.95\%
+text$\rightarrow$image and 99.46\% mutually consistent joint samples. On speech and text, the same
+formulation handles a strongly asymmetric, codec-backed pair, co-generating speech and text at
+3.5\% cross-modal WER and UTMOS 3.77 from a model trained without text pretraining, while speech
+recognition and thematic continuation remain its weakest directions. On protein sequence and
+structure, one denoiser performs folding, inverse folding and joint generation of physically
+coupled channels, and fold-level self-consistency is well ahead of coordinate-level precision:
+68.75\% (55/80) of generated backbones reach scTM~$\geq$~0.9, against 38.75\% (31/80) at
+scRMSD~$\leq$~2\,\AA. With changes largely
+confined to tokenisation and layout, one continuous denoising formulation thus carries across a
+controlled pair, an asymmetric pair and a physically coupled pair; within each checkpoint, joint
+and conditional generation share the same weights.
 
 The breadth of these results, obtained with modest backbones trained from scratch, supports the
 feasibility of the approach. It motivates investigating how far stronger pretraining, larger

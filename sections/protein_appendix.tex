@@ -1,13 +1,163 @@
-\subsection{Training, representation and evaluation protocol}
+\begingroup
+\raggedbottom
+
+This appendix documents the run reported in \S\ref{sec:exp:protein}. The additional details we present here use the same checkpoint, evaluation sets, and 80 generated pairs.
+
+\subsection{Data and splits}
 \label{app:protein:protocol}
+% Brain fog please go away... :( 
+
+% The manifest contains 216{,}237 paired examples from the PDB\citep{protein:pdb} and AFDB--SwissProt\citep{protein:afdb}. PDB structure are determined experimentally and AFDB structure are predictions. Training uses lengths 40--512, paired-source weights of 2:1 (the pair count excludes replay exposures) and 20\% UniRef50 sequence-only replay \citep{protein:uniref}. Recognised CMAP/CASP sources held out, but cross-corpus homology and benchmark overlap with the pretrained codec have not been fully audited. The 128-target CATH~4.3 subset is a known validation dataset. The forward set is the 183-target DPM-2.1 CAMEO~2022 manifest, retaining modelles residues with complete backbone atoms  \citep{protein:cath,protein:cameo}.
+
+We begin by merging DPLM-2 train and validation groups and obtaining its structural codes before constructing our own partitions from the PDB/AFDB-SwissProt sequence--structure pairs \citep{protein:dplm2, protein:pdb, protein:afdb}. For consistency and correctness, we reject empty sequences, unparseable codes and sequence/code length mismatches. To keep the a comparable protocol, long chains retain their first 512 residues. Segments with over 10\% noncanonical residues are removed. Remaining noncanonical residues and out-of-range codes are masked. Despite strong validation checks, only seven records have been removed and $21{,}574$ were truncated. No additional resolution or pLDDT filter is applied. 
+
+% We merge the DPLM-2 train and validation groups, using their supplied structural codes, before constructing our own partitions of the PDB/AFDB-SwissProt sequence--structure pairs \citep{protein:dplm2,protein:pdb,protein:afdb}. We reject empty sequences, unparseable codes and sequence/code length mismatches. Chains longer than 512 residues retain their first 512 residues and aligned codes. Retained segments with over 10\% noncanonical residues are removed; remaining noncanonical residues and out-of-range codes are masked. These checks remove seven records and truncate $21{,}574$. No additional resolution or pLDDT filter is applied.
 
 
-\subsection{Metrics}
+Whole clusters with sequences were assigned deterministically to training or validation. We reserve 128 CAMEO/CASP-labelled sequences and hash the remaining cluster IDs with SHA-256, using a 2\% validation threshold. This gives us $216{,}237$ training and $4{,}110$ validation records with disjoint cluster IDs. This was done before the training loader's 40--512 residues restrictions were applied. PDB:AFDB sampling ratio is 2:1. 
+
+\textbf{Sequence replay.} The March-2020 EvoDiff UniRef50 training partition supplied $400{,}000$ sequences \citep{protein:uniref}. A NumPy Generator (seed 0) permutes source indices and chooses fixed contiguous 512-residue crops for the long chains. Replay supplies $20\%$ of training batches with structure channels masked.
+
+\textbf{Evaluation sets.} We use established validation sets in our runs. For CATH~4.3 topology validation \citep{protein:cath} we retain each chain's longest contiguous segment with finite N/C$\alpha$/C/O coordinates, canonical residues. NumPy (seed 20260827) selects 128 of the $1{,524}$ eligible chains without replacement. Indices are sorted. It's important to highlight that these targets also determine the entropy profile and sampler selection, so the scores are validation results. Forward folding uses all 183 DPLM-2.1 CAMEO~2022 targets, thus preserving the released modelled-residue selection and scoring complete finite backbones \citep{protein:cameo,protein:dplm2}. 
+
+% \textbf{Overlap audit.} Disjoint cluster IDs do not guarantee sequence separation. Exact stored-sequence checks find paired-training matches for 12/4110 paired-validation records, 9/128 source-held-out records, 10/128 CATH targets and 10/183 CAMEO targets. Replay matches two paired-validation records and no CATH or CAMEO targets. Near-homologues, full uncropped chains and codec-pretraining overlap have not been screened; these results therefore do not establish generalisation to sequence-disjoint targets.
+
+\subsection{Training and Sampling}
+\label{app:protein:training}
+\label{app:protein:noise}
+
+For each residue we combine five amino-acid bits (most significant bit first) and thirteen LFQ sign bits. Sequence decoding maximises bit likelihood over the 20 canonical amino acids. All 8192 structural codes remain available. The frozen DPLM-2 decoder returns N/C$\alpha$/C/O coordinates. We train the 396.23M-parameter denoiser from scratch for 300{,}000 steps (Table~\ref{tab:protein:training}) and use the validation-selected checkpoint at step 245{,}000 for every task.
+
+\par\addvspace{6pt}\noindent
+    \begin{minipage}{\linewidth}
+        \makeatletter\def\@captype{table}\makeatother
+        \centering\small
+        \caption{Training configuration of the reported protein run.}
+        \label{tab:protein:training}
+        \setlength{\tabcolsep}{4pt}
+        \begin{tabular}{@{}ll@{}}
+        \toprule
+        Component & Setting \\
+        \midrule
+        Transformer & 20 layers; width 1024; 16 heads; FFN 4096; RoPE; SwiGLU \\
+        Optimisation & AdamW; $\beta=(.9,.95)$; weight decay .01; gradient clip 1 \\
+        Learning rate & $1.1\!\times\!10^{-4}$; 10k warm-up; cosine decay to $10^{-6}$ \\
+        Batch / precision & Effective batch 512; accumulation 2; 8 GPUs; FP32; TF32 allowed \\
+        Regularisation & Dropout .1; EMA .9999; self-conditioning probability .5 \\
+        Noise / loss & $\log\sigma\sim\mathcal N(-1.2,1.2^2)$; EDM-weighted bit loss \\
+        Noise / conditioning & $\sigma\in[.002,80]$; $\sigma_{\rm data}=.5$; condition dropout .1 \\
+        Modality noise / seed & Independent noise with probability .7; length conditioning; seed 42 \\
+        \bottomrule
+    \end{tabular}
+\end{minipage}\par\addvspace{6pt}
+
+\textbf{Sampling configuration.} The protein results in \S\ref{sec:exp:protein} use entropic DDIM with $G=50$ noise-grid points, classifier-free guidance of 5 for conditional tasks, and no guidance for join generation. The model has been trained with log-normal noise. After training, we estimate the entropy profile used to construct the sampling grid on 128 CATH validation backbones, collecting 6144 observations across tasks. The grid uses the weightning   $[\sigma^3/(\sigma^3+0.1^3)]\sqrt{e(\sigma)/\sigma^2}$. Noise levels range from 0.002 to 80 and we keep structure-noise scale=1. Stochastic sampling uses churn 10 and we keep noise multiplier fixed at 1, applied between the 10th and 90th percentiles of the entropy-based cumulative distribution.
+
+Sampling uses self-conditioning. It refreshes the denoising estimate at the ucrrent rate. Hence, the 50-point grid requires 99 model calls for 49 integration updates. Conditional guidance evaluates two branches per call, giving 198 branch evaluations per sample while joint generation requires 99. These counts are derived from the sampler implementation and exclude encoding, deconding, and evaluation. Check in Appendix~\ref{app:protein:pareto} how this configuration was selected and how it compares it with the other sampling settings.
+
+\subsection{Evaluation.}
 \label{app:protein:metrics}
 
+Each task follows established protocols: for inverse folding, we generate four sequences for CATH target. Amino-acid recovery (AAR) is obtained by averaging residue identity over candidates, then targets. Only the first sequence is refolded. Forward metrics average four predictions per CAMEO target, then targets. Joint generation draws 16 pairs at each length (100,200,...,500). Backbone designability refolds one ProteinMPNN redesign per backbone (at temperature .1) with ESMFold \citep{protein:proteinmpnn, protein:esmfold}. Direct pair consistency instead refolds Cobit's own sequence (Appendix~\ref{app:protein:direct}). None of the aggregate scores use reference-based candidate selection, MSA or retrieved homologues. 
 
-\subsection{Metrics}
+\paragraph{Metrics and uncertainty. } Native structures were used to calculate forward TM, lDDT, and RMSD. Self-consistency, on the other hand, compares refolds with conditioned or generated backbones. We report $D_{\rm TM}=100\,\Pr(\mathrm{scTM}\geq.9)$ and $D_{\rm RMSD}=100\,\Pr(\mathrm{scRMSD}\leq2\,\text{\AA})$ separately. It's important to highlight that AAR is undefined for unconditional pairs. Conditional and backbone-designability scores use TM-align with a Kabsch-based fallback (we did not capture per-score use). 
+
+\par\addvspace{6pt}\noindent
+    \begin{minipage}{\linewidth}
+        \makeatletter\def\@captype{table}\makeatother
+        \centering\small
+        \caption{Task results under the reported sampling configuration; brackets give 95\% intervals. Joint rows use ProteinMPNN redesign.}
+        \label{tab:protein:headline}
+        \setlength{\tabcolsep}{4pt}
+        \begin{tabular}{@{}llr@{}}
+        \toprule
+        Task and sample count & Metric & Estimate [95\% interval] \\
+        \midrule
+        Inverse: 128 targets, 512 sequences & AAR (\%) $\uparrow$ & 44.10 [40.21, 48.21] \\
+        \quad First sequence: 128 refolds & scTM $\uparrow$ & .739 [.704, .770] \\
+        & scRMSD (\AA) $\downarrow$ & 6.104 [5.251, 7.020] \\
+        & $D_{\rm TM}$ / $D_{\rm RMSD}$ (\%) $\uparrow$ & 25.00 / 23.44 \\
+        Forward: 183 targets, 732 predictions & TM $\uparrow$ & .554 [.516, .591] \\
+        & lDDT $\uparrow$ & .541 [.508, .575] \\
+        & RMSD (\AA) $\downarrow$ & 11.316 [10.173, 12.492] \\
+        Joint: 80 backbones, one redesign each & scTM $\uparrow$ & .899 [.880, .916] \\
+        & scRMSD (\AA) $\downarrow$ & 3.659 [2.972, 4.409] \\
+        & $D_{\rm TM}$ (\%) $\uparrow$ & 68.75 [57.93, 77.85] \\
+        & $D_{\rm RMSD}$ (\%) $\uparrow$ & 38.75 [28.82, 49.71] \\
+        \bottomrule
+        \end{tabular}
+    \end{minipage}\par\addvspace{6pt}
+
+\par\addvspace{6pt}\noindent
+\begin{minipage}{\linewidth}
+    \makeatletter\def\@captype{figure}\makeatother
+    \centering
+    \includegraphics[width=\linewidth]{figures/protein/protein_conditional_targets.pdf}
+    \caption{Conditional results. Left: first-sequence AAR and refold scTM for
+    128 CATH targets. Right: mean TM over four predictions per CAMEO target ($n=183$).}
+    \label{fig:protein:conditional-targets}
+\end{minipage}\par\addvspace{6pt}
+
+
+
+\subsection{Direct consistency of reported pairs}
+\label{app:protein:direct}
+
+We refold CoBit's own sequences for the same 80 pairs reported in \S\ref{sec:exp:protein}, with 16 pairs per length and the reported sampling configuration. In this specific run, ESMFold uses three recycles. TM-align is normalised by the generated reference, and Kabsch RMSD uses all corresponding C$\alpha$ atoms. This evaluates the generated sequence--structure pair directly.
+
+\par\addvspace{6pt}\noindent
+    \begin{minipage}{\linewidth}
+    \makeatletter\def\@captype{table}\makeatother
+    \centering\small
+    \caption{Direct refolding of CoBit's sequences for the 80 pairs reported in the main text. Success rates are percentages.}
+    \label{tab:protein:direct}
+    \setlength{\tabcolsep}{4pt}
+    \begin{tabular}{@{}lrrrrr@{}}
+    \toprule
+    Refolded sequence & $n$ & scTM $\uparrow$ & scRMSD (\AA) $\downarrow$ & $D_{\rm TM}$ & $D_{\rm RMSD}$ \\
+    \midrule
+    CoBit & 80 & .904 & 3.575 & 70.0 & 32.5 \\
+    \bottomrule
+    \end{tabular}
+\end{minipage}\par\addvspace{6pt}
+
+The 95\% scTM interval is [.886, .921] (10{,}000 bootstrap resamples. We use seed 20260923); Wilson intervals are [59.2, 78.9]\% for $D_{\rm TM}$ and [23.2, 43.4]\% for $D_{\rm RMSD}$. Backbone designability and direct refolding use different TM-scoring protocols, so differences between their scores cannot be attributed solely to sequence choice.
+
+\subsubsection{Sampler selection and cost}
 \label{app:protein:pareto}
 
-\subsection{Comparison}
+
+% We sweep CFG $\{0,1,2,3,4,5\}$, $G\in\{50,100,150,200\}$ and Karras fraction $\alpha\in\{0,.1,.2,.5,1\}$, with $\sigma_i=(1-\alpha)\sigma_i^{\rm entropic}+\alpha\sigma_i^{\rm Karras}$ and Karras $\rho=7$. We obtained 120 settings per conditional tasks and 20 joint settings. CATH validation used the 16 pure-entropic settings with CFG 2--5. After requiring full coverage and exact clamping, selection maximises success (scRMSD $<2$\,\AA{} or scTM $>.5$), scTM and pLDDT, then minimises scRMSD. We then maximise diversity and AAR, and we select based on lower cost.
+We sweep CFG $\{0,1,2,3,4,5\}$, $G\in\{50,100,150,200\}$ and Karras fraction $\alpha\in\{0,.1,.2,.5,1\}$, with $\sigma_i=(1-\alpha)\sigma_i^{\rm entropic}+\alpha\sigma_i^{\rm Karras}$ and Karras $\rho=7$. We obtained 120 settings per conditional task and 20 joint settings. CATH validation used the 16 pure-entropic settings with CFG 2--5. After requiring full coverage and exact clamping, selection maximises success (scRMSD $<2$\,\AA{} or scTM $>.5$), scTM and pLDDT, then minimises scRMSD. We then maximise diversity and AAR, and we select based on lower cost. 
+
+We observed that at $G=50$, increasing entropic CFG from 0 to 5 raises inverse scTM from .708 to .739 while diversity (one minus mean pairwise identity among four designs) falls from .392 to .145. Strict success does not improve consistently (Figure~\ref{fig:protein:cfg-evaluation}). Joint scTM rises from .899 under the reported configuration to a sweep maximum of .903 at $\alpha=.1$, $G=200$, which costs roughly four times as many denoiser evaluations (Figure~\ref{fig:protein:pareto}). All main results use the 50-point entropic configuration.
+
+\par\addvspace{6pt}\noindent
+\begin{minipage}{\linewidth}
+    \makeatletter\def\@captype{figure}\makeatother
+    \centering
+    \includegraphics[width=\linewidth]{figures/protein/protein_cfg_evaluation.pdf}
+    \caption{CFG sweep at $G=50$: inverse success rates on 128 targets and mean
+    forward TM on 183 targets. Curves show point estimates. CFG 0 costs 99 branch
+    evaluations; positive CFG costs 198.}
+    \label{fig:protein:cfg-evaluation}
+\end{minipage}\par\addvspace{6pt}
+
+\par\addvspace{6pt}\noindent
+\begin{minipage}{\linewidth}
+    \makeatletter\def\@captype{figure}\makeatother
+    \centering
+    \includegraphics[width=\linewidth]{figures/protein/protein_sampling_pareto.pdf}
+    \caption{Quality--cost trade-offs across all settings. Lines join non dominated settings; diamonds mark the reported configuration. Backbone scores use one ProteinMPNN redesign.}
+    \label{fig:protein:pareto}
+\end{minipage}\par\addvspace{6pt}
+
+%\subsection{Length effects}
+\subsection{Comparison context}
 \label{app:protein:comparison}
+
+% Table~\ref{tab:protein:baselines} provides published one-redesign results \citep{protein:simpledesign}. Training data, sample counts and evaluation settings differ across models, so these comparisons do not isolate representation or training effects. MultiFlow's designability distillation raises backbone success from 71\% to 88\% in its own ablation (Table~3; lengths 70, 100, 200, 300) \citep{campbell2024multiflow}. Those values describe that study's ablation, not additional measurements under our evaluation protocol. CoBit uses unpaired sequence replay without a direct geometric loss. Our results assess whether a shared bitstream objective learns coupled protein modalities; computational consistency alone does not establish biological function.
+
+It's useful to highlight an important disctintion we observed when evaluating proteins with 500 residues: 12/16 redesigned backbones pass the strict TM criterion, but only 1/16 passes strict RMSD (Figure~\ref{fig:protein:strict}). Table~\ref{tab:protein:baselines} provides published one-redesign results \citep{protein:simpledesign}. Training data, sample counts and evaluation settings differ across reported models so a fair comparison under the same protocol for data, training and validation splits was not possible. For example, MultiFlow's designability distillation raises backbone success from 71\% to 88\% (Table~3; lengths 70, 100, 200, 300) \citep{campbell2024multiflow}. CoBit uses unpaired sequence replay without direct geometric loss. Therefore, the omparisons does not isolate representation or training effects, and computational consistency does not establish biological function. In this work, we focus on the core hypothesis related to multi-modality training using bitstream diffusion. 
+
+\endgroup

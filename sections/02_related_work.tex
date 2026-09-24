@@ -8,8 +8,9 @@ continuous categorical diffusion instead perturb learned token embeddings
 and diffuses its bits as real values \citep{chen2023analog}; CoBit develops this representation into
 a language model with a binary score-matching objective, an analytic per-bit posterior term and
 a data-derived noise schedule \citep{method:cobit}. We retain this generative core and study a shared
-layout and training objective for multimodal generation.
+layout and training objective for multimodal generation. \micha{What about Embedded Language Flows (ELF)?} \luca{this section should cover quite more methods, including ELF, categorical flow maps, langflow and so on.} 
 
+\micha{Perhaps worth adding a compact comparison table of what makes CoBit unique? e.g., compared to UniDiffuser we can have a table with X/V for share a binary representation, projection, prediction head, and denoising objective. Find categories that generalizes across a few models and clearly show how we different. Can help showcase novely.}
 \textbf{Multimodal generation.} UniDiffuser uses one diffusion transformer with modality-specific
 times, while CoDi composes modality-specific latent diffusion models
 \citep{bao2023unidiffuser,tang2023codi}. Unified image--text transformers make other compromises:

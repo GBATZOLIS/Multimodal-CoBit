@@ -513,7 +513,7 @@ versus 0.249)---because CC3M's 256-token sequence does not trigger it.
 
 \subsection{Protocol and Checkpoints} \label{app:audio:protocol}
 
-\textbf{LibriVox-based corpora.} LibriTTS, MLS-English, LibriSpeech-PC and art of SALMON (background and room partitions) are extracted from the LibriVox project, and thus consist of single-speaker, reading-style audiobook recordings. The content CoBit sees during training is exclusively story passages, which severely constraints its stylistic and thematic exposure. Availability of in-the-wild text-audio pairs is very limited at this scale for single-speaker samples, so audiobook data is the natural alternatively. For most speech models, semantic and stylistic generality is inherited from the text pre-trained backbone. Note that the training and test sets have no example or speaker overlap. 
+\textbf{LibriVox-based corpora.} LibriTTS, MLS-English, LibriSpeech-PC and part of SALMON (background and room partitions) are extracted from the LibriVox project, and thus consist of single-speaker, reading-style audiobook recordings. The content CoBit sees during training is exclusively story passages, which severely constrains its stylistic and thematic exposure. Availability of in-the-wild text-audio pairs is very limited at this scale for single-speaker samples, so audiobook data is the natural alternative. For most speech models, semantic and stylistic generality is inherited from the text pre-trained backbone. Note that the training and test sets have no example or speaker overlap. 
 
 \textbf{Linguistic evaluation.} To assess the linguistic properties of generated speech signals, we transcribe them using an external Whisper-large \citep{audio:whisper} ASR model. For co-generation, error rates are computed between the two generated sequences. The fluency of a text sequence is measured by its perplexity under an external language model (in this case Llama-3.2 1B), computed separately for each modality in co-generation and for speech transcriptions in speech continuation. To further determine the conceptual relevance of produced continuations, \texttt{GPT-4o} is employed in an LLM-as-a-Judge setting, assigning each continuation a score from 1 to 5. The system message is taken directly from \cite{audio:taste} and presented in Table \ref{tab:audio:llm-judge}.
 
@@ -543,11 +543,11 @@ Second: MUST follow the output format as: I would rate the score as \_ \\
 \label{tab:audio:llm-judge}
 \end{table}
 
-\textbf{Acoustic Evaluation.} For TTS, voice replication is captured in terms of speaker similarity (SpkSim), computed as the cosine similarity between the outputs of an ECAPA-TDNN \citep{audio:ecapa-tdnn} speaker verification model. For speech continuation, we are also interested in how closely the generated audio follows the distribution of ground-truth continuations. We thus measure Fr\'echet Speech Distance (FSD), an adaptation of the FID metric to audio. Population statistics are extracted from self-supervised representations of the true and generated continuations, and their Fr\'echet distance is calculated. Following previous work \citep{audio:flow-slm}, two variants are considered: FSD-wlm, which is based on embeddings from the 6th layer of WavLM-large \citep{audio:wavlm} to measure frame-level match, and FSD-e2v, which is based on expressiveness representations from Emotion2Vec \citep{audio:emotion2vec}. FSD metrics do not evaluate the quality of the generated audio; they capture its population-level resemblance to the original continuations. FSD metrics are investigated in more detail in Appendix \ref{app:audio:sampler}.
+\textbf{Acoustic evaluation.} For TTS, voice replication is captured in terms of speaker similarity (SpkSim), computed as the cosine similarity between the outputs of an ECAPA-TDNN \citep{audio:ecapa-tdnn} speaker verification model. For speech continuation, we are also interested in how closely the generated audio follows the distribution of ground-truth continuations. We thus measure Fr\'echet Speech Distance (FSD), an adaptation of the FID metric to audio. Population statistics are extracted from self-supervised representations of the true and generated continuations, and the Fr\'echet distance between the resulting distributions is calculated. Following previous work \citep{audio:flow-slm}, two variants are considered: FSD-wlm, which is based on embeddings from the 6th layer of WavLM-large \citep{audio:wavlm} to measure frame-level match, and FSD-e2v, which is based on expressiveness representations from Emotion2Vec \citep{audio:emotion2vec}. FSD metrics do not evaluate the quality of the generated audio; they capture its population-level resemblance to the original continuations. FSD metrics are investigated in more detail in Appendix \ref{app:audio:sampler}.
 
-\textbf{Generation-based SALMON benchmark.} The SALMON benchmark is used for acoustic evaluation. In its original form, SALMON creates replicas of short speech recordings where the start remains identical, but some paralinguistic property (sentiment, speaker identity/gender, background, room) is modified midway. SLMs receive an accuracy score related to how often the positive example is assigned higher likelihood than the negative one. Given the incompatibility of likelihood-based evaluation for diffusion models \citep{audio:diffusion-likelihood}, we turn to an alternative generation-based  SALMON formulation \citep{audio:gen-salmon}. The examined SLM produces a continuation of the shared start of the two examples, and a judge model calculates embeddings for the positive, negative and generated continuations. The SLM then receives an accuracy score based on how often the generated continuation is closer to the positive example than the negative one, in terms of cosine similarity in the embedding space. TITANET \citep{audio:titanet} is used as the judge for sentiment, speaker and gender tasks; HuBERT-large-audioset and Wav2Vec2-large-audioset \citep{audio:ARCH} are used for background and room tasks, respectively. 
+\textbf{Generation-based SALMON benchmark.} The SALMON benchmark is used for acoustic evaluation. In its original form, SALMON creates replicas of short speech recordings where the start remains identical, but some paralinguistic property (sentiment, speaker identity/gender, background, room) is modified midway. SLMs receive an accuracy score based on how often the positive example is assigned higher likelihood than the negative one. Given the incompatibility of likelihood-based evaluation for diffusion models \citep{audio:diffusion-likelihood}, we turn to an alternative generation-based  SALMON formulation \citep{audio:gen-salmon}. The examined SLM produces a continuation of the shared start of the two examples, and a judge model calculates embeddings for the positive, negative and generated continuations. The SLM then receives an accuracy score based on how often the generated continuation is closer to the positive example than to the negative one, in terms of cosine similarity in the embedding space. TITANET \citep{audio:titanet} is used as the judge for sentiment, speaker and gender tasks; HuBERT-large-audioset and Wav2Vec2-large-audioset \citep{audio:ARCH} are used for background and room tasks, respectively. 
 
-\textbf{Operating points.} The sampler configurations (integration steps, stochasticity and guidance scale) for each conditional task have been selected based on modality alignment (WER) on 500 samples from the LibriTTS dev-clean set; the final settings are summarized in Table \ref{tab:audio:operating-points} and full validation scores are reported in Tables \ref{tab:audio:val:tts}, \ref{tab:audio:val:stt} and \ref{tab:audio:val:cont}.
+\textbf{Operating points.} The sampler configurations (integration steps, stochasticity and guidance scale) for each conditional task were selected based on modality alignment (WER) on 500 samples from the LibriTTS dev-clean set; the final settings are summarized in Table \ref{tab:audio:operating-points} and full validation scores are reported in Tables \ref{tab:audio:val:tts}, \ref{tab:audio:val:stt} and \ref{tab:audio:val:cont}.
 
 \begin{table}[t]
 \centering
@@ -679,7 +679,7 @@ $\gamma$ & \textbf{WER}$\downarrow$ & \textbf{CER}$\downarrow$ & \textbf{UTMOS}$
 
 \subsection{Complete Results} \label{app:audio:results}
 
-Tables \ref{tab:audio:joint}, \ref{tab:audio:cross-modal} and \ref{tab:audio:continuation} contain extensive evaluation metrics and baseline comparisons for co-generation, cross-modal directions and continuation, respectively; Table \ref{tab:audio:salmon} details per-task SALMON accuracy. A mel-spectrogram example for speech continuation is visualized in Figure \ref{fig:audio:continuation-spectrogram}.
+Tables \ref{tab:audio:joint}, \ref{tab:audio:cross-modal} and \ref{tab:audio:continuation} contain extensive evaluation metrics and baseline comparisons for co-generation, cross-modal directions and continuation, respectively; Table \ref{tab:audio:salmon} details per-task SALMON accuracy. Mel-spectrogram examples for text-to-speech and speech continuation are visualized in Figures \ref{fig:audio:tts-spectrogram} and \ref{fig:audio:continuation-spectrogram}.
 
 \begin{table}[t]
 \centering
@@ -757,7 +757,7 @@ SpiritLM-Expressive & 7B & 3.17 & 6{,}293.6 & 16.9 & 0.08 & 153.2 & 1.62 \\
 \bottomrule
 \end{tabular}%
 }
-\caption{Continuation-based and SALMON evaluation for text-audio experiments against published SLMs. All figures are evaluated using publicly available checkpoints. GPT-4o refers to LLM-as-a-Judge score with the prompt shown in Table \ref{tab:audio:llm-judge}. We use NFE$=$512 for both CoBit models. The last row reports the tokenizer performance ceiling.}
+\caption{Continuation-based evaluation for text-audio experiments against published SLMs. All figures are evaluated using publicly available checkpoints. GPT-4o refers to LLM-as-a-Judge score with the prompt shown in Table \ref{tab:audio:llm-judge}. We use NFE$=$512 for both CoBit models. The last row reports the tokenizer performance ceiling.}
 \label{tab:audio:continuation}
 \end{table}
 
@@ -795,10 +795,17 @@ SpiritLM-Expressive & 72 & 54 & 56 & 58.5 & 55.5 & 54.5 & 58.41 \\
 \label{tab:audio:salmon}
 \end{table}
 
-\begin{figure}
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\linewidth]{figures/audio/tts.png}
+    \caption{Text-to-speech generation with CoBit-MLS. Given text and speaker tokens (extracted from a held-out example), the model is tasked with generating the speech part of the sequence. The top mel-spectrogram corresponds to the ground truth waveform, the middle one to the StableCodec reconstruction, and the bottom mel-spectrogram to the generated audio by the 633M parameter bitstream diffusion model. The tokenizer introduces visible artifacts, especially at high frequencies. CoBit generation spreads the utterance across a longer time span, without leading and trailing silence, replicating similar frequency patterns. The only exception is the gap between 1.7 and 1.9 seconds, which corresponds to the boundary between sentences.}
+    \label{fig:audio:tts-spectrogram}
+\end{figure}
+
+\begin{figure} [ht]
     \centering
     \includegraphics[width=\linewidth]{figures/audio/spectrograms.png}
-    \caption{Speech continuation with CoBit-MLS. Given speaker and speech tokens extracted by a 3-second audio prompt, the model is tasked with generating its own continuation. The top mel-spectrogram corresponds to the ground truth continuation, and the bottom mel-spectrogram to the continuation is generated by the 633M parameter bitstream diffusion model. The generated spectrogram blends well with the audio prompt, introducing minimal artifacts at the intersection point. Speech continuation is scored not only in terms of acoustic consistency, but also for the semantic relevance and intelligibility of the generated content, shown on the right.}
+    \caption{Speech continuation with CoBit-MLS. Given speaker and speech tokens extracted from a 3-second audio prompt, the model is tasked with generating its own continuation. The top mel-spectrogram corresponds to the ground truth continuation, and the bottom mel-spectrogram to the continuation generated by the 633M parameter bitstream diffusion model. The generated spectrogram blends well with the audio prompt, introducing minimal artifacts at the prompt-continuation boundary. Speech continuation is scored not only in terms of acoustic consistency, but also for the semantic relevance and intelligibility of the generated content, shown on the right.}
     \label{fig:audio:continuation-spectrogram}
 \end{figure}
 
@@ -1100,4 +1107,4 @@ For speech continuation and co-generation, we evaluate all baselines under the s
  
 \section{Protein sequence and structure experiments}
 \label{app:protein}
-\note{Bruno: additional results and experimental details for reproducibility.}
+\include{sections/protein_appendix}

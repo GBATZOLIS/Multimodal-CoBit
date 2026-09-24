@@ -6,7 +6,7 @@
 
 % We trained a 393M parameter model from scratch on PDB/AFDB--swissProt pairs with sequence replay. Each residue is formed by an aligned 18-bit patch: five amino-acid bits and thirteen sign bits from the fozen DPLM-2 lookup-free quantiser \citep{protein:dplm2}.  The 5-bit sequence channel has capacity for 32 symbols, but the deconding is contrained to the 20 canonical amino acids. This compact representation retains the full vocabulary of $(2^{13}=8192)$ structrual codes. Thus, the model preserves structure expressivity of DPLM-2 whiile supporting residue-aligned joint sequence-structure generation. \bruno{Details about dataset splits etc to be in the appendix}
 
-Unlike text, image, and audio multi-modality, whose correspondence is primarily semantic, a protein sequence and it's three-dimensional structure are physically coupled descriptions. We ask whether the bitstream formulation can learn the coupled modalities of protein sequence and structure by training CoBit from scratch on 216,237 PDB/AFDB-SwissProt \citep{protein:pdb, protein:afdb} pairs with 20\% sequence replay. Each residue aligns five amino-acids bits with thirteen signs from the frozen DPLM-2 lookup-free quantiser (LFQ) \citep{wang2024dplm}. Decoding retains the 20 canonical amino acids and all $2^{13}$ structural codes. The common binary interface lets one denoiser lean sequence-structure dependencies while the frozen codec recovers backbone coordinates. Data, splits, and tokenisation are detailed in Appendix~\ref{app:protein:protocol}.
+Unlike text, image, and audio multi-modality, whose correspondence is primarily semantic, a protein sequence and its three-dimensional structure are physically coupled descriptions. We ask whether the bitstream formulation can learn the coupled modalities of protein sequence and structure by training CoBit from scratch on 216,237 PDB/AFDB-SwissProt \citep{protein:pdb, protein:afdb} pairs with 20\% sequence replay. Each residue aligns five amino-acid bits with thirteen signs from the frozen DPLM-2 lookup-free quantiser (LFQ) \citep{protein:dplm2}. Decoding retains the 20 canonical amino acids and all $2^{13}$ structural codes. The common binary interface lets one denoiser learn sequence-structure dependencies while the frozen codec recovers backbone coordinates. Data, splits, and tokenisation are detailed in Appendices~\ref{app:protein:protocol} and~\ref{app:protein:training}.
 
 % \par\addvspace{6pt}\noindent
 %     \begin{minipage}{\linewidth}
@@ -32,9 +32,9 @@ Unlike text, image, and audio multi-modality, whose correspondence is primarily 
 
 % In a given environment,. the amino-acid sequences shapes the protein's free energy landscape and accesible conformation ensemble \cite{protein:anfinsen} while a target backbone restricts the sequences likely to adopt that fold \citep{protein:proteinMPNN}. 
 
-\textbf{Tasks coverage.} Clamping either channel gives inverse or forwarding folding while leaving both free engenders joint generation, without task-specific fine-tuning or Multiple Sequence Alignment as input (Appendix~\ref{app:protein:metrics}). Our evaluations were based on entropic DDIM with $50$ grid points with conditional CFG $5$ and no unconditional guidance. Under these settings, mean recovery is $44.10\%$ on 128 CATH 4.3 validation targets  and forward TM is $.554$ on $183$ CAMEO Targets\citep{protein:cath,protein:cameo,protein:tmscore}. These results test bidirectional learning through one shared bitstream objective. For $80$ generated backbones ($16$ per length, 100--500), one ProteinMPNN redesign and ESMFold refold give mean scTM $.899$ \citep{protein:proteinmpnn,protein:esmfold}. Figure~\ref{fig:protein:multimodal} shows fold similarity across lengths while Figure~\ref{fig:protein:bestgallery} shows the best backbones per length-bucket. We assess backbone recovery after redesign and refolding using scTM  $\geq.9$ ($D_{\mathrm{TM}}$) for overall fold agreement and scRMSD $\leq2$\,\AA{} ($D_{\mathrm{RMSD}}$) for close coordinate agreement. Full metrics and sampling analysis are in Appendices~\ref{app:protein:metrics}--\ref{app:protein:pareto}. 
+\textbf{Task coverage.} Clamping either channel gives inverse or forward folding while leaving both free enables joint generation, without task-specific fine-tuning or multiple sequence aligments as input (Appendix~\ref{app:protein:metrics}). Our evaluations were based on entropic DDIM with $50$ grid points, conditional CFG $5$ and no unconditional guidance. Under these settings, mean recovery is $44.10\%$ on 128 CATH 4.3 validation targets and forward TM is $.554$ on $183$ CAMEO targets \citep{protein:cath,protein:cameo,protein:tmscore}. These results test bidirectional learning through one shared bitstream objective. For $80$ generated backbones ($16$ per length, 100--500), one ProteinMPNN redesign and ESMFold refold give mean scTM $.899$ \citep{protein:proteinmpnn,protein:esmfold}. Figure~\ref{fig:protein:multimodal} shows fold similarity across lengths while Figure~\ref{fig:protein:bestgallery} shows the best backbones per length-bucket. We assess backbone recovery after redesign and refolding using scTM  $\geq.9$ ($D_{\mathrm{TM}}$) for overall fold agreement and scRMSD $\leq2$\,\AA{} ($D_{\mathrm{RMSD}}$) for close coordinate agreement. Full metrics and sampling analysis are in Appendices~\ref{app:protein:metrics} and~\ref{app:protein:pareto}. 
 
-Directly refolding CoBit's own sequences for the same 80 pairs gives mean scTM $.904$, with $D_{\rm TM}=70.0\%$ and $D_{\rm RMSD}=32.5\%$ (Table~\ref{tab:protein:direct}). This supports sequence--structure consistency at the fold level, despite lower coordinate-level success.
+Directly refolding CoBit's own sequences for the same 80 pairs gives mean scTM $.904$, with $D_{\rm TM}=70.0\%$ and $D_{\rm RMSD}=32.5\%$ (Table~\ref{tab:protein:direct}; Appendix~\ref{app:protein:direct}). This supports sequence--structure consistency at the fold level, despite lower coordinate-level success.
 
 
 % \textbf{Learning the joint representation.} Clamping one modality gives forward or inverse folding. Leaving both free gives joint generation. \bruno{add the figure for the overview} show the two conditional directions and the generated-backbone evaluation. Information aboout training, evaluation, and the tokenizer can be found in Appendix~\ref{app:protein:protocol}. 
@@ -45,7 +45,7 @@ Directly refolding CoBit's own sequences for the same 80 pairs gives mean scTM $
     \centering
     \includegraphics[width=.99\linewidth]{figures/protein/protein_pymol_best_grid.pdf}
     \caption{Selected CoBit backbones, rendered with PyMOL \citep{protein:pymol}.
-    Highest scTM at each length among samples with scRMSD $\leq2$\,\AA{};
+    Highest scTM at each displayed length among samples with scRMSD $\leq2$\,\AA{};
     scores use ProteinMPNN/ESMFold. pLDDT is predicted confidence.}
     \label{fig:protein:bestgallery}
 \end{minipage}\par\addvspace{6pt}
@@ -56,7 +56,7 @@ Directly refolding CoBit's own sequences for the same 80 pairs gives mean scTM $
 
 % Protein co-design there requires more than cross-modal semantic alignment because the structure and sequence must be mutually compatible. Cobit addesses this problem by jointly denoising discrete amino0acid and structural codes, with the structural codes being subsequently decoded into continuous backbone coordinates. Structural comparability can be assessed computionally through sequence refolding \citep{protein:jumper, protein:esmfold} whereas thermodynamic stability and biological function require additional computational or even experimental validation \cite{protein:rfdiffusion}, which is beyond the scope of this work. 
 
-\textbf{Bitstream capability versus protein optimisation.} We compare CoBit's bitstream formulation against protein-specific models. Table~\ref{tab:protein:baselines} inserts CoBit into the extensive research done by \citep{protein:simpledesign}. MultiFlow \citep{campbell2024multiflow} leads on the strict criteria with a 21.8M-parameters model due to its explicit geometric learning and redesign-select and refolding-filtered training. On the other hand, CoBit tests the common bit objective with an existing codec and paired-data recipe. Its sequence replay supplies unpaired example unlike MultiFlow's designability distillation and without direct geometric supervision. Appendix~\ref{app:protein:comparison} explains the training differences and MultiFlow's distillation ablation in detail.
+\textbf{Bitstream capability versus protein optimisation.} We compare CoBit's bitstream formulation against protein-specific models. Table~\ref{tab:protein:baselines} places CoBit alongside the models evaluated by \citet{protein:simpledesign}. MultiFlow \citep{campbell2024multiflow} leads on the strict criteria with a 21.8M-parameter model that uses explicit geometric learning and designability distillation. On the other hand, CoBit tests the common bit objective with an existing codec and paired-data recipe. Its sequence replay supplies unpaired examples unlike MultiFlow's designability distillation and without direct geometric supervision. Appendix~\ref{app:protein:comparison} explains the training differences and MultiFlow's distillation ablation in detail.
 
 \par\addvspace{6pt}\noindent
 \begin{minipage}{\linewidth}
@@ -64,8 +64,7 @@ Directly refolding CoBit's own sequences for the same 80 pairs gives mean scTM $
 \centering
 \begin{minipage}[t]{.55\linewidth}
 \vspace{0pt}
-\caption{Backbone designability (\%) with one ProteinMPNN redesign and ESMFold.
-Published baselines: \citet{protein:simpledesign}; G: general bitstream framework; P: protein-specific generator.}
+\caption{Training data and evaluation settings differ across studies. Published baselines: \citet{protein:simpledesign}; G: general bitstream framework; P: protein-specific generator.}
 \label{tab:protein:baselines}
 \label{tab:protein:literaturemain}
 \centering
@@ -104,7 +103,7 @@ ID & Model & Scope & $n$ & $D_{\rm RMSD}$ & $D_{\rm TM}$ \\
 \begin{minipage}[t]{.43\linewidth}
 \vspace{0pt}
 \makeatletter\def\@captype{figure}\makeatother
-\caption{Visual representation of the rates from Table~\ref{tab:protein:baselines}. CoBit captures how a proteins folds overall, but is less accurate on the fine details of its shape.}
+\caption{Visual representation of the rates from Table~\ref{tab:protein:baselines}. CoBit captures how proteins fold overall, but is less accurate on the fine details of its shape defining structural detail.}
 \label{fig:protein:modelmap}
 \centering
 \includegraphics[width=\linewidth]{figures/protein/protein_model_designability_map.pdf}
@@ -112,7 +111,7 @@ ID & Model & Scope & $n$ & $D_{\rm RMSD}$ & $D_{\rm TM}$ \\
 \par\smallskip
 \end{minipage}\par\addvspace{6pt}
 
-A dedicated protein study can test that coupling and stronger supervision while testing scalability for biological tasks such as binder--linker design with laboratory (wet lab) validation. CoBit's stronger fold-level ($D_{\mathrm{TM}}$) than coordinate-level ($D_{\mathrm{RMSD}}$) success indicates that denoising structural bits capture useful protein organization information and that geometric precision can be further leveraged in a dedicated protein-training work, but this is highly dependent, in our case, to protein length and training set availability as shown in Figure~\ref{fig:protein:strict}. The present metrics indicate modeling quality, but establishing biological function requires additional setups and experiments. 
+A dedicated protein study can test that coupling and stronger supervision while testing scalability for biological tasks such as binder--linker design with laboratory (wet lab) validation. CoBit's stronger fold-level ($D_{\mathrm{TM}}$) than coordinate-level ($D_{\mathrm{RMSD}}$) success indicates that denoising structural bits captures useful protein organization information and that geometric precision can be further improved in a dedicated protein-training work, but this is highly dependent, in our case, to protein length and training set availability as shown in Figure~\ref{fig:protein:strict}. The present metrics indicate modeling quality, but establishing biological function requires additional setups and experiments. 
 
 % Under the same training regime, we reach 44.10\% mean amino-avid recovery on CATH 4.3 validation and $.554$ mean forward TM-score \bruno{cite tm-score} on CAMEO 2022 \bruno{cite}, and $0.899$ mean backbone scTM (Table~\ref{tab:protein:headline}). 
 

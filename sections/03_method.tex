@@ -19,7 +19,7 @@ segments of text, speaker and speech codes. Their vocabularies occupy disjoint i
 and fit into a common 18-bit word. MNIST-Sum instead combines raw binary pixels with deterministic
 7-bit text codes, requiring no learned tokenizer. Protein sequence and structure have a natural
 residue-level alignment: we concatenate the five amino-acid bits and thirteen structure-code
-bits at each residue. These are alternative ways of constructing the same binary input.
+bits at each residue.
 
 Following CoBit, we group the stream into fixed-width patches and project each patch into one
 transformer position. A patch can hold a token, several symbols or aligned codes from two
@@ -79,4 +79,4 @@ parallel, optionally with stochastic churn. Conditional sampling can use classif
 \citep{method:cfg}, combining predictions with the observed content present and replaced by a
 null value of $1/2$. Guided steps use two denoiser evaluations; unguided steps use one.
 Final predictions are converted back to codes and decoded with the corresponding modality
-decoder. We train a separate checkpoint for each modality pair.
+decoder.

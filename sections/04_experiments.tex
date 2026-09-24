@@ -5,13 +5,12 @@
 \label{sec:exp:setup}
 
 We train a separate denoiser from scratch for each modality pair and use the same checkpoint for all
-directions reported for that pair. The experiments share the formulation of \S\ref{sec:method}:
+directions reported for that pair. All experiments use CoBit's training and sampling protocol (\S\ref{sec:method}):
 Gaussian corruption of the bitstream, the binary score-matching objective of \eqref{eq:loss}, an
 online entropy-derived schedule, self-conditioning in \texttt{carry} mode and a first-order sampler
-on the resulting grid. They differ in their frozen tokenizers and decoders, sequence layouts,
-backbone sizes, training regimes and inference settings. We report both integration steps and
-network function evaluations (NFE). A conditional sample with classifier-free guidance uses two
-denoiser evaluations per step, whereas unguided joint generation uses one. Evaluation instruments are domain-specific and are described with each experiment.
+on the resulting grid. They differ only in their frozen tokenizers and decoders, sequence layouts, task mixtures,
+backbone sizes, training data and length, and sampler settings. We report both integration steps and
+network function evaluations (NFE). Evaluation instruments are domain-specific and are described with each experiment.
 
 % \begin{table}[t]
 % \centering

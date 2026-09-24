@@ -1,18 +1,32 @@
 \section{Related Work}
 \label{sec:related}
 
-\textbf{Continuous generation of discrete data.} Beyond discrete corruption \citep{austin2021structured,sahoo2024simple}, continuous methods differ in the state they generate. Diffusion-LM \citep{li2022diffusionlm}, continuous categorical diffusion \citep{dieleman2022continuous}, LangFlow \citep{chen2026langflow} and ELF \citep{hu2026elf} generate learned token embeddings and map them back to tokens with a learned readout; Categorical Flow Maps learn a flow map towards the probability simplex and distil it for few-step categorical generation \citep{roos2026categorical}. Analog Bits writes each token as a fixed binary code and diffuses its bits as real values \citep{chen2023analog}; CoBit develops this into a language model with a binary score-matching objective, an analytic per-bit posterior term and a data-derived noise schedule \citep{method:cobit}. Each of these methods models one domain at a time; we retain the binary core and study a common denoising formulation and training objective for multimodal co-generation.
+\textbf{Continuous generation of discrete data.} Beyond discrete corruption \citep{austin2021structured,sahoo2024simple}, continuous methods differ in the state they generate. Diffusion-LM \citep{li2022diffusionlm}, continuous categorical diffusion \citep{dieleman2022continuous}, LangFlow \citep{chen2026langflow} and ELF \citep{hu2026elf} generate learned token embeddings and map them back to tokens with a learned readout; Categorical Flow Maps learn a flow map towards the probability simplex and distil it for few-step categorical generation \citep{roos2026categorical}. Analog Bits writes each token as a fixed binary code and diffuses its bits as real values \citep{chen2023analog}; CoBit develops this into a language model with a binary score-matching objective, an analytic per-bit posterior term and a data-derived noise schedule \citep{method:cobit}. Each targets a single domain; we retain the binary core for multimodal co-generation.
+
+\begin{table}[t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{@{}llllcl@{}}
+\toprule
+Method & Data & Generated state & Objective & Shared I/O & Directions \\
+\midrule
+UniDiffuser & image--text & continuous latents & noise prediction & \xmark & joint, cond., marginal \\
+Show-o & image--text & discrete tokens & AR + masked diffusion & \cmark & cond., mixed-modality \\
+Spirit-LM & speech--text & discrete tokens & autoregressive & \cmark & set by prompting \\
+DPLM-2 & protein & discrete tokens & discrete diffusion & \cmark & joint, cond., marginal \\
+\midrule
+CoBit (ours) & all three$^\dagger$ & fixed binary codes & binary score matching & \cmark & joint, cond. \\
+\bottomrule
+\end{tabular}
+\caption{Representative multimodal generators. Shared I/O: one input layer and one output head serve all
+modalities of a model. $^\dagger$One model per pair, one shared training and sampling protocol.}
+\label{tab:related}
+\end{table}
 
 \textbf{Multimodal generation.} UniDiffuser uses one diffusion transformer with modality-specific
 times, while CoDi composes modality-specific latent diffusion models
-\citep{bao2023unidiffuser,tang2023codi}. MUNI learns a shared stochastic latent with modality-specific encoders and decoders for subset-conditioned and unconditional joint generation \citep{yeo2026muni}. Unified image--text transformers make other compromises:
-Show-o uses different objectives and attention patterns for text and images, SEED-X predicts visual
-features for an image decoder, and LWM autoregressively predicts visual and text tokens
-\citep{image:showo,image:seedx,image:lwm}. Speech systems range from textless autoregressive models
-to text-pretrained interleaved streams and flow-matched acoustic representations
-\citep{audio:audiolm,audio:twist,audio:spirit-lm,audio:moshi,audio:taste,audio:flow-slm}. Protein
-models combine discrete sequence generation with geometric flows, aligned structure tokens or
-masked multi-track prediction \citep{campbell2024multiflow,wang2025dplm2,protein:esm3}. Our claim is narrower than these and concerns the denoiser interface: within each separately trained modality-pair checkpoint, every code uses one input projection, backbone, bitwise head and binary score-matching objective, while frozen modality-specific tokenizers and decoders remain.
+\citep{bao2023unidiffuser,tang2023codi}. MUNI learns a shared stochastic latent with modality-specific encoders and decoders for subset-conditioned and unconditional joint generation \citep{yeo2026muni}. Other systems mix objectives, predict visual features or autoregress over visual tokens for images and text \citep{image:showo,image:seedx,image:lwm}, use textless, text-pretrained or flow-matched speech streams \citep{audio:audiolm,audio:twist,audio:spirit-lm,audio:moshi,audio:taste,audio:flow-slm}, or pair discrete sequence generation with geometric flows, structure tokens or multi-track masking for proteins \citep{campbell2024multiflow,wang2025dplm2,protein:esm3}. Table~\ref{tab:related} compares representative systems. Show-o, Spirit-LM and DPLM-2 already share one embedding table and softmax across modalities, with parameters per token; CoBit shares one input projection and bitwise head over fixed codes and keeps one training and sampling protocol across three domains.
 
 \textbf{Information-based scheduling.} Entropic scheduling allocates steps according to the rate
 at which diffusion destroys information, and related estimators select training noise levels

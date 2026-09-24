@@ -1,17 +1,19 @@
 \begin{abstract}
 
-Multimodal generation requires learning both the structure of individual modalities and the dependencies that make their outputs mutually consistent. Because each modality can ultimately be represented as bits, we ask whether continuous bitstream diffusion (CoBit) can provide a common denoising interface for joint and conditional generation. We extend CoBit from language modeling to paired multimodal generation while retaining modality-specific tokenizers, decoders and layouts. In our model, binary encodings map observations into a joint bitstream, which CoBit learns to generate by reversing Gaussian corruption of continuous bit representations. For each modality combination, we train one denoiser from scratch, with a shared input projection, transformer backbone, bitwise
-prediction head, and binary score-matching objective. One set of weights serves every trained conditional
-direction, with the observed modalities held fixed during denoising, and unconditional
-co-generation of all modalities from noise. A common entropy-derived calibration rule adapts
-training noise levels and sampling steps to the data's estimated information-loss profile. We
+We extend continuous bitstream diffusion (CoBit), originally developed for language modeling, to
+joint and conditional multimodal generation using the same training and sampling protocol. Across
+image--text, speech--text and protein sequence--structure modeling, each model is trained
+separately from scratch and uses one input projection, transformer backbone, bitwise prediction
+head and binary score-matching objective for all of its modalities. A single checkpoint supports
+joint generation and the conditional directions included in training by changing which parts of
+the bitstream are observed. We
 first validate the approach on MNIST-Sum, a controlled image--text task pairing raw binary images
 with equations encoded as text, achieving near-perfect conditional accuracy and high joint
 consistency without learned tokenizers. \ifdefined\toyimageonly
-We then test the same recipe at larger scale on speech--text and protein sequence--structure
+We then apply the same protocol at larger scale to speech--text and protein sequence--structure
 modeling.
 \else
-We then test the same recipe at larger scale on natural image--text, speech--text, and protein
+We then apply the same protocol at larger scale to natural image--text, speech--text, and protein
 sequence--structure modeling. Models trained on CC3M and CC12M achieve zero-shot MS-COCO
 text-to-image FID-30K scores of 18.48 and 16.59 with 20 and 32 denoiser evaluations,
 respectively, while also supporting captioning and joint generation.
@@ -20,8 +22,10 @@ synthesis, recognition, continuation, and unconditional co-generation. Jointly g
 and text achieve 3.5\% word error rate between the generated text and automatic transcriptions of
 the generated speech, alongside a UTMOS speech naturalness score of 3.77. In protein modeling,
 one denoiser performs folding, inverse folding, and joint sequence--structure generation.
-Generated backbones spanning 100--500 residues achieve a mean self-consistency TM-score of 0.899
-after sequence redesign and refolding, with 68.75\% (55/80) scoring at least 0.9, demonstrating
-computational backbone designability. These results establish the applicability of a common
-binary interface and bitstream diffusion to multimodal generation.
+Jointly generated protein sequences and backbones (100--500 residues) reach a mean
+self-consistency TM-score of 0.904 between the generated backbone and the predicted structure of
+the generated sequence, with 70\% (56/80) scoring at least 0.9.
+Together, these results show that a protocol developed for language modeling learns joint
+distributions with substantially different forms of cross-modal dependence, without a new
+objective or sampling procedure for any domain.
 \end{abstract}

@@ -1066,7 +1066,14 @@ Full & 9.97 & --- & ---\\
     \label{fig:audio:speaker}
 \end{figure}
 
-\textbf{Text-to-speech: speaker realization.} We also evaluate the model's ability to realize different voices in text-to-speech transfer, by generating audio for the same 10 text prompts with all 39 speakers of LibriSpeech-PC test-clean. Figure \ref{fig:audio:tts-vc} shows how SpkSim and UTMOS scores are distributed across the different speakers. For some speakers, the BiCodec-global representation translates better than others, with speaker similarities ranging from 0.1 to 0.8; UTMOS values are 
+\textbf{Text-to-speech: speaker realization.} We also evaluate the model's ability to realize different voices in text-to-speech transfer, by generating audio for the same 10 text prompts with all 39 speakers of LibriSpeech-PC test-clean, using CoBit-MLS. Figure \ref{fig:audio:tts-vc} shows how SpkSim and UTMOS scores are distributed across the different speakers. For some speakers, the BiCodec-global representation translates better than others, with speaker similarities ranging from 0.1 to 0.8; UTMOS values further verify samples for all speakers maintain natural sound.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\linewidth]{figures/audio/speaker_tts.png}
+    \caption{(Left) SpkSim and (Right) UTMOS score distributions for text-to-speech for the 39 speakers in LibriSpeech-PC test-clean. For 10 text prompts, we generate audio with CoBit-MLS using held-out speaker tokens from all speakers in the test set. We use NFE=512, $\gamma=0.27$ and gs=5, as selected for standard text-to-speech evaluation.}
+    \label{fig:audio:tts-vc}
+\end{figure}
 
 \subsection{Speech Recognition Error Breakdown} \label{app:audio:asr}
 

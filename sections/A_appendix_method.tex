@@ -8,7 +8,7 @@ objective used in this work.
 \subsection{Continuous bitstream diffusion}
 
 CoBit uses a variance-exploding Gaussian diffusion with, by default,
-$\sigma\in[0.002,80]$ (CoBit-MLS trains with $\sigma_\text{min}=0.01$, data centre $1/2$ and $\sigma_{\mathrm{data}}=1/2$. The analytic posterior
+$\sigma\in[0.002,80]$ (CoBit-MLS trains with $\sigma_\text{min}=0.01$), data centre $1/2$ and $\sigma_{\mathrm{data}}=1/2$. The analytic posterior
 logit of an isolated bit under a uniform prior,
 $(\vx_\sigma-\tfrac12)/\sigma^2$, is clipped to $\pm30$ and added to a learned contextual
 residual. The network therefore concentrates on dependencies between bits rather than relearning
@@ -20,7 +20,7 @@ of $8\times10^5$ examples and 128 log-spaced bins. The training proposal and sam
 $q(\sigma)\propto g(\sigma;c,n)\hat h(\sigma)^{1/2}$, where
 $g(\sigma;c,n)=\sigma^n/(\sigma^n+c^n)$ with $c=0.1$ and $n=3$. Training begins with the EDM
 log-normal proposal ($P_{\mathrm{mean}}=-1.2$, $P_{\mathrm{std}}=1.2$), interpolates to $q$ over
-steps $4$--$5\times10^4$ by default (CoBit-LibriTTS warms up over $1-1.3\times10^4$ steps), and refreshes the estimate every $2\times10^3$ steps.
+steps $4$--$5\times10^4$ by default (CoBit-LibriTTS warms up over $1$--$1.3\times10^4$ steps), and refreshes the estimate every $2\times10^3$ steps.
 
 For self-conditioning, the denoiser receives a second input $\hat\vx_0$. With probability
 $p_{\mathrm{sc}}=0.5$, a detached no-gradient pass supplies this estimate during training;

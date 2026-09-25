@@ -13,12 +13,17 @@ represented by deterministic 7-bit codes, four per 28-bit position. The sequence
 positions of 28 bits (3 text, 112 image and 6 markers; 3,388 bits in total). Neither modality uses a learned tokenizer.
 
 \textbf{Training and evaluation.} The $12{\times}512$ denoiser (63.0M parameters) trains for 500K
-steps with the shared diffusion objective, entropy controller, self-conditioning and task
-mixture, and receives only the flattened sequence and its 1-D position. The positional settings
+steps with the shared diffusion objective, entropy controller and self-conditioning, on a task
+mixture of 35\% text$\rightarrow$image, 35\% image$\rightarrow$text and 30\% joint generation, and receives
+only the flattened sequence and its 1-D position. The positional settings
 are those of the speech--text models, with four local Fourier features and an intra-patch period
 of $P-1$; there is no segment embedding.
-Evaluation uses EMA weights, 256 steps and $n{=}4{,}096$ independently sampled examples per
-direction and split. Confidence intervals are 95\% Wilson intervals.
+Evaluation uses EMA weights and $n{=}4{,}096$ independently sampled examples per direction and
+split. All directions use 256 integration steps of the entropy-derived DDIM sampler with carry
+self-conditioning. Image$\rightarrow$text and text$\rightarrow$image use guidance scale 2, so each step evaluates
+the denoiser twice (512 NFE); joint generation is unguided. Stochastic churn is $\gamma{=}0.175$ for
+image$\rightarrow$text and joint generation and 0 for text$\rightarrow$image. Confidence intervals are 95\% Wilson
+intervals.
 
 \subsection{Results, calibration and error decomposition}
 
@@ -51,13 +56,14 @@ that always answers the most common sum scores 6.52\% on seen tuples and 7.80\% 
 tuples.
 
 \textbf{Text$\rightarrow$image} and the image half of joint generation are read by one fixed
-quadrant classifier, which is correct on 99.99\% of generated quadrants. Its ceiling depends on
-which pool of real digits it is shown: it identifies all four digits in 96.09\% of composites
-built from the MNIST test pool, from which the validation and held-out splits are drawn, and in
-99.78\% of composites built from the train pool it was itself fitted on. Generated digits
-imitate the train pool, so 99.78\% is the relevant ceiling; read against the 96.09\% figure the
-model would appear to exceed the instrument, which is meaningless. These are reported as
-calibrations rather than used to normalise the generation score.
+quadrant classifier, which reads the requested digit in 99.99\% of generated quadrants. As a
+reference for the instrument itself, it identifies all four digits in 96.09\% (validation) and
+96.80\% (held-out) of real composites built from the MNIST test pool, from which both splits are
+drawn, and in 99.78\% of composites built from the train pool it was fitted on. These figures are
+not upper bounds on the generation scores: generated digits imitate the train pool and are often
+more prototypical than real handwriting, so a generation score can exceed them, as
+text$\rightarrow$image does (99.95\%). We report them as calibrations and do not use them to
+normalise the generation score.
 
 \textbf{Joint co-generation} samples image and text from noise in one trajectory. Of the 4,096
 pairs, 100.00\% have a well-formed equation, 99.71\% name the four digits that the classifier

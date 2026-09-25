@@ -1,26 +1,3 @@
 \begin{abstract}
-
-We extend continuous bitstream diffusion (CoBit), originally developed for language modeling, to
-joint and conditional multimodal generation using the same training and sampling protocol. Across
-image--text, speech--text and protein sequence--structure modeling, each model is trained
-separately from scratch and uses one input projection, transformer backbone, bitwise prediction
-head and binary score-matching objective for all of its modalities. A single checkpoint supports
-joint generation and the conditional directions included in training by changing which parts of
-the bitstream are observed. We
-first validate the approach on MNIST-Sum, a controlled image--text task pairing raw binary images
-with equations encoded as text, achieving near-perfect conditional accuracy and high joint
-consistency without learned tokenizers. \ifdefined\toyimageonly
-We then apply the same protocol at larger scale to speech--text and protein sequence--structure
-modeling.
-\else
-We then apply the same protocol at larger scale to natural image--text, speech--text, and protein
-sequence--structure modeling. Models trained on CC3M and CC12M achieve zero-shot MS-COCO
-text-to-image FID-30K scores of 18.48 and 16.59 with 20 and 32 denoiser evaluations,
-respectively, while also supporting captioning and joint generation.
-\fi Trained without text pretraining, a single speech--text model performs speech
-synthesis, recognition, continuation, and unconditional co-generation. Jointly generated speech
-and text achieve 3.5\% word error rate between the generated text and automatic transcriptions of
-the generated speech, alongside generative perplexity of 133.3. In protein modeling, a single CoBit checkpoint supports forward folding, inverse folding, and joint sequence--structure generation. Across lengths of 100--500 residues, 75\% of evaluated backbones retained their overall fold after sequence redesign and computational refolding, achieving a self-consistency TM-score of at least $0.9$. Together, these results show that a protocol developed for language modeling learns joint
-distributions with substantially different forms of cross-modal dependence, without a new
-objective or sampling procedure for any domain.
+We show that continuous bitstream diffusion (CoBit), originally developed for language modeling, provides a unified framework for joint and conditional multimodal generation using the same training and sampling protocol. Across image--text, speech--text and protein sequence--structure modeling, models are trained separately from scratch, but each uses a single input projection, transformer backbone, bitwise prediction head and binary score-matching objective shared across its modalities. Within each setting, a single checkpoint supports joint generation and the conditional directions included in training by changing which parts of the bitstream are observed. We first validate the approach on MNIST-Sum, a controlled image--text task pairing raw binary images with equations encoded as text, achieving near-perfect conditional accuracy and high joint consistency without learned tokenizers. We then apply the same protocol at larger scale to speech--text and protein sequence--structure modeling. Trained without text pretraining, a single speech--text model performs speech synthesis, recognition, continuation, and unconditional co-generation. Jointly generated speech and text achieve 3.5\% word error rate between the generated text and automatic transcriptions of the generated speech. In protein modeling, a single CoBit checkpoint supports forward folding, inverse folding, and joint sequence--structure generation. Among evaluated backbones spanning 100--500 residues, 75\% retain their overall fold after sequence redesign and computational refolding, achieving a self-consistency TM-score $\geq\,0.9$. Together, these results show that CoBit provides a common generative framework for substantially different modalities and forms of cross-modal dependence, without introducing a domain-specific objective or sampling procedure.
 \end{abstract}

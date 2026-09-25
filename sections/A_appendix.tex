@@ -725,7 +725,7 @@ Moshi \citep{audio:moshi} & 7B & 4.7 & --- & --- & --- & 5.7 &  --- \\
 \emph{StableCodec (reconstruction)} & --- & --- & --- & 4.3 & 0.52 & --- & --- \\
 \bottomrule
 \end{tabular}
-\caption{Text-to-speech and Speech-to-text performance on LibriSpeech-PC. For text-to-speech, evaluation is conducted on the test-clean partition. For each speaker in the dataset, one sample was held out to extract speaker features. Speech-to-text evaluation is conducted on test-clean and test-other partitions separately. As in Table \ref{tab:audio:headline}, NFE$=$512 for both CoBit-LibriTTS and CoBit-MLS.}
+\caption{Text-to-speech and Speech-to-text performance on LibriSpeech-PC. For text-to-speech, evaluation is conducted on the test-clean partition. For each speaker in the dataset, one sample was held out to extract speaker features. Speech-to-text evaluation is conducted on test-clean and test-other partitions separately. As in Table \ref{tab:audio:headline}, Steps$=$512 for both CoBit-LibriTTS and CoBit-MLS.}
 \label{tab:audio:cross-modal}
 \end{table}
 
@@ -759,7 +759,7 @@ SpiritLM-Expressive & 7B & 3.17 & 6{,}293.6 & 16.9 & 0.08 & 153.2 & 1.62 \\
 \bottomrule
 \end{tabular}%
 }
-\caption{Continuation-based evaluation for text-audio experiments against published SLMs. All figures are evaluated using publicly available checkpoints. GPT-4o refers to LLM-as-a-Judge score with the prompt shown in Table \ref{tab:audio:llm-judge}. We use NFE$=$512 for both CoBit models. The last row reports the tokenizer performance ceiling.}
+\caption{Continuation-based evaluation for text-audio experiments against published SLMs. All figures are evaluated using publicly available checkpoints. GPT-4o refers to LLM-as-a-Judge score with the prompt shown in Table \ref{tab:audio:llm-judge}. We use Steps$=$512 for both CoBit models. The last row reports the tokenizer performance ceiling.}
 \label{tab:audio:continuation}
 \end{table}
 
@@ -793,7 +793,7 @@ SpiritLM-Expressive & 72 & 54 & 56 & 58.5 & 55.5 & 54.5 & 58.41 \\
 \bottomrule
 \end{tabular}%
 }
-\caption{Speech continuation performance across the consistency tasks of the SALMON benchmark for generation-based evaluation. Each model generates a continuation for each prompt, and accuracy scores are computed for each task by comparing the cosine similarity of the generated continuation with the positive and negative examples. Different embedding models are used for each task, specified in Appendix \ref{app:audio:protocol}. NFE$=$512 is used for both CoBit-LibriTTS and CoBit-MLS, with the operating points selected for speech continuation.}
+\caption{Speech continuation performance across the consistency tasks of the SALMON benchmark for generation-based evaluation. Each model generates a continuation for each prompt, and accuracy scores are computed for each task by comparing the cosine similarity of the generated continuation with the positive and negative examples. Different embedding models are used for each task, specified in Appendix \ref{app:audio:protocol}. Steps$=$512 is used for both CoBit-LibriTTS and CoBit-MLS, with the operating points selected for speech continuation.}
 \label{tab:audio:salmon}
 \end{table}
 
@@ -832,7 +832,7 @@ SpiritLM-Expressive & 72 & 54 & 56 & 58.5 & 55.5 & 54.5 & 58.41 \\
 64 & 27.8 & 18.5 & 3.12 & 1{,}267 & 313.3 \\
 128 & 9.8 & 6.1 & 3.61 & 397.1 & 207.8 \\
 256 & 4.8 & 2.6 & 3.75 & 250.4 & 147.2 \\
-512 & \textbf{3.8} & \textbf{2.4} & \textbf{3.78} & \textbf{247.2} & \textbf{122.5} \\
+512 & \textbf{3.5} & \textbf{1.8} & \textbf{3.77} & \textbf{252.4} & \textbf{133.3} \\
 \bottomrule
 \end{tabular}
 \caption{CoBit-MLS joint generation performance at different step counts, computed by generating $1,024$ samples. All rows inject stochasticity at $\gamma=0.175$. Unconditional generation does not use classifier-free guidance, so each integration step corresponds to a single function evaluation.}
@@ -857,7 +857,7 @@ SpiritLM-Expressive & 72 & 54 & 56 & 58.5 & 55.5 & 54.5 & 58.41 \\
 48 & 5.5 & \textbf{3.9} & 4.02 & \textbf{0.27} & 8.3 & 22.9 \\
 64 & 6 & 4.1 & \textbf{4.03} & \textbf{0.27} & 8.3 & 22.5 \\
 128 & 6.3 & 4.1 & \textbf{4.03} & \textbf{0.27} & \textbf{8.1} & 22.3 \\
-256 & \textbf{5.3} & 5.2 & \textbf{4.03} & \textbf{0.27} & 8.2 & 22.4 \\
+256 & 5.4 & 5.2 & \textbf{4.03} & \textbf{0.27} & 8.2 & 22.4 \\
 512 & \textbf{5.3} & 4.1 & 4.01 & 0.26 & 8.2 & \textbf{22.2} \\
 \bottomrule
 \end{tabular}
@@ -950,11 +950,11 @@ joint & 4.8 & 2.6 & 3.75 & --- & --- & 250.4 / 147.2 & --- \\
 \toprule
 \textbf{gs} & \textbf{UTMOS}$\uparrow$ & \textbf{FSD-wlm}$\downarrow$ & \textbf{FSD-e2v}$\downarrow$ & \textbf{SpkSim}$\uparrow$ & \textbf{GenPPL-Speech}$\downarrow$ & \textbf{SALMON}$\uparrow$ \\
 \midrule
-1 & 3.88 & \textbf{1{,}953.7} & \textbf{5.1} & 0.33 & 172.1 & 83.41\\
-2 & \textbf{3.94} & 2{,}054.1 & 7.8 & 0.34 & 116 & \textbf{85}\\ 
+1 & 3.88 & \textbf{1{,}953.7} & \textbf{5.1} & 0.33 & 172.1 & 83.41 \\
+2 & \textbf{3.94} & 2{,}054.1 & 7.8 & 0.34 & 116 & \textbf{85} \\ 
 3 & 3.92 & 2{,}073.1 & 9.1 & 0.34 & 116 & \textbf{85} \\
 4 & 3.92 & 2{,}140.3 & 10 & 0.34 & 96.1 & 84.83 \\ 
-5 & 3.92 & 2{,}108.4 & 10.6 & 0.34 & \textbf{94.7} & 84.41\\
+5 & 3.91 & 2{,}108.4 & 10.6 & 0.34 & \textbf{94.7} & 84.41 \\
 \bottomrule
 \end{tabular}
 \caption{CoBit-MLS speech continuation performance at different guidance scales. All rows use 256 integration steps (256 function evaluations at gs=1; 512 for gs $>$ 1) and stochasticity at $\gamma=0.175$.}
@@ -978,7 +978,7 @@ joint & 4.8 & 2.6 & 3.75 & --- & --- & 250.4 / 147.2 & --- \\
 4 & 792.7 & 1{,}347.6 & 2{,}140.3 & 0.36 & 9.65 & 10.01 \\
 5 & 777.2 & 1{,}331.3 & 2{,}108.5 & 0.37 & 10.24 & 10.61 \\
 \midrule
-\emph{StableCodec (reconstruction)} & 238.5 & 953.1 & 1{,}119.6 & 0.07 & 1.19 & 1.26 \\
+\emph{StableCodec (reconstruction)} & 238.5 & 953.1 & 1{,}191.6 & 0.07 & 1.19 & 1.26 \\
 \bottomrule
 \end{tabular}%
 }
@@ -988,7 +988,7 @@ joint & 4.8 & 2.6 & 3.75 & --- & --- & 250.4 / 147.2 & --- \\
 
 \subsection{Effect of Model and Corpus Scale} \label{app:audio:scale}
 
-Increasing the model scale and adding MLS-English to the training set improves performance across all tasks and metrics. The only exception is FSD-wlm, where CoBit-LibriTTS benefits from its training set being a subset of the LibriSpeech-PC training partition, and is threrefore more similar to the reference population. MLS-English is much larger (45k hours versus 580), preserves reading-style audio and is part of StableCodec's training corpus as well, reducing the risk of distributional shifts during tokenization. CoBit-MLS is better at aligning text and speech sequences during co-generation, yet CoBit-LibriTTS achieves the best error rates when given the text as input. The performance gap is small for SALMON accuracy, as the smaller model can still capture acoustic properties of the speech prompt. Despite its linguistic fluency and frame-level realism, the main limitation of CoBit-LibriTTS is producing natural-sounding audio, observed across all speech-emitting tasks in terms of UTMOS. In generative perplexity and audio-based metrics for speech continuation, CoBit-LibriTTS even outperforms the 395M parameter Flow-SLM version. For LLM-as-a-Judge, however, CoBit-LibriTTS produces almost exclusively irrelevant continuations.  In SALMON, similar to CoBit-MLS, it scores right between multimodal autoregressive SLMs and speech-only models, except its average accuracy is lower than that of Flow-SLM-S.
+Increasing the model scale and adding MLS-English to the training set improves performance across all tasks and metrics. The only exception is FSD-wlm, where CoBit-LibriTTS benefits from its training set being a subset of the LibriSpeech-PC training partition, and is threrefore more similar to the reference population. MLS-English is much larger (45k hours versus 580), preserves reading-style audio and is part of StableCodec's training corpus as well, reducing the risk of distributional shifts during tokenization. CoBit-MLS is better at aligning text and speech sequences during co-generation, yet CoBit-LibriTTS achieves its best error rates when given the text as input. The performance gap is small for SALMON accuracy, as the smaller model can still capture acoustic properties of the speech prompt. Despite its linguistic fluency and frame-level realism, the main limitation of CoBit-LibriTTS is producing natural-sounding audio, observed across all speech-emitting tasks in terms of UTMOS. In generative perplexity, UTMOS, FSD-wlm and SpkSim for speech continuation, CoBit-LibriTTS matches or even outperforms the 395M parameter Flow-SLM version. For LLM-as-a-Judge, however, CoBit-LibriTTS produces almost exclusively irrelevant continuations.  In SALMON, similar to CoBit-MLS, it scores right between multimodal autoregressive SLMs and speech-only models, except its average accuracy is lower than that of Flow-SLM-S.
 
 \subsection{Speech tokenization and Speaker Features} \label{app:audio:speech-tokenization}
 
@@ -1046,7 +1046,7 @@ Shuffled & 0.26 ($\pm$0.03) & 10.58 ($\pm$0.03) & 10.99 ($\pm$0.03) & 0.222 ($\p
 \textbf{Model} & \textbf{Entropy(bits)} & \textbf{Cosine Similarity (sampled)} & \textbf{Cosine Similarity (realized)} \\
 \midrule
 \multicolumn{4}{l}{\emph{CoBit (ours; from scratch, no pretrained components)}} \\
-CoBit-LibriTTS & --- & --- & 0.439 \\ 8.64 & 0.27 & 0.295 \\
+CoBit-LibriTTS & --- & --- & 0.439 \\
 CoBit-MLS & 8.64 & 0.27 & 0.295 \\
 \midrule
 \multicolumn{4}{l}{\emph{Autoregressive System (SmolLM+Speaker $\rightarrow$ SparkTTS)}} \\
@@ -1073,7 +1073,7 @@ Full & 9.97 & --- & ---\\
 \begin{figure}[ht]
     \centering
     \includegraphics[width=\linewidth]{figures/audio/speaker_tts.png}
-    \caption{(Left) SpkSim and (Right) UTMOS score distributions for text-to-speech for the 39 speakers in LibriSpeech-PC test-clean. For 10 text prompts, we generate audio with CoBit-MLS using held-out speaker tokens from all speakers in the test set. We use NFE=512, $\gamma=0.27$ and gs=5, as selected for standard text-to-speech evaluation.}
+    \caption{(Left) SpkSim and (Right) UTMOS score distributions for text-to-speech for the 39 speakers in LibriSpeech-PC test-clean. For 10 text prompts, we generate audio with CoBit-MLS using held-out speaker tokens from all speakers in the test set. We use Steps=512, $\gamma=0.27$ and gs=5, as selected for standard text-to-speech evaluation.}
     \label{fig:audio:tts-vc}
 \end{figure}
 
